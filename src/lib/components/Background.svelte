@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { browser } from '$app/environment';
   import { SvelteMap } from 'svelte/reactivity';
 
   // ─── Types ────────────────────────────────────────────────────────────────
@@ -10,10 +11,9 @@
     tail: string;
   };
 
-  // Each character slot tracks its own swap timer for staggered flipping
   interface CharSlot {
     char: string;
-    swapCountdown: number; // frames until next swap
+    swapCountdown: number;
   }
 
   interface Stream {
@@ -27,16 +27,20 @@
     depth: number;
     theme: ColorTheme;
     charSet: string;
-    // Glitch: occasionally a stream shifts its x for 1-3 frames
     glitchTimer: number;
     glitchOffsetX: number;
-    // Flicker driven by a simple sine
     flickerPhase: number;
     flickerSpeed: number;
   }
 
-  // ─── Canvas state ─────────────────────────────────────────────────────────
+  // ─── Props ────────────────────────────────────────────────────────────────
 
+  /** Set true if you want the canvas to cover the viewport instead of its container */
+  let { fixed = false }: { fixed?: boolean } = $props();
+
+  // ─── State ────────────────────────────────────────────────────────────────
+
+  let wrapper: HTMLDivElement;
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
   let animId: number;
@@ -44,6 +48,15 @@
   let height = 0;
   let frame = 0;
   let isMobile = false;
+  let streams: Stream[] = [];
+
+  // Font string cache — avoids repeated string allocations
+  const fontCache = new SvelteMap<number, string>();
+  function getFont(size: number): string {
+    let f = fontCache.get(size);
+    if (!f) { f = `${size}px monospace`; fontCache.set(size, f); }
+    return f;
+  }
 
   // ─── Character sets ───────────────────────────────────────────────────────
 
@@ -55,7 +68,6 @@
     symbols:  '!@#$%^&*<>{}[]|/\\~`±§€£¥₿∞∑∆√≈≠≤≥',
   };
 
-  // Cyberpunk-biased pools: more symbols/digits/latin, less pure CJK
   const POOLS: string[] = [
     CHAR_SETS.japanese + CHAR_SETS.digits + CHAR_SETS.symbols,
     CHAR_SETS.digits   + CHAR_SETS.symbols + CHAR_SETS.latin,
@@ -65,32 +77,18 @@
     CHAR_SETS.latin    + CHAR_SETS.symbols,
   ];
 
-  // ─── Color themes — narrowed to hard cyberpunk palette ───────────────────
-  // No warm ambers or mints; only neon cyan, magenta, green, purple, cold white
+  // ─── Color themes ─────────────────────────────────────────────────────────
 
   const THEMES: ColorTheme[] = [
-    { head: '#e8ffff', body: '#00e5ff', tail: '#001c22' }, // cold cyan
-    { head: '#ffffff', body: '#00c8ff', tail: '#001020' }, // ice blue
-    { head: '#ffe8ff', body: '#ff006e', tail: '#1a0010' }, // hot magenta
-    { head: '#f0ffe8', body: '#39ff14', tail: '#001a00' }, // acid green
-    { head: '#f0e8ff', body: '#bf00ff', tail: '#120018' }, // deep purple
-    { head: '#ffffff', body: '#00ff9f', tail: '#001a10' }, // terminal green
-    { head: '#ffeeff', body: '#ff44cc', tail: '#200015' }, // pink neon
-    { head: '#e8eeff', body: '#4488ff', tail: '#000c20' }, // electric blue
+    { head: '#e8ffff', body: '#00e5ff', tail: '#001c22' },
+    { head: '#ffffff', body: '#00c8ff', tail: '#001020' },
+    { head: '#ffe8ff', body: '#ff006e', tail: '#1a0010' },
+    { head: '#f0ffe8', body: '#39ff14', tail: '#001a00' },
+    { head: '#f0e8ff', body: '#bf00ff', tail: '#120018' },
+    { head: '#ffffff', body: '#00ff9f', tail: '#001a10' },
+    { head: '#ffeeff', body: '#ff44cc', tail: '#200015' },
+    { head: '#e8eeff', body: '#4488ff', tail: '#000c20' },
   ];
-
-  // ─── Stream pool ──────────────────────────────────────────────────────────
-
-  let streams: Stream[] = [];
-
-  // ─── Font cache ───────────────────────────────────────────────────────────
-
-  const FONT_CACHE = new SvelteMap<number, string>();
-  function getFont(size: number): string {
-    let f = FONT_CACHE.get(size);
-    if (!f) { f = `${size}px monospace`; FONT_CACHE.set(size, f); }
-    return f;
-  }
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
 
@@ -106,14 +104,12 @@
     return pool[Math.floor(Math.random() * pool.length)];
   }
 
-  // Staggered swap countdown: chars near the head swap faster (more "alive")
   function swapCountdown(i: number, len: number): number {
     const t = i / (len - 1 || 1);
-    // head chars: swap every 4-8 frames; tail chars: swap every 20-60 frames
     return Math.floor(rand(4 + t * 16, 8 + t * 52));
   }
 
-  // ─── Factory ──────────────────────────────────────────────────────────────
+  // ─── Stream factory ───────────────────────────────────────────────────────
 
   function createStream(xHint?: number): Stream {
     const depth       = Math.random();
@@ -130,33 +126,42 @@
     }));
 
     return {
-      x:            xHint !== undefined ? xHint : Math.random() * width,
-      y:            0,
+      x:             xHint !== undefined ? xHint : Math.random() * width,
+      y:             0,
       slots,
       speed,
       fontSize,
       charSpacing,
       alpha,
       depth,
-      theme:        randItem(THEMES),
+      theme:         randItem(THEMES),
       charSet,
-      glitchTimer:  0,
+      glitchTimer:   0,
       glitchOffsetX: 0,
-      flickerPhase: Math.random() * Math.PI * 2,
-      flickerSpeed: rand(0.015, 0.04),
+      flickerPhase:  Math.random() * Math.PI * 2,
+      flickerSpeed:  rand(0.015, 0.04),
     };
   }
 
-  // ─── Init ─────────────────────────────────────────────────────────────────
+  // ─── Resize & init ────────────────────────────────────────────────────────
 
   function initAll(): void {
-    width    = canvas.width  = window.innerWidth;
-    height   = canvas.height = window.innerHeight;
+    // Use the wrapper element's size, not window
+    const rect = wrapper.getBoundingClientRect();
+    width  = Math.round(rect.width)  || wrapper.offsetWidth;
+    height = Math.round(rect.height) || wrapper.offsetHeight;
+
+    // Sync canvas resolution to real pixels (sharp on HiDPI)
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width  = width  * dpr;
+    canvas.height = height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
     isMobile = width < 768;
-    FONT_CACHE.clear();
+    fontCache.clear();
 
     const density = isMobile ? 22 : 16;
-    const count   = Math.floor(width / density);
+    const count   = Math.max(1, Math.floor(width / density));
 
     streams = Array.from({ length: count }, (_, i) => {
       const s = createStream((i / count) * width + Math.random() * (width / count));
@@ -168,6 +173,7 @@
   // ─── Draw ─────────────────────────────────────────────────────────────────
 
   function drawStreams(): void {
+    // Re-sort by depth every 30 frames (cheap painter's-algorithm depth order)
     if (frame % 30 === 0) streams.sort((a, b) => a.depth - b.depth);
 
     let currentFont = '';
@@ -176,70 +182,58 @@
       const s = streams[si];
       const streamTop = s.y - s.slots.length * s.charSpacing;
 
-      // Advance + respawn even when off-screen
       s.y += s.speed;
+
+      // Respawn when fully off the bottom
       if (streamTop > height) {
         const ns = createStream();
         ns.y = -ns.slots.length * ns.charSpacing;
         streams[si] = ns;
         continue;
       }
+
+      // Skip if not yet in view
       if (s.y < -s.charSpacing) continue;
 
-      // ── Staggered char swap ───────────────────────────────────────────────
+      // Staggered char swap
       for (let i = 0; i < s.slots.length; i++) {
         const slot = s.slots[i];
-        slot.swapCountdown--;
-        if (slot.swapCountdown <= 0) {
+        if (--slot.swapCountdown <= 0) {
           slot.char = randChar(s.charSet);
           slot.swapCountdown = swapCountdown(i, s.slots.length);
         }
       }
 
-      // ── Stream-level glitch: rare horizontal jitter ───────────────────────
+      // Rare horizontal glitch jitter
       if (s.glitchTimer > 0) {
-        s.glitchTimer--;
-        if (s.glitchTimer === 0) s.glitchOffsetX = 0;
+        if (--s.glitchTimer === 0) s.glitchOffsetX = 0;
       } else if (s.depth > 0.5 && Math.random() < 0.0008) {
         s.glitchTimer    = Math.floor(rand(1, 4));
         s.glitchOffsetX  = rand(-6, 6);
       }
       const drawX = s.x + s.glitchOffsetX;
 
-      // ── Font switch ───────────────────────────────────────────────────────
       const font = getFont(s.fontSize);
       if (font !== currentFont) { ctx.font = font; currentFont = font; }
 
-      // Subtle per-stream flicker (sine, no shadow)
-      const flicker = 0.88 + Math.sin(frame * s.flickerSpeed + s.flickerPhase) * 0.12;
+      const flicker   = 0.88 + Math.sin(frame * s.flickerSpeed + s.flickerPhase) * 0.12;
       const baseAlpha = s.alpha * flicker;
-      const count = s.slots.length;
+      const count     = s.slots.length;
 
-      // ── Per-character rendering ───────────────────────────────────────────
       for (let i = 0; i < count; i++) {
         const yy = s.y - i * s.charSpacing;
         if (yy < -s.charSpacing || yy > height + s.charSpacing) continue;
 
-        const t = i / (count - 1 || 1); // 0 = head, 1 = tail
-
-        // Alpha: sharp falloff — bright head, near-zero tail
-        // Using a power curve gives a harder, more "digital" drop
+        const t         = i / (count - 1 || 1);
         const charAlpha = baseAlpha * Math.pow(1 - t, 1.6);
         if (charAlpha < 0.01) continue;
 
         ctx.globalAlpha = charAlpha;
-
-        if (i === 0) {
-          // Head: near-white, NO shadow (glow replaced by bright fill only)
-          ctx.fillStyle = s.theme.head;
-        } else if (t < 0.35) {
-          // Upper body: full accent color
-          ctx.fillStyle = s.theme.body;
-        } else {
-          // Lower body → tail: linearly blend body→tail based on t
-          // Cheap hex-string-free approach: just pick tail color beyond 0.65
-          ctx.fillStyle = t < 0.65 ? s.theme.body : s.theme.tail;
-        }
+        ctx.fillStyle   = i === 0
+          ? s.theme.head
+          : t < 0.35
+            ? s.theme.body
+            : t < 0.65 ? s.theme.body : s.theme.tail;
 
         ctx.fillText(s.slots[i].char, drawX, yy);
       }
@@ -250,8 +244,11 @@
 
   // ─── Main loop ────────────────────────────────────────────────────────────
 
+  let running = true;
+
   function draw(): void {
-    // Slightly more opaque trail → sharper, less blurry feel = more cyberpunk
+    if (!running) return;
+
     ctx.fillStyle   = '#020408';
     ctx.globalAlpha = 0.22;
     ctx.fillRect(0, 0, width, height);
@@ -270,35 +267,71 @@
     initAll();
     draw();
 
+    // ResizeObserver watches the wrapper — works for any container, not just window
     let resizeTimer: ReturnType<typeof setTimeout>;
-    const onResize = (): void => {
+    const ro = new ResizeObserver(() => {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(initAll, 150);
+    });
+    ro.observe(wrapper);
+
+    // Page visibility: pause animation when tab is hidden
+    const onVisibility = () => {
+      if (document.hidden) {
+        running = false;
+        cancelAnimationFrame(animId);
+      } else {
+        running = true;
+        draw();
+      }
     };
-    window.addEventListener('resize', onResize);
+    document.addEventListener('visibilitychange', onVisibility);
+
     return () => {
-      window.removeEventListener('resize', onResize);
+      ro.disconnect();
       clearTimeout(resizeTimer);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   });
 
   onDestroy(() => {
-    if (animId) cancelAnimationFrame(animId);
+    if (!browser) return;
+    running = false;
+    cancelAnimationFrame(animId);
   });
 </script>
 
-<canvas bind:this={canvas}></canvas>
+<!--
+  Wrapper fills its parent. Make sure the parent has explicit dimensions
+  (e.g. height: 100vh, or a fixed height). For full-page use set fixed={true}.
+-->
+<div bind:this={wrapper} class="bg-wrapper" class:fixed>
+  <canvas bind:this={canvas}></canvas>
+</div>
 
 <style>
+  .bg-wrapper {
+    /* Fill whatever container this lives in */
+    display: block;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: #020408;
+    /* Hint to the compositor to keep this on its own layer */
+    will-change: transform;
+    z-index: 0;
+  }
+
+  /* Optional: cover the full viewport instead */
+  .bg-wrapper.fixed {
+    position: fixed;
+  }
+
   canvas {
     display: block;
-    position: fixed;
-    inset: 0;
+    /* CSS size = container size; actual resolution set via JS (HiDPI-aware) */
     width: 100%;
     height: 100%;
-    background: #020408;
-    z-index: 0;
-    pointer-events: none;
-    will-change: transform;
   }
 </style>

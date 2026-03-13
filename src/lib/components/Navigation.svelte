@@ -19,19 +19,8 @@
 	}
 </script>
 
-<svelte:head>
-	<!-- Cyberpunk fonts: Orbitron (headers/logo) + Share Tech Mono (menu) + Rajdhani (body) -->
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-	<link
-		href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap"
-		rel="stylesheet"
-	/>
-</svelte:head>
-
+<!-- MARKUP -->
 <header class="header" class:menu-open={isMobileMenuOpen}>
-	<!-- Animated border bottom -->
-	<div class="border-line" aria-hidden="true"></div>
 
 	<!-- Scanline overlay -->
 	<div class="scanlines" aria-hidden="true"></div>
@@ -40,14 +29,16 @@
 		<!-- ── Logo ─────────────────────────────────────────────── -->
 		<a href="/" class="logo" aria-label="Home">
             <img src="src\lib\assets\images\logo-light.svg" class="image" alt="Logo">
-			<span class="logo-bracket" aria-hidden="true">[</span>
-			<span class="logo-name">
-				Oleksandr
-				<span class="logo-sep" aria-hidden="true">//</span>
-				Dorokhov
+			<span class="logo-text-wrap">
+				<span class="logo-bracket" aria-hidden="true">[</span>
+				<span class="logo-name">
+					Oleksandr
+					<span class="logo-sep" aria-hidden="true">//</span>
+					Dorokhov
+				</span>
+				<span class="logo-bracket" aria-hidden="true">]</span>
+				<span class="logo-cursor" aria-hidden="true">_</span>
 			</span>
-			<span class="logo-bracket" aria-hidden="true">]</span>
-			<span class="logo-cursor" aria-hidden="true">_</span>
 		</a>
 
 		<!-- ── Desktop Menu ──────────────────────────────────────── -->
@@ -71,17 +62,6 @@
 
 		<!-- ── Actions ───────────────────────────────────────────── -->
 		<div class="actions">
-			<a href="#contact" class="cta-btn" aria-label="Contact me">
-				<span class="cta-inner">
-					<span class="cta-icon" aria-hidden="true">
-						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6.29 6.29l.94-.94a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-						</svg>
-					</span>
-					CONTACT_ME
-				</span>
-				<span class="cta-glitch" aria-hidden="true">CONTACT_ME</span>
-			</a>
 
 			<!-- Burger -->
 			<button
@@ -98,11 +78,13 @@
 		</div>
 	</nav>
 
+	<!-- Animated border bottom -->
+	<div class="border-line" aria-hidden="true"></div>
+
 	<!-- ── Mobile Drawer ─────────────────────────────────────────── -->
 	{#if isMobileMenuOpen}
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
-		<div class="mobile-overlay" on:click={closeMobileMenu} aria-hidden="true"></div>
 		<div class="mobile-menu" role="dialog" aria-label="Mobile navigation">
 			<div class="mobile-header" aria-hidden="true">
 				<span class="mobile-tag">&lt;nav&gt;</span>
@@ -141,7 +123,7 @@
 	/* ─── CSS Variables ───────────────────────────────────────────────── */
 	:root {
 		--cp-bg:          #06060a;
-		--cp-bg-glass:    rgba(6, 6, 10, 0.92);
+		--cp-bg-glass:    rgba(22, 86, 224, 0.92);
 		--cp-cyan:        #00f5ff;
 		--cp-pink:        #ff0055;
 		--cp-yellow:      #ffe600;
@@ -150,33 +132,32 @@
 		--cp-muted:       #4a5a6a;
 		--cp-border:      rgba(0, 245, 255, 0.12);
 
-		--font-logo:   'Orbitron', sans-serif;
-		--font-mono:   'Share Tech Mono', monospace;
-		--font-ui:     'Rajdhani', sans-serif;
+		--font-logo:   'SpaceArmor', sans-serif;
+		--font-mono:   'Сourier Prime', monospace;
+		--font-ui:     'Сourier Prime', monospace;
 
 		--nav-h:       4.5rem;
-		--max-w:       1200px;
+		--max-w:       1400px;
 	}
 
 	/* ─── Header Shell ────────────────────────────────────────────────── */
 	.header {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
+		position: relative;
+		width: 100%;
 		z-index: 100;
-		height: var(--nav-h);
+		height: 5rem;
 		background: var(--cp-bg-glass);
 		backdrop-filter: blur(18px) saturate(1.4);
 		-webkit-backdrop-filter: blur(18px) saturate(1.4);
-		border-bottom: 1px solid var(--cp-border);
 		font-family: var(--font-ui);
+		font-weight: 400;
+		font-style: normal;
 		overflow: visible;
 	}
 
 	/* ─── Animated Gradient Border ────────────────────────────────────── */
 	.border-line {
-		position: absolute;
+		position: relative;
 		bottom: 0;
 		left: 0;
 		width: 100%;
@@ -235,7 +216,7 @@
 
 	/* ─── Logo ─────────────────────────────────────────────────────────── */
     .image {
-        width: clamp(3rem, 5vw, 5rem);
+        width: clamp(3rem, 10vw, 6rem);
         margin-inline: 1rem;
     }
 	.logo {
@@ -244,7 +225,7 @@
 		gap: 0.1em;
 		text-decoration: none;
 		font-family: var(--font-logo);
-		font-size: clamp(0.75rem, 1.5vw, 1rem);
+		font-size: clamp(0.5rem, 1.2vw, 1rem);
 		font-weight: 700;
 		color: var(--cp-text);
 		letter-spacing: 0.05em;
@@ -252,6 +233,11 @@
 		white-space: nowrap;
 		flex-shrink: 0;
 		transition: color 0.3s;
+
+		@media (max-width: 1250px) {
+			flex-direction: column;
+			gap: 0.3rem;
+		}
 	}
 
 	.logo:hover {
@@ -355,61 +341,6 @@
 		flex-shrink: 0;
 	}
 
-	/* ─── CTA Button ───────────────────────────────────────────────────── */
-	.cta-btn {
-		position: relative;
-		display: inline-flex;
-		align-items: center;
-		text-decoration: none;
-		padding: 0.5rem 1.4rem;
-		font-family: var(--font-mono);
-		font-size: 0.75rem;
-		font-weight: 700;
-		letter-spacing: 0.15em;
-		text-transform: uppercase;
-		color: var(--cp-yellow);
-		background: transparent;
-		border: 1.5px solid var(--cp-yellow);
-		clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-		cursor: pointer;
-		overflow: hidden;
-		transition: color 0.3s;
-		white-space: nowrap;
-	}
-
-	.cta-inner {
-		position: relative;
-		z-index: 2;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.cta-glitch {
-		position: absolute;
-		inset: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-family: var(--font-mono);
-		font-size: 0.75rem;
-		letter-spacing: 0.15em;
-		color: var(--cp-bg);
-		background: var(--cp-yellow);
-		clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-		transform: translateX(-110%);
-		transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-		z-index: 3;
-	}
-
-	.cta-btn:hover .cta-glitch {
-		transform: translateX(0%);
-	}
-
-	.cta-btn:hover {
-		box-shadow: 0 0 18px rgba(255, 230, 0, 0.45);
-	}
-
 	/* ─── Burger ───────────────────────────────────────────────────────── */
 	.burger {
 		display: none;
@@ -454,25 +385,15 @@
 		background: var(--cp-pink);
 	}
 
-	/* ─── Mobile Overlay ───────────────────────────────────────────────── */
-	.mobile-overlay {
-		position: fixed;
-		inset: var(--nav-h) 0 0 0;
-		background: rgba(0, 0, 0, 0.6);
-		z-index: 98;
-		backdrop-filter: blur(2px);
-	}
-
 	/* ─── Mobile Drawer ────────────────────────────────────────────────── */
 	.mobile-menu {
-		position: fixed;
-		top: var(--nav-h);
+		position: absolute;
 		right: 0;
-		width: min(340px, 100vw);
-		height: calc(100dvh - var(--nav-h));
-		background: rgba(6, 6, 12, 0.98);
-		border-left: 1px solid rgba(0, 245, 255, 0.15);
-		z-index: 99;
+		width: min(500px, 100vw);
+		height: 100dvh;
+		background: var(--cp-bg-glass);
+		border-left: 1px solid rgb(197, 12, 52);
+		z-index: 900;
 		display: flex;
 		flex-direction: column;
 		padding: 1.5rem;
@@ -569,22 +490,12 @@
 		color: var(--cp-cyan);
 	}
 
-	.mobile-cta {
-		margin-top: 2rem;
-	}
-
-	.mobile-cta-btn {
-		display: flex;
-		justify-content: center;
-		width: 100%;
-		clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
-	}
-
 	/* ─── Responsive ───────────────────────────────────────────────────── */
+	@media (max-width: 1250px) {
+		
+	}
+
 	@media (max-width: 960px) {
-        .cta-btn {
-            display: none;
-        }
 		.menu {
 			gap: 0rem;
 		}
@@ -595,7 +506,7 @@
 		}
 	}
 
-	@media (max-width: 768px) {
+	@media (max-width: 960px) {
 		.desktop-menu {
 			display: none;
 		}
@@ -606,12 +517,15 @@
 	}
 
 	@media (max-width: 480px) {
-		.nav {
+		/* .nav {
 			padding: 0 1rem;
-		}
+		} */
+	}
 
-		.logo {
-			font-size: 0.7rem;
+	@media (max-width: 400px) {
+		.nav {
+			padding-inline: 0.2rem;
+			gap: 0;
 		}
 	}
 </style>

@@ -1,3 +1,31 @@
+/* FONTS */
+@font-face {
+    font-family: 'Cyberspace';
+    font-style: normal;
+    font-weight: normal;
+    font-display: swap;
+    src: url("/fonts/Cyberspace.woff"), url('Cyberspace.woff') format('woff');
+}
+@font-face {
+    font-family: 'Azaro';
+    font-style: normal;
+    font-weight: normal;
+    font-display: swap;
+    src: url("/fonts/Azaro.woff"), url('Azaro.woff') format('woff');
+}
+@font-face {
+    font-family: 'SpaceArmor';
+    font-style: normal;
+    font-weight: normal;
+    font-display: swap;
+    src: url("/fonts/SpaceArmor.woff"), format('woff');
+}
+/* ROOT */
+/* :root {
+
+} */
+
+/* COMMON */
 *, *::after, *::before {
     box-sizing: border-box;
     margin: 0;
@@ -7,7 +35,14 @@
 body {
     background-color: #171717;
     color: azure;
-    
+    font-family: 'Courier Prime', monospace;
+    font-weight: 400;
+    font-style: normal;
+    overflow: hidden;
+}
+
+section {
+    position: relative;
 }
 
 li {
