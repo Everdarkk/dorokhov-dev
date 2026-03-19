@@ -21,9 +21,25 @@
     src: url("/fonts/SpaceArmor.woff"), format('woff');
 }
 /* ROOT */
-/* :root {
+:root {
+    --cp-bg:          #06060a;
+	--cp-bg-glass:    #1042e9;
+		
+	--cp-cyan:        #00f5ff;
+	--cp-pink:        #ff0055;
+	--cp-yellow:      #ffe600;
+	--cp-purple:      #b300ff;
+	--cp-text:        #161515;
+	--cp-muted:       #4a5a6a;
+	--cp-border:      rgba(0, 247, 255, 0.247);
 
-} */
+	--font-logo:   'SpaceArmor', sans-serif;
+	--font-mono:   'Сourier Prime', monospace;
+	--font-ui:     'Сourier Prime', monospace;
+
+	--nav-h:       4.5rem;
+	--max-w:       1400px;
+}
 
 /* COMMON */
 *, *::after, *::before {
