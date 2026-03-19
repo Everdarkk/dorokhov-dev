@@ -1,14 +1,13 @@
 <script lang="ts">
 	import { menuItems, type MenuItem } from '../data/menu';
-	import {onMount, onDestroy} from 'svelte';
+	import { browser } from '$app/environment';
+	import { onMount, onDestroy } from 'svelte';
 
 	// ─── State ────────────────────────────────────────────────────────────────
 	let isMobileMenuOpen: boolean = false;
 	let activeItem: number | null = null;
-
-	let isOpen = false
-  	let isVisible = true
-  	let lastScrollY = 0
+	let isVisible: boolean = true;
+	let lastScrollY: number = 0;
 
 	// ─── Handlers ─────────────────────────────────────────────────────────────
 	function toggleMenu(): void {
@@ -23,33 +22,32 @@
 		activeItem = id;
 	}
 
-	function handleScroll() {
-    if (isOpen) return
-    const currentScrollY = window.scrollY
+	function handleScroll(): void {
+		if (isMobileMenuOpen) return;
+		const currentScrollY = window.scrollY;
 
-    if (currentScrollY < 80) {
-      isVisible = true
-    } else if (currentScrollY > lastScrollY) {
-      isVisible = false
-    } else {
-      isVisible = true
-    }
+		if (currentScrollY < 80) {
+			isVisible = true;
+		} else if (currentScrollY > lastScrollY) {
+			isVisible = false;
+		} else {
+			isVisible = true;
+		}
 
-    lastScrollY = currentScrollY
+		lastScrollY = currentScrollY;
+	}
 
-	// LIFECYCLE
+	// ─── LIFECYCLE ────────────────────────────────────────────────────────────
 	onMount(() => {
-   		window.addEventListener('scroll', handleScroll)
-  	})
+		if (!browser) return;
+		window.addEventListener('scroll', handleScroll);
+		return () => window.removeEventListener('scroll', handleScroll);
+	});
 
-  	onDestroy(() => {
-    	window.removeEventListener('scroll', handleScroll)
-  	})
-  }
 </script>
 
 <!-- MARKUP -->
-<header class="header" class:menu-open={isMobileMenuOpen}>
+<header class="header" class:menu-open={isMobileMenuOpen} class:hidden={!isVisible}>
 
 	<!-- Scanline overlay -->
 	<div class="scanlines" aria-hidden="true"></div>
@@ -165,6 +163,11 @@
 		font-weight: 400;
 		font-style: normal;
 		overflow: visible;
+		transition: transform 0.3s ease-out;
+	}
+
+	.header.hidden {
+		transform: translateY(-100%);
 	}
 
 	/* ─── Animated Gradient Border ────────────────────────────────────── */
