@@ -1,9 +1,13 @@
 <script lang="ts">
 	import { menuItems, type MenuItem } from '../data/menu';
+	import { browser } from '$app/environment';
+	import { onMount, onDestroy } from 'svelte';
 
 	// ─── State ────────────────────────────────────────────────────────────────
 	let isMobileMenuOpen: boolean = false;
 	let activeItem: number | null = null;
+	let isVisible: boolean = true;
+	let lastScrollY: number = 0;
 
 	// ─── Handlers ─────────────────────────────────────────────────────────────
 	function toggleMenu(): void {
@@ -17,10 +21,33 @@
 	function setActive(id: number): void {
 		activeItem = id;
 	}
+
+	function handleScroll(): void {
+		if (isMobileMenuOpen) return;
+		const currentScrollY = window.scrollY;
+
+		if (currentScrollY < 80) {
+			isVisible = true;
+		} else if (currentScrollY > lastScrollY) {
+			isVisible = false;
+		} else {
+			isVisible = true;
+		}
+
+		lastScrollY = currentScrollY;
+	}
+
+	// ─── LIFECYCLE ────────────────────────────────────────────────────────────
+	onMount(() => {
+		if (!browser) return;
+		window.addEventListener('scroll', handleScroll);
+		return () => window.removeEventListener('scroll', handleScroll);
+	});
+
 </script>
 
 <!-- MARKUP -->
-<header class="header" class:menu-open={isMobileMenuOpen}>
+<header class="header" class:menu-open={isMobileMenuOpen} class:hidden={!isVisible}>
 
 	<!-- Scanline overlay -->
 	<div class="scanlines" aria-hidden="true"></div>
@@ -28,7 +55,7 @@
 	<nav class="nav" aria-label="Main navigation">
 		<!-- ── Logo ─────────────────────────────────────────────── -->
 		<a href="/" class="logo" aria-label="Home">
-            <img src="src\lib\assets\images\logo-light.svg" class="image" alt="Logo">
+            <img src="src\lib\assets\images\logo-dark.svg" class="image" alt="Logo">
 			<span class="logo-text-wrap">
 				<span class="logo-bracket" aria-hidden="true">[</span>
 				<span class="logo-name">
@@ -120,32 +147,15 @@
 </header>
 
 <style>
-	/* ─── CSS Variables ───────────────────────────────────────────────── */
-	:root {
-		--cp-bg:          #06060a;
-		--cp-bg-glass:    rgba(22, 86, 224, 0.92);
-		--cp-cyan:        #00f5ff;
-		--cp-pink:        #ff0055;
-		--cp-yellow:      #ffe600;
-		--cp-purple:      #b300ff;
-		--cp-text:        #c8d8e8;
-		--cp-muted:       #4a5a6a;
-		--cp-border:      rgba(0, 245, 255, 0.12);
 
-		--font-logo:   'SpaceArmor', sans-serif;
-		--font-mono:   'Сourier Prime', monospace;
-		--font-ui:     'Сourier Prime', monospace;
-
-		--nav-h:       4.5rem;
-		--max-w:       1400px;
-	}
 
 	/* ─── Header Shell ────────────────────────────────────────────────── */
 	.header {
-		position: relative;
+		position: absolute;
+		inset: 0;
 		width: 100%;
-		z-index: 100;
 		height: 5rem;
+		z-index: 100;
 		background: var(--cp-bg-glass);
 		backdrop-filter: blur(18px) saturate(1.4);
 		-webkit-backdrop-filter: blur(18px) saturate(1.4);
@@ -153,6 +163,11 @@
 		font-weight: 400;
 		font-style: normal;
 		overflow: visible;
+		transition: transform 0.3s ease-out;
+	}
+
+	.header.hidden {
+		transform: translateY(-100%);
 	}
 
 	/* ─── Animated Gradient Border ────────────────────────────────────── */
@@ -290,8 +305,7 @@
 		gap: 0.5rem;
 		padding: 0.45rem 0.75rem;
 		text-decoration: none;
-		color: var(--cp-muted);
-		font-family: var(--font-mono);
+		font-family: "Courier Prime";
 		font-size: 0.8rem;
 		letter-spacing: 0.12em;
 		text-transform: uppercase;
@@ -392,7 +406,6 @@
 		width: min(500px, 100vw);
 		height: 100dvh;
 		background: var(--cp-bg-glass);
-		border-left: 1px solid rgb(197, 12, 52);
 		z-index: 900;
 		display: flex;
 		flex-direction: column;

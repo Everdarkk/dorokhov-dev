@@ -362,7 +362,7 @@
   /* "X" —  */
   .label--x-name {
     top: 0px;
-    left: 51px;
+    left: 56px;
   }
 
   /* X value  */
@@ -375,7 +375,7 @@
   /* "Y" —  */
   .label--y-name {
     left: -10px;
-    top: 37px;
+    top: 43px;
   }
 
   /* Y value —  */
