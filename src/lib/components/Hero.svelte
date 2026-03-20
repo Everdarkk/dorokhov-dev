@@ -1,93 +1,133 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Background from './Background.svelte';
+	import type { DataStreamLine, ActionButton } from '$lib/types/types';
+	import {
+		DATA_STREAM_MESSAGES,
+		RANDOM_MESSAGES,
+		ACTION_BUTTONS,
+		BREAKPOINTS,
+		MAX_VISIBLE_LINES,
+		MESSAGE_UPDATE_INTERVAL,
+		INITIAL_MESSAGE_DELAY
+	} from '$lib/constants/hero.constants';
 
-	interface DataStreamLine {
-		id: number;
-		text: string;
-		delay: number;
-		opacity: number;
-	}
+	// ─── State ───────────────────────────────────────────────────────────
 
 	let dataStreamLines: DataStreamLine[] = [];
 	let currentLineId: number = 0;
+	let screenWidth: number = typeof window !== 'undefined' ? window.innerWidth : 0;
+	let screenHeight: number = typeof window !== 'undefined' ? window.innerHeight : 0;
+	let showImage: boolean = true;
+	let isMobile: boolean = false;
 
-	onMount(() => {
-		const messages = [
-			'> Initializing neural pathways...',
-			'> Loading digital consciousness...',
-			'> Connecting to mainframe...',
-			'> Streaming consciousness data...',
-			'> Compiling biographical matrix...',
-			'> Configuring portfolio interface...',
-			'> System ready for navigation...',
-			'> > _'
-		];
+	// ─── Lifecycle ───────────────────────────────────────────────────────
 
-		// Generate initial data stream lines
-		messages.forEach((msg, idx) => {
-			setTimeout(
-				() => {
-					dataStreamLines = [
-						...dataStreamLines,
-						{
-							id: currentLineId++,
-							text: msg,
-							delay: idx * 0.3,
-							opacity: 1
-						}
-					];
+	onMount((): (() => void) => {
+		// Update screen dimensions on mount
+		screenWidth = window.innerWidth;
+		screenHeight = window.innerHeight;
+		updateBreakpoints();
 
-					// Keep only last 6 lines visible
-					if (dataStreamLines.length > 6) {
-						dataStreamLines = dataStreamLines.slice(-6);
-					}
-				},
-				idx * 300
-			);
-		});
+		// Show image on all devices (adapt styling instead of hiding)
+		showImage = true;
 
-		// Add new random messages periodically
-		const interval = setInterval(() => {
-			const randomMessages = [
-				'> Scanning portfolio assets...',
-				'> Updating skill matrix...',
-				'> Buffering experience data...',
-				'> Refreshing project cache...',
-				'> Syncing web presence...',
-				'> > _'
-			];
+		// Initialize data stream
+		initializeDataStream();
 
-			const randomMsg = randomMessages[Math.floor(Math.random() * randomMessages.length)];
+		// Start periodic message updates
+		const interval = setInterval(addRandomMessage, MESSAGE_UPDATE_INTERVAL);
 
-			dataStreamLines = [
-				...dataStreamLines,
-				{
-					id: currentLineId++,
-					text: randomMsg,
-					delay: 0,
-					opacity: 1
-				}
-			];
+		// Handle window resize
+		const handleResize = (): void => {
+			screenWidth = window.innerWidth;
+			screenHeight = window.innerHeight;
+			updateBreakpoints();
+		};
 
-			if (dataStreamLines.length > 6) {
-				dataStreamLines = dataStreamLines.slice(-6);
-			}
-		}, 5000);
+		window.addEventListener('resize', handleResize);
 
-		return () => clearInterval(interval);
+		return (): void => {
+			clearInterval(interval);
+			window.removeEventListener('resize', handleResize);
+		};
 	});
 
-	const handleContactMe = () => {
-		// Scroll to contact section or trigger modal
-		console.log('Contact Me clicked');
-	};
+	// ─── Functions ───────────────────────────────────────────────────────
 
-	const handleLearnMore = () => {
-		// Scroll to about section
-		console.log('Learn More clicked');
-	};
+	/**
+	 * Update breakpoint states based on current screen width
+	 */
+	function updateBreakpoints(): void {
+		isMobile = screenWidth < BREAKPOINTS.tablet;
+	}
+
+	/**
+	 * Initialize the data stream with startup messages
+	 */
+	function initializeDataStream(): void {
+		DATA_STREAM_MESSAGES.forEach((msg: string, idx: number) => {
+			setTimeout((): void => {
+				dataStreamLines = [
+					...dataStreamLines,
+					{
+						id: currentLineId++,
+						text: msg,
+						delay: idx * 0.3,
+						opacity: 1
+					}
+				];
+
+				// Keep only last 6 lines visible
+				if (dataStreamLines.length > MAX_VISIBLE_LINES) {
+					dataStreamLines = dataStreamLines.slice(-MAX_VISIBLE_LINES);
+				}
+			}, idx * INITIAL_MESSAGE_DELAY);
+		});
+	}
+
+	/**
+	 * Add a random message to the data stream
+	 */
+	function addRandomMessage(): void {
+		const randomMsg: string =
+			RANDOM_MESSAGES[Math.floor(Math.random() * RANDOM_MESSAGES.length)];
+
+		dataStreamLines = [
+			...dataStreamLines,
+			{
+				id: currentLineId++,
+				text: randomMsg,
+				delay: 0,
+				opacity: 1
+			}
+		];
+
+		if (dataStreamLines.length > MAX_VISIBLE_LINES) {
+			dataStreamLines = dataStreamLines.slice(-MAX_VISIBLE_LINES);
+		}
+	}
+
+	/**
+	 * Handle contact button click
+	 */
+	function handleActionButtonClick(action: ActionButton['action']): void {
+		switch (action) {
+			case 'contact':
+				// Scroll to contact section or trigger modal
+				console.log('Contact Me clicked');
+				break;
+			case 'learn-more':
+				// Scroll to about section
+				console.log('Learn More clicked');
+				break;
+			default:
+				console.log('Action triggered:', action);
+		}
+	}
 </script>
+
+<svelte:window bind:innerWidth={screenWidth} bind:innerHeight={screenHeight} />
 
 <section class="hero-container">
 	<!-- Background dynamic elements -->
@@ -108,19 +148,22 @@
 		</div>
 
 		<!-- Terminal content -->
-		<div class="terminal-content">
+		<div class="terminal-content" class:single-column={isMobile}>
 			<!-- Left pane: Title and text -->
 			<div class="pane pane-left">
 				<h1 class="portfolio-title">
-					<span class="glitch" data-text="Oleksandr Dorokhov">Oleksandr Dorokhov</span>
-					<span class="subtitle glitch" data-text="Full-stack web-dev"
-						>Full-stack web-dev</span
-					>
+					<span class="title" data-text="Full-Stack Developer & Modern Web Architect">
+						Full-Stack Developer & Modern Web Architect
+					</span>
+
+					<span class="subtitle" data-text="High-Performance Solutions from Concept to Deployment">
+						High-Performance Solutions from Concept to Deployment
+					</span>
 				</h1>
-				<p class="portfolio-subtitle">
-					Crafting digital experiences for businesses and beyond, where code meets creativity in
-					the cybernetic frontier.
-				</p>
+
+				<h2 class="portfolio-subtitle">
+					Crafting seamless digital experiences with React, Svelte, PostgreSQL and more. Where clean code meets creativity in the cybernetic frontier.
+				</h2>
 
 				<!-- Data stream window -->
 				<div class="data-stream-window">
@@ -136,17 +179,18 @@
 				</div>
 			</div>
 
-			<!-- Right pane: Image -->
-			<div class="pane pane-right">
-				<div class="image-container">
-					<div class="image-frame">
-						<!-- svelte-ignore a11y_img_redundant_alt -->
-						<img src="/your-photo.jpg" alt="Oleksandr Dorokhov's Photo" />
-						<div class="frame-glitch"></div>
-						<div class="frame-border"></div>
+			<!-- Right pane: Image - shown on all devices with adaptive sizing -->
+			{#if showImage}
+				<div class="pane pane-right">
+					<div class="image-container">
+						<div class="image-frame">
+							<img src="/src/lib/assets/images/od-2.webp" alt="Oleksandr Dorokhov" />
+							<div class="frame-glitch"></div>
+							<div class="frame-border"></div>
+						</div>
 					</div>
 				</div>
-			</div>
+			{/if}
 		</div>
 
 		<!-- Terminal footer with scanlines effect -->
@@ -157,14 +201,17 @@
 
 	<!-- Action buttons -->
 	<div class="button-container">
-		<button class="action-btn contact-btn" on:click={handleContactMe}>
-			<span class="btn-text">CONTACT.ME()</span>
-			<span class="btn-glyph">→</span>
-		</button>
-		<button class="action-btn learn-btn" on:click={handleLearnMore}>
-			<span class="btn-text">LEARN_MORE()</span>
-			<span class="btn-glyph">→</span>
-		</button>
+		{#each ACTION_BUTTONS as button (button.id)}
+			<button
+				class="action-btn {button.className}"
+				on:click={() => handleActionButtonClick(button.action)}
+				aria-label={button.label}
+				type="button"
+			>
+				<span class="btn-text">{button.label}</span>
+				<span class="btn-glyph">→</span>
+			</button>
+		{/each}
 	</div>
 
 	<!-- Floating accent elements -->
@@ -182,32 +229,35 @@
 	}
 
 	.hero-container {
+		/* Height calculation: Full viewport minus navigation height */
 		position: relative;
 		width: 100%;
-		min-height: 100dvh;
-		/* background: linear-gradient(135deg, #0a0e27 0%, #1a0a2e 50%, #0a0e27 100%); */
+		height: calc(100dvh - 5rem);
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		padding: 2rem;
+		padding: clamp(1rem, 3vw, 2rem);
 		overflow: hidden;
-		gap: 3rem;
+		gap: clamp(1.5rem, 3vw, 3rem);
 	}
 
-	/* Terminal Window */
+	/* ─── Terminal Window ─────────────────────────────────────────────── */
 	.terminal-window {
 		position: relative;
 		z-index: 10;
 		width: 100%;
-		max-width: 1200px;
+		max-width: clamp(320px, 95vw, 1200px);
 		background: rgba(6, 6, 10, 0.75);
-		border: 3px solid var(--cp-cyan);
-		border-radius: 8px;
+		border: clamp(2px, 0.2vw, 3px) solid var(--cp-cyan);
+		border-radius: clamp(4px, 0.5vw, 8px);
 		backdrop-filter: blur(20px);
 		box-shadow: 0 0 40px rgba(0, 245, 255, 0.4), inset 0 0 40px rgba(0, 245, 255, 0.05);
 		overflow: hidden;
 		animation: borderGlow 3s ease-in-out infinite;
+		display: flex;
+		flex-direction: column;
+		max-height: 80%;
 	}
 
 	@keyframes borderGlow {
@@ -222,233 +272,140 @@
 		}
 	}
 
-	/* Terminal Header */
+	/* ─── Terminal Header ──────────────────────────────────────────────── */
 	.terminal-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		background: linear-gradient(90deg, rgba(0, 245, 255, 0.1) 0%, transparent 100%);
-		border-bottom: 2px solid rgba(0, 245, 255, 0.3);
-		padding: 0.75rem 1.5rem;
-		font-size: 0.9rem;
+		border-bottom: clamp(1px, 0.1vw, 2px) solid rgba(0, 245, 255, 0.3);
+		padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
+		font-size: clamp(0.75rem, 1.5vw, 0.9rem);
 		color: var(--cp-green);
+		flex-shrink: 0;
 	}
 
 	.header-title {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
+		min-width: 0;
 	}
 
 	.title-text {
 		color: var(--cp-green);
 		font-weight: bold;
-		letter-spacing: 2px;
+		letter-spacing: var(--tracking-wide);
 		text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.header-controls {
 		display: flex;
-		gap: 0.8rem;
+		gap: clamp(0.5rem, 1vw, 0.8rem);
+		flex-shrink: 0;
 	}
 
 	.control-btn {
-		width: 12px;
-		height: 12px;
+		width: clamp(8px, 1.5vw, 12px);
+		height: clamp(8px, 1.5vw, 12px);
 		border-radius: 50%;
 		background: var(--cp-cyan);
 		box-shadow: 0 0 8px rgba(0, 245, 255, 0.6);
 	}
 
-	/* Terminal Content */
+	/* ─── Terminal Content ─────────────────────────────────────────────── */
 	.terminal-content {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		gap: 2rem;
-		padding: 2rem;
-		min-height: 400px;
+		gap: clamp(1rem, 3vw, 2rem);
+		padding: clamp(1rem, 2vw, 2rem);
+		flex: 1;
+		align-items: center;
 	}
 
-	@media (max-width: 768px) {
-		.terminal-content {
-			grid-template-columns: 1fr;
-			gap: 1.5rem;
-			padding: 1.5rem;
-			min-height: auto;
-		}
+	/* Single column layout for mobile */
+	.terminal-content.single-column {
+		grid-template-columns: 1fr;
+		gap: clamp(1rem, 2vw, 1.5rem);
+		padding: clamp(0.75rem, 1.5vw, 1.5rem);
 	}
 
-	/* Panes */
+	/* ─── Panes ───────────────────────────────────────────────────────── */
 	.pane {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
+		min-width: 0;
 	}
 
 	.pane-left {
-		gap: 1.5rem;
+		gap: clamp(1rem, 2vw, 1.5rem);
 	}
 
-	/* Portfolio Title */
+	/* ─── Portfolio Title ──────────────────────────────────────────────── */
 	.portfolio-title {
-		font-size: clamp(1.5rem, 5vw, 3.5rem);
-		font-weight: 700;
+		font-size: var(--font-h1);
 		margin: 0;
-		line-height: 1.2;
 		color: var(--cp-cyan);
 		text-shadow: 0 0 20px rgba(0, 245, 255, 0.6);
-		letter-spacing: -1px;
+		display: flex;
+		flex-direction: column;
+		gap: clamp(0.5rem, 1vw, 1rem);
+		line-height: var(--line-heading);
+		word-break: break-word;
 	}
 
-	.glitch {
+	.title {
 		position: relative;
-		display: block;
+		display: flex;
 		color: var(--cp-cyan);
-		animation: glitch 3s ease-in-out infinite;
-	}
-
-	.glitch[data-text]::before {
-		content: attr(data-text);
-		position: absolute;
-		left: 0;
-		top: 0;
-		width: 100%;
-		height: 100%;
-		background: var(--cp-bg);
-		color: var(--cp-pink);
-		padding: inherit;
-		z-index: -1;
-		text-shadow: -2px 0 var(--cp-cyan);
-		opacity: 0.75;
-		animation: glitchBefore 0.3s ease-in-out infinite;
-	}
-
-	.glitch[data-text]::after {
-		content: attr(data-text);
-		position: absolute;
-		left: 0;
-		top: 0;
-		width: 100%;
-		height: 100%;
-		background: var(--cp-bg);
-		color: var(--cp-cyan);
-		padding: inherit;
-		z-index: -2;
-		text-shadow: 2px 0 var(--cp-pink);
-		opacity: 0.75;
-		animation: glitchAfter 0.3s ease-in-out infinite;
-	}
-
-	@keyframes glitch {
-		0%,
-		100% {
-			clip-path: inset(0 0 0 0);
-		}
-		20% {
-			clip-path: inset(25% 0 58% 0);
-		}
-		40% {
-			clip-path: inset(10% 0 61% 0);
-		}
-		60% {
-			clip-path: inset(29% 0 12% 0);
-		}
-		80% {
-			clip-path: inset(83% 0 11% 0);
-		}
-	}
-
-	@keyframes glitchBefore {
-		0% {
-			clip-path: inset(81% 0 19% 0);
-			transform: translate(-2px, -3px);
-		}
-		20% {
-			clip-path: inset(20% 0 65% 0);
-			transform: translate(2px, 3px);
-		}
-		40% {
-			clip-path: inset(42% 0 1% 0);
-			transform: translate(-2px, 2px);
-		}
-		60% {
-			clip-path: inset(18% 0 71% 0);
-			transform: translate(2px, -1px);
-		}
-		80% {
-			clip-path: inset(69% 0 6% 0);
-			transform: translate(-1px, 3px);
-		}
-		100% {
-			clip-path: inset(23% 0 58% 0);
-			transform: translate(0);
-		}
-	}
-
-	@keyframes glitchAfter {
-		0% {
-			clip-path: inset(25% 0 58% 0);
-			transform: translate(2px, 1px);
-		}
-		20% {
-			clip-path: inset(80% 0 6% 0);
-			transform: translate(-2px, 2px);
-		}
-		40% {
-			clip-path: inset(65% 0 15% 0);
-			transform: translate(2px, -3px);
-		}
-		60% {
-			clip-path: inset(17% 0 58% 0);
-			transform: translate(-1px, -2px);
-		}
-		80% {
-			clip-path: inset(16% 0 23% 0);
-			transform: translate(2px, 2px);
-		}
-		100% {
-			clip-path: inset(69% 0 22% 0);
-			transform: translate(0);
-		}
 	}
 
 	.subtitle {
-		font-size: clamp(1rem, 3vw, 1.8rem);
+		font-size: var(--font-h2);
 		color: var(--cp-pink);
 		text-shadow: 0 0 15px rgba(255, 0, 85, 0.5);
 		margin: 0;
+		line-height: var(--line-heading);
 	}
 
-	/* Portfolio Subtitle */
+	/* ─── Portfolio Subtitle ───────────────────────────────────────────── */
 	.portfolio-subtitle {
-		font-size: clamp(0.85rem, 2vw, 1.1rem);
+		font-size: var(--font-body);
 		color: var(--cp-lime);
 		text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
-		line-height: 1.6;
+		line-height: var(--line-body);
 		margin: 0;
-		max-width: 600px;
+		max-width: 100%;
+		word-break: break-word;
 	}
 
-	/* Data Stream Window */
+	/* ─── Data Stream Window ───────────────────────────────────────────── */
 	.data-stream-window {
 		background: rgba(0, 20, 40, 0);
-		border: 2px solid rgba(0, 255, 136, 0.5);
-		border-radius: 4px;
-		padding: 1rem;
-		font-size: clamp(0.75rem, 1.5vw, 0.95rem);
+		border: clamp(1px, 0.1vw, 2px) solid rgba(0, 255, 136, 0.5);
+		border-radius: clamp(2px, 0.2vw, 4px);
+		padding: clamp(0.75rem, 1.5vw, 1rem);
+		font-size: var(--font-caption);
 		color: var(--cp-green);
-		overflow-y: auto;
-		max-height: 180px;
-		margin-top: 1rem;
+		overflow: hidden;
+		height: auto;
+		max-height: clamp(120px, 20vh, 180px);
+		margin-top: clamp(0.5rem, 1vw, 1rem);
 		background-clip: padding-box;
 		backdrop-filter: blur(10px);
 	}
 
 	.stream-line {
 		display: flex;
-		gap: 0.5rem;
-		margin-bottom: 0.5rem;
+		gap: clamp(0.3rem, 1vw, 0.5rem);
+		margin-bottom: clamp(0.25rem, 0.5vw, 0.5rem);
 		animation: fadeIn 0.5s ease-out;
+		min-width: 0;
+		word-break: break-word;
 	}
 
 	@keyframes fadeIn {
@@ -466,13 +423,16 @@
 		color: var(--cp-cyan);
 		font-weight: bold;
 		flex-shrink: 0;
+		min-width: max-content;
 	}
 
 	.stream-text {
 		color: var(--cp-green);
-		white-space: nowrap;
-		overflow: hidden;
+		white-space: normal;
+		overflow-wrap: break-word;
+		word-break: break-word;
 		animation: typing 0.5s steps(30, end);
+		min-width: 0;
 	}
 
 	@keyframes typing {
@@ -484,16 +444,17 @@
 		}
 	}
 
-	/* Right Pane - Image */
+	/* ─── Right Pane - Image ───────────────────────────────────────────── */
 	.pane-right {
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		min-width: 0;
 	}
 
 	.image-container {
 		width: 100%;
-		max-width: 350px;
+		max-width: clamp(150px, 40vw, 350px);
 		aspect-ratio: 1;
 	}
 
@@ -501,8 +462,8 @@
 		position: relative;
 		width: 100%;
 		height: 100%;
-		border: 3px solid var(--cp-pink);
-		border-radius: 4px;
+		border: clamp(2px, 0.2vw, 3px) solid var(--cp-pink);
+		border-radius: clamp(2px, 0.2vw, 4px);
 		overflow: hidden;
 		box-shadow: 0 0 30px rgba(255, 0, 85, 0.4), inset 0 0 30px rgba(255, 0, 85, 0.1);
 		background: var(--cp-bg);
@@ -566,13 +527,14 @@
 		}
 	}
 
-	/* Terminal Footer */
+	/* ─── Terminal Footer ──────────────────────────────────────────────── */
 	.terminal-footer {
 		position: relative;
-		height: 20px;
+		height: clamp(12px, 2vw, 20px);
 		background: rgba(0, 255, 0, 0.05);
-		border-top: 1px solid rgba(0, 255, 136, 0.3);
+		border-top: clamp(1px, 0.1vw, 1px) solid rgba(0, 255, 136, 0.3);
 		overflow: hidden;
+		flex-shrink: 0;
 	}
 
 	.scanlines {
@@ -601,34 +563,43 @@
 		}
 	}
 
-	/* Action Buttons */
+	/* ─── Action Buttons ───────────────────────────────────────────────── */
 	.button-container {
 		display: flex;
-		gap: 2rem;
+		gap: clamp(1rem, 3vw, 2rem);
 		justify-content: center;
 		flex-wrap: wrap;
 		position: relative;
 		z-index: 10;
-		margin-top: 1rem;
+		margin-top: clamp(0.5rem, 1vw, 1rem);
+		width: 100%;
+		max-width: clamp(300px, 95vw, 1200px);
 	}
 
 	.action-btn {
 		position: relative;
-		padding: 1rem 2rem;
-		font-size: clamp(0.9rem, 2vw, 1.1rem);
+		padding: clamp(0.75rem, 1.5vw, 1rem) clamp(1rem, 3vw, 2rem);
+		font-size: var(--font-body);
 		font-family: var(--font-mono);
 		font-weight: bold;
-		border: 2px solid;
-		border-radius: 4px;
+		border: clamp(1px, 0.1vw, 2px) solid;
+		border-radius: clamp(2px, 0.2vw, 4px);
 		cursor: pointer;
 		display: flex;
 		align-items: center;
-		gap: 0.8rem;
+		gap: clamp(0.5rem, 1vw, 0.8rem);
 		transition: all 0.3s ease;
-		letter-spacing: 1px;
+		letter-spacing: var(--tracking-wide);
 		overflow: hidden;
 		background: rgba(6, 6, 10, 0.5);
 		backdrop-filter: blur(10px);
+		white-space: nowrap;
+		text-decoration: none;
+	}
+
+	.action-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
 	}
 
 	.contact-btn {
@@ -649,7 +620,7 @@
 		z-index: -1;
 	}
 
-	.contact-btn:hover {
+	.contact-btn:hover:not(:disabled) {
 		color: var(--cp-bg);
 		background: rgba(0, 245, 255, 0.3);
 		box-shadow: 0 0 20px rgba(0, 245, 255, 0.6), inset 0 0 20px rgba(0, 245, 255, 0.2);
@@ -657,7 +628,7 @@
 		transform: translateX(4px);
 	}
 
-	.contact-btn:active {
+	.contact-btn:active:not(:disabled) {
 		transform: translateX(2px) scale(0.98);
 		box-shadow: 0 0 30px rgba(0, 245, 255, 0.8), inset 0 0 30px rgba(0, 245, 255, 0.3);
 	}
@@ -680,7 +651,7 @@
 		z-index: -1;
 	}
 
-	.learn-btn:hover {
+	.learn-btn:hover:not(:disabled) {
 		color: var(--cp-bg);
 		background: rgba(255, 0, 85, 0.3);
 		box-shadow: 0 0 20px rgba(255, 0, 85, 0.6), inset 0 0 20px rgba(255, 0, 85, 0.2);
@@ -688,17 +659,17 @@
 		transform: translateX(4px);
 	}
 
-	.learn-btn:active {
+	.learn-btn:active:not(:disabled) {
 		transform: translateX(2px) scale(0.98);
 		box-shadow: 0 0 30px rgba(255, 0, 85, 0.8), inset 0 0 30px rgba(255, 0, 85, 0.3);
 	}
 
 	.btn-text {
-		letter-spacing: 1px;
+		letter-spacing: var(--tracking-wide);
 	}
 
 	.btn-glyph {
-		font-size: 1.3em;
+		font-size: clamp(1rem, 2vw, 1.3em);
 		animation: arrowPulse 1s ease-in-out infinite;
 	}
 
@@ -712,7 +683,7 @@
 		}
 	}
 
-	/* Floating Accent Elements */
+	/* ─── Floating Accent Elements ─────────────────────────────────────── */
 	.accent-element {
 		position: absolute;
 		pointer-events: none;
@@ -720,8 +691,8 @@
 	}
 
 	.accent-1 {
-		width: 200px;
-		height: 200px;
+		width: clamp(100px, 20vw, 200px);
+		height: clamp(100px, 20vw, 200px);
 		top: 10%;
 		right: 5%;
 		background: radial-gradient(circle, rgba(0, 255, 255, 0.5) 0%, transparent 70%);
@@ -731,8 +702,8 @@
 	}
 
 	.accent-2 {
-		width: 150px;
-		height: 150px;
+		width: clamp(75px, 15vw, 150px);
+		height: clamp(75px, 15vw, 150px);
 		bottom: 15%;
 		left: 5%;
 		background: radial-gradient(circle, rgba(255, 0, 255, 0.5) 0%, transparent 70%);
@@ -742,14 +713,15 @@
 	}
 
 	.accent-3 {
-		width: 100px;
-		height: 100px;
+		width: clamp(50px, 10vw, 100px);
+		height: clamp(50px, 10vw, 100px);
 		top: 50%;
 		left: 50%;
 		background: radial-gradient(circle, rgba(0, 255, 136, 0.5) 0%, transparent 70%);
 		border-radius: 50%;
 		animation: float 12s ease-in-out infinite;
 		z-index: 0;
+		transform: translate(-50%, -50%);
 	}
 
 	@keyframes float {
@@ -762,117 +734,137 @@
 		}
 	}
 
-	/* Responsive adjustments */
-	@media (max-width: 768px) {
+	/* ─── Mobile Adjustments ───────────────────────────────────────────── */
+	@media (max-width: 480px) {
 		.hero-container {
-			padding: 1rem;
-			gap: 2rem;
-		}
+			all: unset;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			min-height: calc(90dvh - 5rem);
+			
 
-		.terminal-window {
-			max-width: 100%;
+			padding: clamp(0.75rem, 2vw, 1rem);
+			gap: clamp(1rem, 2vw, 1.5rem);
+			padding-top: clamp(1rem, 2vw, 1.5rem);
 		}
 
 		.terminal-content {
-			padding: 1.5rem;
+			grid-template-columns: 1fr;
+			gap: clamp(1rem, 2vw, 1.5rem);
+			padding: clamp(0.5rem, 1vw, 1rem);
+			align-items: start;
 		}
 
-		.portfolio-title {
-			font-size: 1.5rem;
+		.pane-left {
+			gap: clamp(0.75rem, 1vw, 1rem);
 		}
 
-		.subtitle {
-			font-size: 1rem;
+		.pane-right {
+			width: 100%;
+			max-width: 100%;
+		}
+
+		.image-container {
+			max-width: clamp(180px, 35vw, 200px);
+			margin: 0 auto;
 		}
 
 		.button-container {
-			gap: 1rem;
-			width: 100%;
-			margin-top: 0.5rem;
+			gap: clamp(0.75rem, 1.5vw, 1rem);
 		}
 
 		.action-btn {
 			flex: 1;
+			min-width: 140px;
 			justify-content: center;
-			min-width: 180px;
-		}
-
-		.image-container {
-			max-width: 280px;
 		}
 
 		.data-stream-window {
-			max-height: 140px;
+			display: none;
 		}
 
-		.accent-element {
-			opacity: 0.08;
+		
+		.title {
+			font-size: 1.75rem;
 		}
-	}
-
-	@media (max-width: 480px) {
-		.hero-container {
-			padding: 0.75rem;
-			min-height: auto;
-			gap: 1.5rem;
-		}
-
-		.terminal-window {
-			border-width: 2px;
-		}
-
-		.terminal-header {
-			padding: 0.5rem 1rem;
-			font-size: 0.8rem;
-		}
-
-		.terminal-content {
-			gap: 1rem;
-			padding: 1rem;
-			min-height: auto;
-		}
-
-		.portfolio-title {
-			font-size: 1.2rem;
-		}
-
+		
 		.subtitle {
-			font-size: 0.9rem;
+			font-size: 1.5rem;
 		}
 
 		.portfolio-subtitle {
-			font-size: 0.8rem;
-			line-height: 1.5;
-		}
-
-		.data-stream-window {
-			max-height: 120px;
 			font-size: 0.7rem;
 		}
+	}
 
-		.button-container {
-			gap: 0.75rem;
-			flex-direction: column;
-		}
-
-		.action-btn {
-			width: 100%;
-			padding: 0.8rem 1.5rem;
-			font-size: 0.95rem;
-			min-width: 100%;
+	/* ─── Tablet Adjustments ───────────────────────────────────────────── */
+	@media (min-width: 481px) and (max-width: 1024px) {
+		.terminal-content {
+			grid-template-columns: 1fr;
 		}
 
 		.image-container {
-			max-width: 250px;
+			max-width: clamp(180px, 50vw, 300px);
+		}
+	}
+
+	/* ─── Desktop Adjustments ──────────────────────────────────────────── */
+	@media (min-width: 1025px) {
+		.terminal-window {
+			max-width: min(95vw, 1400px);
 		}
 
-		.image-frame {
+		.button-container {
+			gap: 2rem;
+		}
+
+		.action-btn {
+			min-width: 200px;
+		}
+	}
+
+	/* ─── High-Resolution Display ──────────────────────────────────────── */
+	@media (min-width: 1920px) {
+		.hero-container {
+			padding: 3rem;
+			gap: 3rem;
+		}
+
+		.terminal-window {
+			max-width: 1400px;
+		}
+
+		.action-btn {
+			padding: 1.25rem 3rem;
+			font-size: 1.2rem;
+		}
+	}
+
+	/* ─── Reduce Motion ───────────────────────────────────────────────── */
+	@media (prefers-reduced-motion: reduce) {
+		.terminal-window,
+		.action-btn,
+		.btn-glyph,
+		.accent-element,
+		.stream-line,
+		.frame-glitch,
+		.frame-border {
+			animation: none;
+			transition: none;
+		}
+	}
+
+	/* ─── Dark Mode / High Contrast ────────────────────────────────────── */
+	@media (prefers-contrast: more) {
+		.terminal-window {
+			border-color: var(--cp-cyan);
+			border-width: 3px;
+		}
+
+		.action-btn {
 			border-width: 2px;
-		}
-
-		.control-btn {
-			width: 10px;
-			height: 10px;
 		}
 	}
 </style>
