@@ -1,3 +1,5 @@
+import type { Breakpoint } from '$lib/constants/hero.constants';
+
 /**
  * Data stream line interface for terminal-style text animation
  */
@@ -6,17 +8,6 @@ export interface DataStreamLine {
 	text: string;
 	delay: number;
 	opacity: number;
-}
-
-/**
- * Responsive breakpoints for device adaptation
- */
-export enum DeviceBreakpoint {
-	MOBILE = 480,
-	TABLET = 768,
-	LAPTOP = 1024,
-	DESKTOP = 1280,
-	ULTRA = 1920
 }
 
 /**

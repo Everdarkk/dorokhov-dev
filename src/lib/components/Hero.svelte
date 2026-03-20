@@ -232,7 +232,7 @@
 		/* Height calculation: Full viewport minus navigation height */
 		position: relative;
 		width: 100%;
-		height: calc(100dvh - 5rem);
+		height: calc(100dvh - var(--nav-h));
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -767,7 +767,7 @@
 		}
 
 		.image-container {
-			max-width: clamp(180px, 35vw, 200px);
+			max-width: clamp(250px, 15vw, 300px);
 			margin: 0 auto;
 		}
 

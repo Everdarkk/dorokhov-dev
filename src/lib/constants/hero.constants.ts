@@ -46,6 +46,7 @@ export const ACTION_BUTTONS: ActionButton[] = [
 
 /**
  * Responsive design breakpoints for device adaptation
+ * Use this as the single source of truth for all breakpoint values
  */
 export const BREAKPOINTS = {
 	mobile: 480,
@@ -54,6 +55,11 @@ export const BREAKPOINTS = {
 	desktop: 1280,
 	ultra: 1920
 } as const;
+
+/**
+ * Type-safe breakpoint names derived from BREAKPOINTS object
+ */
+export type Breakpoint = keyof typeof BREAKPOINTS;
 
 /**
  * Maximum number of visible lines in the data stream window
