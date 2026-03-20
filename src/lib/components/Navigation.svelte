@@ -1,15 +1,12 @@
 <script lang="ts">
 	import { menuItems, type MenuItem } from '../data/menu';
-	import { browser } from '$app/environment';
-	import { onMount, onDestroy } from 'svelte';
 
-	// ─── State ────────────────────────────────────────────────────────────────
+	// State
 	let isMobileMenuOpen: boolean = false;
 	let activeItem: number | null = null;
 	let isVisible: boolean = true;
-	let lastScrollY: number = 0;
 
-	// ─── Handlers ─────────────────────────────────────────────────────────────
+	// Handlers
 	function toggleMenu(): void {
 		isMobileMenuOpen = !isMobileMenuOpen;
 	}
@@ -21,28 +18,6 @@
 	function setActive(id: number): void {
 		activeItem = id;
 	}
-
-	function handleScroll(): void {
-		if (isMobileMenuOpen) return;
-		const currentScrollY = window.scrollY;
-
-		if (currentScrollY < 80) {
-			isVisible = true;
-		} else if (currentScrollY > lastScrollY) {
-			isVisible = false;
-		} else {
-			isVisible = true;
-		}
-
-		lastScrollY = currentScrollY;
-	}
-
-	// ─── LIFECYCLE ────────────────────────────────────────────────────────────
-	onMount(() => {
-		if (!browser) return;
-		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
-	});
 
 </script>
 
@@ -151,7 +126,7 @@
 
 	/* ─── Header Shell ────────────────────────────────────────────────── */
 	.header {
-		position: absolute;
+		position: relative;
 		inset: 0;
 		width: 100%;
 		height: 5rem;

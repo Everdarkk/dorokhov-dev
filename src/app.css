@@ -22,6 +22,7 @@
 }
 /* ROOT */
 :root {
+    /* Colors */
     --cp-bg:          #06060a;
 	--cp-bg-glass:    #1042e9;
 		
@@ -35,12 +36,44 @@
 	--cp-muted:       #4a5a6a;
 	--cp-border:      rgba(0, 247, 255, 0.247);
 
+    /* Fonts */
 	--font-logo:   'SpaceArmor', sans-serif;
 	--font-mono:   'Сourier Prime', monospace;
 	--font-ui:     'Сourier Prime', monospace;
 
+    /* Sizes */
 	--nav-h:       4.5rem;
 	--max-w:       1400px;
+
+    /* Display */
+    --font-display: clamp(2.5rem, 5vw, 3.5rem);
+
+    /* Headings */
+    --font-h1: clamp(2rem, 4vw, 3rem);
+    --font-h2: clamp(1.75rem, 3.5vw, 2.5rem);
+    --font-h3: clamp(1.5rem, 3vw, 2rem);
+    --font-h4: clamp(1.25rem, 2.5vw, 1.75rem);
+    --font-h5: clamp(1.125rem, 2vw, 1.5rem);
+    --font-h6: clamp(1rem, 1.5vw, 1.25rem);
+
+    /* Body text */
+    --font-body-lg: clamp(1.125rem, 1.5vw, 1.25rem);
+    --font-body: clamp(1rem, 1.2vw, 1.125rem);
+    --font-body-sm: clamp(0.875rem, 1vw, 1rem);
+
+    /* UI text */
+    --font-caption: clamp(0.75rem, 0.8vw, 0.875rem);
+    --font-overline: clamp(0.7rem, 0.7vw, 0.8rem);
+
+    /* ===== Line Heights ===== */
+    --line-heading: 1.2;
+    --line-body: 1.5;
+    --line-tight: 1.1;
+
+    /* ===== Letter Spacing ===== */
+    --tracking-tight: -0.02em;
+    --tracking-normal: 0;
+    --tracking-wide: 0.05em;
 }
 
 /* COMMON */
