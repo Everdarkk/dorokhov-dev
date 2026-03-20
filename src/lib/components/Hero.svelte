@@ -454,7 +454,7 @@
 
 	.image-container {
 		width: 100%;
-		max-width: clamp(150px, 40vw, 350px);
+		max-width: clamp(150px, 40vw, 500px);
 		aspect-ratio: 1;
 	}
 
@@ -767,7 +767,7 @@
 		}
 
 		.image-container {
-			max-width: clamp(250px, 15vw, 300px);
+			max-width: clamp(250px, 30vw, 300px);
 			margin: 0 auto;
 		}
 
@@ -807,6 +807,10 @@
 
 		.image-container {
 			max-width: clamp(180px, 50vw, 300px);
+		}
+
+		.data-stream-window {
+			display: none;
 		}
 	}
 
