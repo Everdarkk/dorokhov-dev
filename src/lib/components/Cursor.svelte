@@ -420,4 +420,11 @@
     bottom: 50%; right: 50%;
     transform: translate(50%, 50%) rotate(45deg);
   }
+
+  /* MEDIA QUERIES */
+  @media (pointer: coarse) {
+    * {
+      display: none;
+    }
+  }
 </style>

@@ -392,7 +392,7 @@
 		font-size: var(--font-caption);
 		color: var(--cp-green);
 		overflow: hidden;
-		height: auto;
+		height: clamp(100px, 20vw, 250px);
 		max-height: clamp(120px, 20vh, 180px);
 		margin-top: clamp(0.5rem, 1vw, 1rem);
 		background-clip: padding-box;
@@ -599,7 +599,7 @@
 
 	.action-btn:disabled {
 		opacity: 0.5;
-		cursor: not-allowed;
+		cursor: none;
 	}
 
 	.contact-btn {
