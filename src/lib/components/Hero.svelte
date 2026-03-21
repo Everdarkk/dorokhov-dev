@@ -571,7 +571,7 @@
 		flex-wrap: wrap;
 		position: relative;
 		z-index: 10;
-		margin-top: clamp(0.5rem, 1vw, 1rem);
+		margin-block: clamp(0.5rem, 1vw, 1rem);
 		width: 100%;
 		max-width: clamp(300px, 95vw, 1200px);
 	}

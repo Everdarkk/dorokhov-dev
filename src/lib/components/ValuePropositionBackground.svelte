@@ -43,16 +43,29 @@
 		// Handle responsive updates
 		const handleResize = () => {
 			const newWidth = window.innerWidth;
-			if (newWidth < 768 && particleCount > 20) {
-				particleCount = 20;
-				particles = particles.slice(0, particleCount);
-			} else if (newWidth >= 768 && newWidth < 1024 && particleCount > 25) {
-				particleCount = 25;
-				particles = particles.slice(0, particleCount);
-			} else if (newWidth >= 1024 && particleCount < 30) {
-				particleCount = 30;
+			let targetParticleCount;
+
+			if (newWidth < 768) {
+				targetParticleCount = 20;
+			} else if (newWidth < 1024) {
+				targetParticleCount = 25;
+			} else {
+				targetParticleCount = 30;
+			}
+
+			if (targetParticleCount === particles.length) {
+				return; // No change needed
+			}
+
+			particleCount = targetParticleCount;
+
+			if (targetParticleCount < particles.length) {
+				// Reduce particles
+				particles = particles.slice(0, targetParticleCount);
+			} else {
+				// Add particles
 				const newParticles = Array.from(
-					{ length: particleCount - particles.length },
+					{ length: targetParticleCount - particles.length },
 					(_, i) => ({
 						id: particles.length + i,
 						x: Math.random() * 100,

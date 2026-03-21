@@ -77,11 +77,15 @@
 				<path d="M9 12l2 2 4-4"></path>
 			</svg>`,
 			spark: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-				<circle cx="12" cy="12" r="1"></circle>
-				<path d="M12 1v6m0 6v6"></path>
-				<path d="M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24"></path>
-				<path d="M1 12h6m6 0h6"></path>
-				<path d="M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"></path>
+				<circle cx="12" cy="12" r="1.5"></circle>
+				<line x1="12" y1="2" x2="12" y2="7"></line>
+				<line x1="12" y1="17" x2="12" y2="22"></line>
+				<line x1="2" y1="12" x2="7" y2="12"></line>
+				<line x1="17" y1="12" x2="22" y2="12"></line>
+				<line x1="4.93" y1="4.93" x2="8.46" y2="8.46"></line>
+				<line x1="15.54" y1="15.54" x2="19.07" y2="19.07"></line>
+				<line x1="19.07" y1="4.93" x2="15.54" y2="8.46"></line>
+				<line x1="8.46" y1="15.54" x2="4.93" y2="19.07"></line>
 			</svg>`
 		};
 
@@ -121,7 +125,7 @@
 
 	<!-- Section header -->
 	<div class="vp-header">
-		<h2 class="vp-title">VALUE PROPOSITION</h2>
+		<h2 class="vp-title">Value Proposition</h2>
 		<div class="vp-header-accent"></div>
 	</div>
 
@@ -174,14 +178,14 @@
 	.vp-section {
 		position: relative;
 		width: 100%;
-        min-height: 90dvh;
+        min-height: 80dvh;
 		padding: var(--section-padding);
 		background-color: var(--cp-bg);
 		overflow: hidden;
 		z-index: 1;
         display: flex;
 		flex-direction: column;
-		
+		gap: 1rem;
 	}
 
 	.vp-container {
@@ -190,6 +194,8 @@
 		z-index: 1;
         display: flex;
         flex-direction: column;
+		flex: 1;
+		justify-content: center;
 	}
 
 	/* Section header */
@@ -202,11 +208,10 @@
 
 	.vp-title {
 		font-size: var(--font-h3);
-		font-family: var(--font-logo);
+		font-family: var(--font-ui);
 		font-weight: 700;
 		color: var(--cp-cyan);
 		letter-spacing: 0.1em;
-		text-transform: uppercase;
 		margin-bottom: 1rem;
 		text-shadow: 0 0 20px rgba(0, 247, 255, 0.5);
 		animation: titleGlow 3s ease-in-out infinite;
@@ -243,8 +248,11 @@
 	/* Cards grid layout */
 	.vp-cards-grid {
 		
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		/* display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); */
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
 		gap: var(--card-gap);
 		position: relative;
 		z-index: 2;
@@ -253,15 +261,16 @@
 	/* Card styling */
 	.vp-card {
 		position: relative;
-		padding: clamp(1.5rem, 4vw, 2.5rem);
+		padding: clamp(1rem, 2vw, 2.5rem);
 		background: linear-gradient(135deg, rgba(16, 66, 233, 0.1) 0%, rgba(16, 66, 233, 0.05) 100%);
-		border: 2px solid var(--vp-border-color);
+		min-width: 250px;
 		overflow: hidden;
 		transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 		transform: translateY(40px);
 		opacity: 0;
 		will-change: transform, box-shadow, border-color;
 		cursor: none;
+		flex: 0;
 	}
 
 	.vp-card--visible {
@@ -283,7 +292,7 @@
 
 	/* Card hover state */
 	.vp-card:hover {
-		transform: translateY(-5px) scale(1.02);
+		transform: scale(1.05);
 		border-color: var(--vp-border-color-hover);
 	}
 
@@ -398,9 +407,10 @@
 
 	/* Title styling */
 	.vp-card__title {
-		font-size: var(--font-h5);
-		font-family: var(--font-logo);
+		font-size: var(--font-h6);
+		font-family: var(--font-ui);
 		font-weight: 700;
+		text-align: center;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		margin-bottom: 1rem;
@@ -494,6 +504,9 @@
 	}
 
 	/* Responsive design */
+	@media (max-width: 1250px) {
+
+	}
 	@media (max-width: 768px) {
 		.vp-cards-grid {
 			grid-template-columns: 1fr;
@@ -520,6 +533,14 @@
 		}
 	}
 
+	/* Mobile */
+	@media (max-width: 450px) {
+		.vp-section {
+			padding-top: 1rem;	
+		}
+	}
+
+	
 	/* Accessibility: Reduce animations for users who prefer reduced motion */
 	@media (prefers-reduced-motion: reduce) {
 		.vp-card,
