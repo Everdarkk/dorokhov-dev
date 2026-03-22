@@ -102,6 +102,8 @@
 
 		// Recalculate on resize so wide/narrow windows always stay seamless
 		function onResize(): void {
+			if (!setAEl) return;
+			loopWidth = setAEl.offsetWidth;
 			if (loopWidth > 0) {
 				setCopies = Math.ceil(window.innerWidth / loopWidth) + 2;
 			}
