@@ -1,10 +1,26 @@
 <script lang="ts">
 	import { menuItems, type MenuItem } from '../data/menu';
+	import { onDestroy } from 'svelte';
+
+	const bodyNoScrollClass = 'navigation-mobile-menu-open';
 
 	// State
 	let isMobileMenuOpen: boolean = false;
 	let activeItem: number | null = null;
 	let isVisible: boolean = true;
+
+	// Keep document scroll locked via body class when mobile menu is open
+	$: {
+		if (typeof document !== 'undefined') {
+			document.body.classList.toggle(bodyNoScrollClass, isMobileMenuOpen);
+		}
+	}
+
+	onDestroy(() => {
+		if (typeof document !== 'undefined') {
+			document.body.classList.remove(bodyNoScrollClass);
+		}
+	});
 
 	// Handlers
 	function toggleMenu(): void {
@@ -129,7 +145,7 @@
 		position: relative;
 		inset: 0;
 		width: 100%;
-		height: 5rem;
+		height: var(--nav-h);
 		z-index: 100;
 		background: var(--cp-bg-glass);
 		backdrop-filter: blur(18px) saturate(1.4);
@@ -143,6 +159,12 @@
 
 	.header.hidden {
 		transform: translateY(-100%);
+	}
+
+	:global(body.navigation-mobile-menu-open) {
+		overflow: hidden !important;
+		overscroll-behavior: none !important;
+		touch-action: none !important;
 	}
 
 	/* ─── Animated Gradient Border ────────────────────────────────────── */
@@ -214,7 +236,7 @@
 		align-items: center;
 		gap: 0.1em;
 		text-decoration: none;
-		font-family: var(--font-logo);
+		font-family: var(--font-bionical);
 		font-size: clamp(0.5rem, 1.2vw, 1rem);
 		font-weight: 700;
 		color: var(--cp-text);
@@ -280,7 +302,7 @@
 		gap: 0.5rem;
 		padding: 0.45rem 0.75rem;
 		text-decoration: none;
-		font-family: "Courier Prime";
+		font-family: var(--font-bionical);
 		font-size: 0.8rem;
 		letter-spacing: 0.12em;
 		text-transform: uppercase;
@@ -379,7 +401,7 @@
 		position: absolute;
 		right: 0;
 		width: min(500px, 100vw);
-		height: 100dvh;
+		height: calc(100dvh - var(--nav-h));
 		background: var(--cp-bg-glass);
 		z-index: 900;
 		display: flex;
@@ -434,10 +456,9 @@
 		border: 1px solid transparent;
 		border-left: 2px solid transparent;
 		color: var(--cp-muted);
-		font-family: var(--font-ui);
-		font-size: 1.05rem;
+		font-family: var(--font-bionical);
 		font-weight: 600;
-		letter-spacing: 0.08em;
+		letter-spacing: 0.12em;
 		text-transform: uppercase;
 		transition: all 0.25s;
 	}
@@ -465,7 +486,10 @@
 		opacity: 0.7;
 	}
 
-	.mobile-label { flex: 1; }
+	.mobile-label { 
+		flex: 1;
+		font-size: 0.8rem;
+	}
 
 	.mobile-arrow {
 		font-size: 1.2rem;

@@ -1,25 +1,26 @@
 /* FONTS */
 @font-face {
-    font-family: 'Cyberspace';
+    font-family: 'Bionical';
     font-style: normal;
     font-weight: normal;
     font-display: swap;
-    src: url("/fonts/Cyberspace.woff"), url('Cyberspace.woff') format('woff');
+    src: url("/fonts/Bionical.woff2"), url('Bionical.woff2') format('woff2');
 }
 @font-face {
-    font-family: 'Azaro';
+    font-family: 'CyberCipher';
     font-style: normal;
     font-weight: normal;
     font-display: swap;
-    src: url("/fonts/Azaro.woff"), url('Azaro.woff') format('woff');
+    src: url("/fonts/CyberCipher.woff2"), url('CyberCipher.woff2') format('woff2');
 }
 @font-face {
-    font-family: 'SpaceArmor';
+    font-family: 'CyberGrid';
     font-style: normal;
     font-weight: normal;
     font-display: swap;
-    src: url("/fonts/SpaceArmor.woff"), format('woff');
+    src: url("/fonts/CyberGrid.woff2"), url('CyberGrid.woff2') format('woff2');
 }
+
 /* ROOT */
 :root {
     /* Colors */
@@ -37,12 +38,14 @@
 	--cp-border:      rgba(0, 247, 255, 0.247);
 
     /* Fonts */
-	--font-logo:   'SpaceArmor', sans-serif;
-	--font-mono:   'Сourier Prime', monospace;
 	--font-ui:     'Сourier Prime', monospace;
+    --font-cipher: 'CyberCipher', sans-serif;
+    --font-grid: 'CyberGrid', sans-serif;
+    --font-bionical: 'Bionical', sans-serif;
+
 
     /* Sizes */
-	--nav-h:       4.5rem;
+	--nav-h:       5rem;
 	--max-w:       1400px;
 
     /* Display */
