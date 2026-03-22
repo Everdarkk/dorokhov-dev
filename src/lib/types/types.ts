@@ -48,3 +48,13 @@ export interface ActionButton {
 	target?: '_blank' | '_self' | '_parent' | '_top';
 	className?: string;
 }
+
+/**
+ * Marquee item interface
+ */
+export interface MarqueeItem {
+	id: string;
+	label: string;
+	icon: string;
+	color: 'cyan' | 'pink' | 'purple' | 'yellow' | 'green';
+}
