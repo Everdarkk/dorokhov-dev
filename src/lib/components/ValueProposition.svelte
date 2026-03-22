@@ -207,9 +207,10 @@
 	}
 
 	.vp-title {
-		font-size: var(--font-h3);
-		font-family: var(--font-ui);
-		font-weight: 700;
+		font-size: var(--font-h2);
+		font-family: var(--font-bionical);
+		text-transform: uppercase;
+		font-weight: 300;
 		color: var(--cp-cyan);
 		letter-spacing: 0.1em;
 		margin-bottom: 1rem;
@@ -247,15 +248,13 @@
 
 	/* Cards grid layout */
 	.vp-cards-grid {
-		
-		/* display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); */
+		position: relative;
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
 		gap: var(--card-gap);
-		position: relative;
 		z-index: 2;
+		
 	}
 
 	/* Card styling */
@@ -263,7 +262,7 @@
 		position: relative;
 		padding: clamp(1rem, 2vw, 2.5rem);
 		background: linear-gradient(135deg, rgba(16, 66, 233, 0.1) 0%, rgba(16, 66, 233, 0.05) 100%);
-		min-width: 250px;
+		min-width: 320px;
 		overflow: hidden;
 		transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 		transform: translateY(40px);
@@ -408,13 +407,12 @@
 	/* Title styling */
 	.vp-card__title {
 		font-size: var(--font-h6);
-		font-family: var(--font-ui);
-		font-weight: 700;
+		font-family: var(--font-bionical);
+		font-weight: 400;
 		text-align: center;
-		letter-spacing: 0.08em;
+		letter-spacing: 0.12em;
 		text-transform: uppercase;
 		margin-bottom: 1rem;
-		color: white;
 		position: relative;
 		z-index: 2;
 	}
@@ -536,7 +534,12 @@
 	/* Mobile */
 	@media (max-width: 450px) {
 		.vp-section {
-			padding-top: 1rem;	
+			padding: 1rem;
+
+		}
+
+		.vp-card {
+			min-width: 100%;
 		}
 	}
 
