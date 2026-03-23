@@ -7,6 +7,7 @@
 	 */
 
 	import { onMount } from 'svelte';
+	import SectionTitle from './SectionTitle.svelte';
 	import ValuePropositionBackground from './ValuePropositionBackground.svelte';
 	import {
 		VALUE_PROP_CARDS,
@@ -124,10 +125,12 @@
 	<ValuePropositionBackground />
 
 	<!-- Section header -->
-	<div class="vp-header">
-		<h2 class="vp-title">Value Proposition</h2>
-		<div class="vp-header-accent"></div>
-	</div>
+	<SectionTitle
+		title="Value Proposition"
+		variant="elaborate"
+		label="VALUE_PROPOSITION.exe"
+		isVisible={true}
+	/>
 
 	<!-- Content container with positioning context -->
 	<div class="vp-container">
@@ -196,54 +199,6 @@
         flex-direction: column;
 		flex: 1;
 		justify-content: center;
-	}
-
-	/* Section header */
-	.vp-header {
-		text-align: center;
-		position: relative;
-		height: 50%;
-		z-index: 2;
-	}
-
-	.vp-title {
-		font-size: var(--font-h2);
-		font-family: var(--font-bionical);
-		text-transform: uppercase;
-		font-weight: 300;
-		color: var(--cp-cyan);
-		letter-spacing: 0.1em;
-		margin-bottom: 1rem;
-		text-shadow: 0 0 20px rgba(0, 247, 255, 0.5);
-		animation: titleGlow 3s ease-in-out infinite;
-	}
-
-	@keyframes titleGlow {
-		0%, 100% {
-			text-shadow: 0 0 20px rgba(0, 247, 255, 0.5);
-		}
-		50% {
-			text-shadow: 0 0 40px rgba(0, 247, 255, 0.8);
-		}
-	}
-
-	.vp-header-accent {
-		width: 60px;
-		height: 3px;
-		background: linear-gradient(90deg, transparent, var(--cp-cyan), transparent);
-		margin: 0 auto;
-		animation: accentPulse 2s ease-in-out infinite;
-	}
-
-	@keyframes accentPulse {
-		0%, 100% {
-			width: 60px;
-			opacity: 0.5;
-		}
-		50% {
-			width: 100px;
-			opacity: 1;
-		}
 	}
 
 	/* Cards grid layout */
@@ -547,8 +502,6 @@
 	/* Accessibility: Reduce animations for users who prefer reduced motion */
 	@media (prefers-reduced-motion: reduce) {
 		.vp-card,
-		.vp-title,
-		.vp-header-accent,
 		.vp-card__icon,
 		.vp-card__corner {
 			animation: none !important;
