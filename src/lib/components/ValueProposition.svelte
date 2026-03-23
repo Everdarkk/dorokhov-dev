@@ -3,10 +3,12 @@
 	 * ValueProposition Component
 	 *
 	 * Displays four centered, adaptive cards showcasing key value propositions
-	 * with cyberpunk styling, responsive design, and performance optimizations
+	 * with cyberpunk styling, responsive design, and performance optimizations.
+	 *
+	 * Scroll-in animation is now driven by the shared `scrollReveal` action
+	 * instead of being hardcoded to fire on page load.
 	 */
 
-	import { onMount } from 'svelte';
 	import SectionTitle from './SectionTitle.svelte';
 	import ValuePropositionBackground from './ValuePropositionBackground.svelte';
 	import {
@@ -16,28 +18,36 @@
 		type ValuePropCard
 	} from '$lib/constants/value-proposition.constants';
 	import { BREAKPOINTS } from '$lib/constants/hero.constants';
+	import { scrollReveal } from '$lib/actions/scrollReveal';
 
 	// ─── State ───────────────────────────────────────────────────────────
 
 	let screenWidth: number = typeof window !== 'undefined' ? window.innerWidth : 0;
 	let isMobile = false;
 	let isTablet = false;
-	let visibleCards: boolean[] = Array(VALUE_PROP_CARDS.length).fill(false);
+
+	/**
+	 * `sectionVisible` is set to true by the scrollReveal action the first time
+	 * the section enters the viewport. Cards animate in via CSS once this flips.
+	 * This replaces the old `visibleCards` boolean array and the hardcoded
+	 * `onMount` stagger — the stagger is now handled in CSS with `animation-delay`.
+	 */
+	let sectionVisible = false;
 
 	// ─── Lifecycle ───────────────────────────────────────────────────────
+
+	// Only the resize listener remains here; IntersectionObserver is in the action.
+	$: if (typeof window !== 'undefined') {
+		screenWidth = window.innerWidth;
+		updateBreakpoints();
+	}
+
+	import { onMount } from 'svelte';
 
 	onMount(() => {
 		screenWidth = window.innerWidth;
 		updateBreakpoints();
 
-		// Stagger card visibility for entrance animation
-		VALUE_PROP_CARDS.forEach((_, index) => {
-			setTimeout(() => {
-				visibleCards[index] = true;
-			}, index * VP_ANIMATION_CONFIG.cardStaggerDelay * 1000);
-		});
-
-		// Handle window resize
 		const handleResize = () => {
 			screenWidth = window.innerWidth;
 			updateBreakpoints();
@@ -120,26 +130,39 @@
 </script>
 
 <!-- Value Proposition Section -->
-<section class="vp-section" style="--card-gap: {getCardGap()}; --section-padding: {getSectionPadding()};">
+<!--
+	`scrollReveal` fires once when the section scrolls into view (threshold 0.08).
+	The `reveal` event sets `sectionVisible = true`, which in turn:
+	  • passes `isVisible` to SectionTitle so it can animate its own entrance
+	  • adds `vp-cards-grid--visible` to the grid, triggering the per-card
+	    CSS stagger animation via `animation-delay: calc(var(--card-index) * 0.1s)`
+	No JS timers or per-card state arrays are needed anymore.
+-->
+<section
+	class="vp-section"
+	use:scrollReveal={{ threshold: 0.08 }}
+	on:reveal={() => (sectionVisible = true)}
+	style="--card-gap: {getCardGap()}; --section-padding: {getSectionPadding()};"
+>
 	<!-- Background component -->
 	<ValuePropositionBackground />
 
-	<!-- Section header -->
+	<!-- Section header — now correctly invisible until scrolled into view -->
 	<SectionTitle
 		title="Value Proposition"
 		variant="elaborate"
 		label="VALUE_PROPOSITION.exe"
-		isVisible={true}
+		isVisible={sectionVisible}
 	/>
 
 	<!-- Content container with positioning context -->
 	<div class="vp-container">
 
-		<!-- Cards grid -->
-		<div class="vp-cards-grid">
+		<!-- Cards grid — `vp-cards-grid--visible` enables the CSS stagger -->
+		<div class="vp-cards-grid" class:vp-cards-grid--visible={sectionVisible}>
 			{#each VALUE_PROP_CARDS as card, index (card.id)}
 				<div
-					class="vp-card {getAccentColorClass(card.accentColor)} {visibleCards[index] ? 'vp-card--visible' : ''}"
+					class="vp-card {getAccentColorClass(card.accentColor)}"
 					style="--card-index: {index}"
 					data-card-id={card.id}
 				>
@@ -209,17 +232,19 @@
 		justify-content: center;
 		gap: var(--card-gap);
 		z-index: 2;
-		
 	}
 
-	/* Card styling */
+	/* Card base state — hidden before reveal */
 	.vp-card {
 		position: relative;
 		padding: clamp(1rem, 2vw, 2.5rem);
 		background: linear-gradient(135deg, rgba(16, 66, 233, 0.1) 0%, rgba(16, 66, 233, 0.05) 100%);
 		min-width: 320px;
 		overflow: hidden;
-		transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+		transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+		            box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+		            border-color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+		/* Cards start invisible; animation is triggered by the parent class below */
 		transform: translateY(40px);
 		opacity: 0;
 		will-change: transform, box-shadow, border-color;
@@ -227,9 +252,13 @@
 		flex: 0;
 	}
 
-	.vp-card--visible {
-		animation: cardEnter var(--vp-animation-duration, 0.8s) cubic-bezier(0.34, 1.56, 0.64, 1)
-			forwards;
+	/*
+	 * When the section has been revealed, each card plays its entrance animation.
+	 * The CSS-only stagger (--card-index * 0.1s) replaces the old JS setTimeout loop.
+	 * `animation-fill-mode: forwards` keeps the card visible after the animation ends.
+	 */
+	.vp-cards-grid--visible .vp-card {
+		animation: cardEnter var(--vp-animation-duration, 0.8s) cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 		animation-delay: calc(var(--card-index, 0) * 0.1s);
 	}
 
@@ -244,7 +273,7 @@
 		}
 	}
 
-	/* Card hover state */
+	/* Card hover state — only translate when not mid-entrance animation */
 	.vp-card:hover {
 		transform: scale(1.05);
 		border-color: var(--vp-border-color-hover);
@@ -490,7 +519,6 @@
 	@media (max-width: 450px) {
 		.vp-section {
 			padding: 1rem;
-
 		}
 
 		.vp-card {
@@ -498,7 +526,6 @@
 		}
 	}
 
-	
 	/* Accessibility: Reduce animations for users who prefer reduced motion */
 	@media (prefers-reduced-motion: reduce) {
 		.vp-card,
@@ -508,7 +535,8 @@
 			transition: none !important;
 		}
 
-		.vp-card--visible {
+		/* Immediately show cards regardless of scroll position */
+		.vp-card {
 			transform: translateY(0);
 			opacity: 1;
 		}

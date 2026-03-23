@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
 	import SectionTitle from './SectionTitle.svelte';
+	import { scrollReveal } from '$lib/actions/scrollReveal';
 
 	// ─── Types ────────────────────────────────────────────────────────────────
 
@@ -24,8 +24,6 @@
 	}
 
 	// ─── Data ─────────────────────────────────────────────────────────────────
-	// Replace with real project data. videoUrl / videoPoster can be empty strings
-	// — the component handles missing media gracefully.
 
 	const PROJECTS: Project[] = [
 		{
@@ -140,8 +138,7 @@
 	let activeId = PROJECTS[0].id;
 	let prevId   = '';
 	let transitioning = false;
-	let sectionEl: HTMLElement;
-	let visible = false;       // intersection observer driven
+	let visible = false;       // driven by scrollReveal action
 	let videoEl: HTMLVideoElement | undefined;
 
 	$: active  = PROJECTS.find(p => p.id === activeId)!;
@@ -154,11 +151,9 @@
 		transitioning = true;
 		prevId        = activeId;
 
-		// A tiny tick lets Svelte apply the 'exiting' class before we change activeId
 		setTimeout(() => {
 			activeId      = id;
 			prevId        = '';
-			// unlock after the entrance animation (~420 ms)
 			setTimeout(() => { transitioning = false; }, 450);
 		}, 30);
 	}
@@ -175,38 +170,21 @@
 			selectProject(PROJECTS[Math.max(idx - 1, 0)].id);
 		}
 	}
-
-	// ─── Intersection Observer — entrance animation ────────────────────────────
-
-	let observer: IntersectionObserver | null = null;
-
-	onMount((): void => {
-		if (typeof IntersectionObserver === 'undefined') {
-			visible = true;
-			return;
-		}
-		observer = new IntersectionObserver(
-			(entries) => {
-				if (entries[0].isIntersecting) {
-					visible = true;
-					observer?.disconnect();
-				}
-			},
-			{ threshold: 0.08 }
-		);
-		observer.observe(sectionEl);
-	});
-
-	onDestroy((): void => {
-		observer?.disconnect();
-	});
 </script>
 
 <!-- ─── Markup ──────────────────────────────────────────────────────────── -->
+<!--
+	The `scrollReveal` action replaces the manual onMount/onDestroy
+	IntersectionObserver setup. When the section enters the viewport it:
+	  1. Adds the CSS class `is-revealed` to the element (activeClass default)
+	  2. Dispatches a custom `reveal` event that we handle to set `visible = true`
+	The action automatically disconnects and cleans up on destroy.
+-->
 <section
 	class="rl-section"
 	class:is-visible={visible}
-	bind:this={sectionEl}
+	use:scrollReveal={{ threshold: 0.08 }}
+	on:reveal={() => (visible = true)}
 	id="launches"
 	aria-label="Recent launches"
 >
