@@ -58,3 +58,22 @@ export interface MarqueeItem {
 	icon: string;
 	color: 'cyan' | 'pink' | 'purple' | 'yellow' | 'green';
 }
+
+export interface ProjectKey {
+		label: string;
+		value: string;
+	}
+
+export interface Project {
+	id: string;
+	index: string;          // e.g. "01"
+	name: string;
+	tag: string;            // short category tag
+	year: string;
+	url: string;
+	color: 'cyan' | 'pink' | 'purple' | 'yellow' | 'green';
+	description: string;
+	keys: ProjectKey[];     // key achievements / what was built
+	videoUrl: string;       // URL to screen-capture video (mp4 / webm)
+	videoPoster: string;    // poster image for the video
+}
