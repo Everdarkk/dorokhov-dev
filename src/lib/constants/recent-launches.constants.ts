@@ -37,7 +37,7 @@ export const PROJECTS: Project[] = [
       { label: 'Deploy',   value: 'Vercel' },
     ],
     videoUrl: '/src/lib/assets/videos/om.webm',
-    videoPoster: '/src/lib/assets/videos/om.webp',
+    videoPoster: '/src/lib/assets/images/om.webp',
   },
   {
     id: 'proj-03',
@@ -56,7 +56,7 @@ export const PROJECTS: Project[] = [
       { label: 'Features', value: 'Auth · Feed · Tags · Favorites · Avatars' },
     ],
     videoUrl: '/src/lib/assets/videos/taga.webm',
-    videoPoster: '/src/lib/assets/videos/taga.webp',
+    videoPoster: '/src/lib/assets/images/taga.webp',
   },
   {
     id: 'proj-04',
@@ -75,7 +75,7 @@ export const PROJECTS: Project[] = [
       { label: 'Data',     value: 'SWR · server-side API routes' },
     ],
     videoUrl: '/src/lib/assets/videos/nn.webm',
-    videoPoster: '/src/lib/assets/videos/nn.webp',
+    videoPoster: '/src/lib/assets/images/nn.webp',
   },
   {
     id: 'proj-05',
@@ -94,7 +94,7 @@ export const PROJECTS: Project[] = [
       { label: 'Scope',    value: 'Client project · 86 commits · live' },
     ],
     videoUrl: '/src/lib/assets/videos/tt.webm',
-    videoPoster: '/src/lib/assets/videos/tt.webp',
+    videoPoster: '/src/lib/assets/images/tt.webp',
   },
 ];
 
