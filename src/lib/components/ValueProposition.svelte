@@ -147,49 +147,45 @@
 	<!-- Background component -->
 	<ValuePropositionBackground />
 
-	<!-- Section header — now correctly invisible until scrolled into view -->
-	<SectionTitle
-		title="Value Proposition"
-		variant="elaborate"
-		label="VALUE_PROPOSITION.exe"
-		isVisible={sectionVisible}
-	/>
-
-	<!-- Content container with positioning context -->
-	<div class="vp-container">
-
-		<!-- Cards grid — `vp-cards-grid--visible` enables the CSS stagger -->
-		<div class="vp-cards-grid" class:vp-cards-grid--visible={sectionVisible}>
-			{#each VALUE_PROP_CARDS as card, index (card.id)}
-				<div
-					class="vp-card {getAccentColorClass(card.accentColor)}"
-					style="--card-index: {index}"
-					data-card-id={card.id}
-				>
-					<!-- Glow effect background -->
-					<div class="vp-card__glow"></div>
-
-					<!-- Card border accent -->
-					<div class="vp-card__border"></div>
-
-					<!-- Icon -->
-					<div class="vp-card__icon">
-						{@html getSvgIcon(card.icon)}
+	<div class="vp-inner">
+		<!-- Section header — now correctly invisible until scrolled into view -->
+		<SectionTitle
+			title="Value Proposition"
+			variant="elaborate"
+			label="VALUE_PROPOSITION.exe"
+			isVisible={sectionVisible}
+		/>
+		
+		<!-- Content container with positioning context -->
+		<div class="vp-container">
+			<!-- Cards grid — `vp-cards-grid--visible` enables the CSS stagger -->
+			<div class="vp-cards-grid" class:vp-cards-grid--visible={sectionVisible}>
+				{#each VALUE_PROP_CARDS as card, index (card.id)}
+					<div
+						class="vp-card {getAccentColorClass(card.accentColor)}"
+						style="--card-index: {index}"
+						data-card-id={card.id}
+					>
+						<!-- Glow effect background -->
+						<div class="vp-card__glow"></div>
+						<!-- Card border accent -->
+						<div class="vp-card__border"></div>
+						<!-- Icon -->
+						<div class="vp-card__icon">
+							{@html getSvgIcon(card.icon)}
+						</div>
+						<!-- Title -->
+						<h3 class="vp-card__title">{card.title}</h3>
+						<!-- Description -->
+						<p class="vp-card__description">{card.description}</p>
+						<!-- Corner accent marks -->
+						<div class="vp-card__corner vp-card__corner--top-left"></div>
+						<div class="vp-card__corner vp-card__corner--top-right"></div>
+						<div class="vp-card__corner vp-card__corner--bottom-left"></div>
+						<div class="vp-card__corner vp-card__corner--bottom-right"></div>
 					</div>
-
-					<!-- Title -->
-					<h3 class="vp-card__title">{card.title}</h3>
-
-					<!-- Description -->
-					<p class="vp-card__description">{card.description}</p>
-
-					<!-- Corner accent marks -->
-					<div class="vp-card__corner vp-card__corner--top-left"></div>
-					<div class="vp-card__corner vp-card__corner--top-right"></div>
-					<div class="vp-card__corner vp-card__corner--bottom-left"></div>
-					<div class="vp-card__corner vp-card__corner--bottom-right"></div>
-				</div>
-			{/each}
+				{/each}
+			</div>
 		</div>
 	</div>
 </section>
@@ -205,13 +201,30 @@
 		position: relative;
 		width: 100%;
         min-height: 80dvh;
-		padding: var(--section-padding);
 		background-color: var(--cp-bg);
 		overflow: hidden;
 		z-index: 1;
         display: flex;
 		flex-direction: column;
 		gap: 1rem;
+	}
+
+	.vp-inner {
+		position: relative;
+		z-index: 2;
+		margin: 0 auto;
+		padding: clamp(3rem, 8vw, 6rem) clamp(1rem, 4vw, 3rem);
+		display: flex;
+		flex-direction: column;
+		gap: clamp(2rem, 5vw, 4rem);
+		max-width: var(--max-w);
+
+	}
+
+	.vp-header-wrap {
+		width: var(--max-w);
+		margin: 0 auto;
+		z-index: 1;
 	}
 
 	.vp-container {
