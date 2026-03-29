@@ -3,6 +3,7 @@
   import Marquee from "$lib/components/Marquee.svelte";
   import RecentLaunches from "$lib/components/RecentLaunches.svelte";
   import ValueProposition from "$lib/components/ValueProposition.svelte";
+  import WorkProcess from "$lib/components/WorkProcess.svelte";
 </script>
 
 <!-- STRUCTURE -->
@@ -10,3 +11,4 @@
 <Marquee />
 <ValueProposition />
 <RecentLaunches />
+<WorkProcess />
