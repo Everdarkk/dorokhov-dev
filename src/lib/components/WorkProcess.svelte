@@ -19,16 +19,16 @@
 	 * Touch / swipe supported via pointer events.
 	 */
 
-	import SectionTitle from './SectionTitle.svelte';
-	import WorkProcessBackground from './WorkProcessBackground.svelte';
-	import { scrollReveal } from '$lib/actions/scrollReveal';
+	import SectionTitle from './SectionTitle.svelte'
+	import background from '$lib/assets/images/background.svg'
+	import { scrollReveal } from '$lib/actions/scrollReveal'
 	import {
 		WORK_STEPS,
 		WP_ANIMATION_CONFIG,
 		type StepAccentColor,
 		STEP_ACCENT_COLOR_MAP,
 		WORK_STEP_ICONS,
-	} from '$lib/constants/work-process.constants';
+	} from '$lib/constants/work-process.constants'
 
 	// ─── State ────────────────────────────────────────────────────────────────
 
@@ -111,10 +111,11 @@
 	on:reveal={() => (sectionVisible = true)}
 	aria-label="How I Work – process carousel"
 	tabindex="-1"
+
 >
 
 	<!-- Animated perspective-halftone background -->
-	<WorkProcessBackground color={colorVar(step.accentColor)} />
+	<!-- <WorkProcessBackground color={colorVar(step.accentColor)} /> -->
 
 	<!-- ── Content wrapper ────────────────────────────────────────────────── -->
 	<div class="wp-inner">
@@ -252,6 +253,11 @@
 		display: flex;
 		align-items: stretch;
 		outline: none;
+		background-image: url('/src/lib/assets/images/background.svg');
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: contain;
+
 	}
 
 	.wp-inner {
