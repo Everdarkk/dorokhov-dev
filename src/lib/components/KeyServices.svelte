@@ -22,32 +22,23 @@
 	} from '$lib/constants/key-services.constants';
 	import DitherBackground from './DitherBackground.svelte';
 
-	// ─── State ────────────────────────────────────────────────────────────────
+	// ─── Icons ────────────────────────────────────────────────────────────────
+	// Defined at module scope — allocated once, never re-created per render call.
+	//
+	// Design principles:
+	//  - Primary structure: stroke, stroke-width 1.5, round caps/joins
+	//  - Accent fills: currentColor with explicit opacity layers
+	//  - Visual weight balanced around the 32,32 centre point
+	//  - No transforms on individual elements (avoids sub-pixel drift)
+	//  - Consistent padding: 6px margin from edge on all sides
 
-	let visible = false;
+	const SERVICE_ICONS: Record<string, string> = {
 
-	// ─── Helpers ──────────────────────────────────────────────────────────────
-
-	const accentVar = (a: ServiceAccent): string => ACCENT_VARS[a];
-
-	/**
-	 * Production-grade SVG icons — 64×64 viewport, 8-pt grid, pixel-snapped.
-	 *
-	 * Design principles applied to each:
-	 *  - Primary structure: stroke, stroke-width 1.5, round caps/joins
-	 *  - Accent fills: currentColor with explicit opacity layers
-	 *  - Visual weight balanced around the 32,32 centre point
-	 *  - No transforms on individual elements (avoids sub-pixel drift)
-	 *  - Consistent padding: 6px margin from edge on all sides
-	 */
-	function getIcon(name: string): string {
-		const icons: Record<string, string> = {
-
-			// ── Landing Page ────────────────────────────────────────────────────
-			// A browser window with a polished hero layout inside.
-			// Elements: chrome bar, traffic lights, address bar, hero headline
-			// placeholder, subtitle block, and a CTA button — all pixel-snapped.
-			landing: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"
+		// ── Landing Page ────────────────────────────────────────────────────
+		// A browser window with a polished hero layout inside.
+		// Elements: chrome bar, traffic lights, address bar, hero headline
+		// placeholder, subtitle block, and a CTA button — all pixel-snapped.
+		landing: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"
 					stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
 					aria-hidden="true">
 
@@ -288,8 +279,14 @@
 			</svg>`,
 		};
 
-		return icons[name] ?? icons.landing;
-	}
+	// ─── State ────────────────────────────────────────────────────────────────
+
+	let visible = false;
+
+	// ─── Helpers ──────────────────────────────────────────────────────────────
+
+	const accentVar = (a: ServiceAccent): string => ACCENT_VARS[a];
+	const getIcon = (name: string): string => SERVICE_ICONS[name] ?? SERVICE_ICONS.landing;
 </script>
 
 <!-- ─── Section ──────────────────────────────────────────────────────────── -->
