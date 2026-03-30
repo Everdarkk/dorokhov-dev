@@ -4,6 +4,7 @@
   import RecentLaunches from "$lib/components/RecentLaunches.svelte";
   import ValueProposition from "$lib/components/ValueProposition.svelte";
   import WorkProcess from "$lib/components/WorkProcess.svelte";
+  import KeyServices from "$lib/components/KeyServices.svelte";
 </script>
 
 <!-- STRUCTURE -->
@@ -12,3 +13,4 @@
 <ValueProposition />
 <RecentLaunches />
 <WorkProcess />
+<KeyServices />
