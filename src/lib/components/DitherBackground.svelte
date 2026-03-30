@@ -96,6 +96,9 @@
     ];
   }
 
+  $: rgbA = hexToRGB(colorA);
+  $: rgbB = hexToRGB(colorB);
+
   // ── GLSL ──────────────────────────────────────────────────────────────────
 
   const VERT = /* glsl */`#version 300 es
@@ -357,10 +360,9 @@
 
     function tick() {
       if (destroyed) return;
+      rafId = requestAnimationFrame(tick);
 
       const t  = ((performance.now() - startTime) / 1000) * speed;
-      const [r1,g1,b1] = hexToRGB(colorA);
-      const [r2,g2,b2] = hexToRGB(colorB);
 
       gl?.uniform2f(U.res,       canvas.width, canvas.height);
       gl?.uniform1f(U.time,      t);
@@ -370,11 +372,10 @@
       gl?.uniform1f(U.pixelSize, pixelSize);
       gl?.uniform1f(U.threshold, threshold);
       gl?.uniform1f(U.spread,    spread);
-      gl?.uniform3f(U.colorA,    r1, g1, b1);
-      gl?.uniform3f(U.colorB,    r2, g2, b2);
+      gl?.uniform3f(U.colorA,    ...rgbA);
+      gl?.uniform3f(U.colorB,    ...rgbB);
 
       gl?.drawArrays(gl.TRIANGLES, 0, 3);
-      rafId = requestAnimationFrame(tick);
     }
 
     const onVis = () => {
