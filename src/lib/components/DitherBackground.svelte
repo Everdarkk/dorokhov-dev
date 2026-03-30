@@ -355,14 +355,8 @@
     });
     ro.observe(canvas);
 
-    let paused = document.hidden;
-    const onVis = () => { paused = document.hidden; };
-    document.addEventListener('visibilitychange', onVis);
-
     function tick() {
       if (destroyed) return;
-      rafId = requestAnimationFrame(tick);
-      if (paused) return;
 
       const t  = ((performance.now() - startTime) / 1000) * speed;
       const [r1,g1,b1] = hexToRGB(colorA);
@@ -380,9 +374,19 @@
       gl?.uniform3f(U.colorB,    r2, g2, b2);
 
       gl?.drawArrays(gl.TRIANGLES, 0, 3);
+      rafId = requestAnimationFrame(tick);
     }
 
-    rafId = requestAnimationFrame(tick);
+    const onVis = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(rafId);
+      } else {
+        tick();
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+
+    if (!document.hidden) rafId = requestAnimationFrame(tick);
 
     return () => {
       destroyed = true;
