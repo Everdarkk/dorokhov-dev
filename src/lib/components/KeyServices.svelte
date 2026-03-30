@@ -301,7 +301,7 @@
 	<DitherBackground 
 		speed={0.6}
 		swirlScale={3}
-		ditherPattern='clusterDot'
+		ditherPattern='bayer8'
 		pixelSize={3}
 		spread={0.05}
 		colorA='#06060a'
