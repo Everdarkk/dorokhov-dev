@@ -178,7 +178,7 @@
 
 	/* ─── Primary variant — cyan ── */
 	.cyber-btn--primary {
-		--btn-accent: var(--cp-cyan, #00f5ff);
+		--btn-accent: var(--cp-cyan);
 		color: var(--btn-accent);
 		border: 1px solid var(--btn-accent);
 		box-shadow:
@@ -188,7 +188,7 @@
 	}
 
 	.cyber-btn--primary:hover:not(.is-disabled) {
-		color: var(--cp-bg, #06060a);
+		color: var(--cp-bg);
 		background: var(--btn-accent);
 		box-shadow:
 			0 0 22px color-mix(in srgb, var(--btn-accent) 55%, transparent),
@@ -199,7 +199,7 @@
 
 	/* ─── Secondary variant — pink ── */
 	.cyber-btn--secondary {
-		--btn-accent: var(--cp-pink, #ff0055);
+		--btn-accent: var(--cp-pink);
 		color: var(--btn-accent);
 		border: 1px solid color-mix(in srgb, var(--btn-accent) 70%, transparent);
 		box-shadow:
@@ -208,7 +208,7 @@
 	}
 
 	.cyber-btn--secondary:hover:not(.is-disabled) {
-		color: var(--cp-bg, #06060a);
+		color: var(--cp-bg);
 		background: var(--btn-accent);
 		border-color: var(--btn-accent);
 		box-shadow:
@@ -219,7 +219,7 @@
 
 	/* ─── Ghost variant — very minimal ── */
 	.cyber-btn--ghost {
-		--btn-accent: var(--cp-cyan, #00f5ff);
+		--btn-accent: var(--cp-cyan);
 		color: color-mix(in srgb, var(--btn-accent) 70%, rgba(255,255,255,0.6));
 		border: 1px solid color-mix(in srgb, var(--btn-accent) 25%, transparent);
 	}
