@@ -1,874 +1,678 @@
 <script lang="ts">
+	/**
+	 * Hero Component — redesigned
+	 *
+	 * Design direction:
+	 *   Keeps the core terminal / data-stream DNA of the original but aligns
+	 *   visually with the other sections:
+	 *   • Uses the same section-inner max-width, padding, and SectionTitle
+	 *     design-language (elaborate header with // label).
+	 *   • Drops the heavy outer terminal chrome in favour of a lighter
+	 *     layout: full-bleed Background, a left/right 50/50 split, and
+	 *     clean typography hierarchy matching ValueProposition / RecentLaunches.
+	 *   • The "terminal window" becomes a focused data-stream panel rather
+	 *     than wrapping the entire section.
+	 *   • Buttons replaced with the new <CyberButton> reusable component.
+	 *   • Photo frame kept — same pink neon treatment, tightened.
+	 *   • Entrance: staggered CSS animation sequence on mount (no scroll
+	 *     trigger — the hero is always visible first).
+	 *   • Fully responsive: 2-col desktop → 1-col mobile, photo moves below.
+	 */
+
 	import { onMount } from 'svelte';
 	import Background from './Background.svelte';
-	import type { DataStreamLine, ActionButton } from '$lib/types/types';
+	import CyberButton from './CyberButton.svelte';
+	import type { DataStreamLine } from '$lib/types/types';
 	import {
 		DATA_STREAM_MESSAGES,
 		RANDOM_MESSAGES,
 		ACTION_BUTTONS,
-		BREAKPOINTS,
 		MAX_VISIBLE_LINES,
 		MESSAGE_UPDATE_INTERVAL,
-		INITIAL_MESSAGE_DELAY
+		INITIAL_MESSAGE_DELAY,
 	} from '$lib/constants/hero.constants';
 
-	// ─── State ───────────────────────────────────────────────────────────
+	// ─── State ────────────────────────────────────────────────────────────────
 
 	let dataStreamLines: DataStreamLine[] = [];
-	let currentLineId: number = 0;
-	let screenWidth: number = typeof window !== 'undefined' ? window.innerWidth : 0;
-	let screenHeight: number = typeof window !== 'undefined' ? window.innerHeight : 0;
-	let showImage: boolean = true;
-	let isMobile: boolean = false;
+	let currentLineId = 0;
+	let mounted = false;
 
-	// ─── Lifecycle ───────────────────────────────────────────────────────
+	// ─── Lifecycle ────────────────────────────────────────────────────────────
 
 	onMount((): (() => void) => {
-		// Update screen dimensions on mount
-		screenWidth = window.innerWidth;
-		screenHeight = window.innerHeight;
-		updateBreakpoints();
+		// Trigger entrance animations
+		requestAnimationFrame(() => { mounted = true; });
 
-		// Show image on all devices (adapt styling instead of hiding)
-		showImage = true;
-
-		// Initialize data stream
-		initializeDataStream();
-
-		// Start periodic message updates
-		const interval = setInterval(addRandomMessage, MESSAGE_UPDATE_INTERVAL);
-
-		// Handle window resize
-		const handleResize = (): void => {
-			screenWidth = window.innerWidth;
-			screenHeight = window.innerHeight;
-			updateBreakpoints();
-		};
-
-		window.addEventListener('resize', handleResize);
-
-		return (): void => {
-			clearInterval(interval);
-			window.removeEventListener('resize', handleResize);
-		};
-	});
-
-	// ─── Functions ───────────────────────────────────────────────────────
-
-	/**
-	 * Update breakpoint states based on current screen width
-	 */
-	function updateBreakpoints(): void {
-		isMobile = screenWidth < BREAKPOINTS.tablet;
-	}
-
-	/**
-	 * Initialize the data stream with startup messages
-	 */
-	function initializeDataStream(): void {
-		DATA_STREAM_MESSAGES.forEach((msg: string, idx: number) => {
-			setTimeout((): void => {
+		// Seed the data stream
+		DATA_STREAM_MESSAGES.forEach((msg, idx) => {
+			setTimeout(() => {
 				dataStreamLines = [
 					...dataStreamLines,
-					{
-						id: currentLineId++,
-						text: msg,
-						delay: idx * 0.3,
-						opacity: 1
-					}
+					{ id: currentLineId++, text: msg, delay: 0, opacity: 1 },
 				];
-
-				// Keep only last 6 lines visible
 				if (dataStreamLines.length > MAX_VISIBLE_LINES) {
 					dataStreamLines = dataStreamLines.slice(-MAX_VISIBLE_LINES);
 				}
 			}, idx * INITIAL_MESSAGE_DELAY);
 		});
-	}
 
-	/**
-	 * Add a random message to the data stream
-	 */
-	function addRandomMessage(): void {
-		const randomMsg: string =
-			RANDOM_MESSAGES[Math.floor(Math.random() * RANDOM_MESSAGES.length)];
-
-		dataStreamLines = [
-			...dataStreamLines,
-			{
-				id: currentLineId++,
-				text: randomMsg,
-				delay: 0,
-				opacity: 1
+		// Periodic new messages
+		const iv = setInterval(() => {
+			const msg = RANDOM_MESSAGES[Math.floor(Math.random() * RANDOM_MESSAGES.length)];
+			dataStreamLines = [
+				...dataStreamLines,
+				{ id: currentLineId++, text: msg, delay: 0, opacity: 1 },
+			];
+			if (dataStreamLines.length > MAX_VISIBLE_LINES) {
+				dataStreamLines = dataStreamLines.slice(-MAX_VISIBLE_LINES);
 			}
-		];
+		}, MESSAGE_UPDATE_INTERVAL);
 
-		if (dataStreamLines.length > MAX_VISIBLE_LINES) {
-			dataStreamLines = dataStreamLines.slice(-MAX_VISIBLE_LINES);
-		}
-	}
+		return () => clearInterval(iv);
+	});
 
-	/**
-	 * Handle contact button click
-	 */
-	function handleActionButtonClick(action: ActionButton['action']): void {
-		switch (action) {
-			case 'contact':
-				// Scroll to contact section or trigger modal
-				console.log('Contact Me clicked');
-				break;
-			case 'learn-more':
-				// Scroll to about section
-				console.log('Learn More clicked');
-				break;
-			default:
-				console.log('Action triggered:', action);
+	// ─── Helpers ──────────────────────────────────────────────────────────────
+
+	function handleAction(action: string): void {
+		if (action === 'contact') {
+			const el = document.getElementById('contact');
+			el?.scrollIntoView({ behavior: 'smooth' });
+		} else if (action === 'learn-more') {
+			window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
 		}
 	}
 </script>
 
-<svelte:window bind:innerWidth={screenWidth} bind:innerHeight={screenHeight} />
+<!-- ─── Hero ─────────────────────────────────────────────────────────────── -->
+<section class="hero" class:is-mounted={mounted} aria-label="Hero">
 
-<section class="hero-container">
-	<!-- Background dynamic elements -->
+	<!-- Shared canvas background — same as rest of page -->
 	<Background />
 
-	<!-- Main terminal window -->
-	<div class="terminal-window">
-		<!-- Terminal header bar -->
-		<div class="terminal-header">
-			<div class="header-title">
-				<span class="title-text">PORTFOLIO_CORE.EXE</span>
+	<!-- Scanlines overlay -->
+	<div class="hero__scanlines" aria-hidden="true"></div>
+
+	<!-- ── Inner layout ─────────────────────────────────────────────────── -->
+	<div class="hero__inner">
+
+		<!-- ── LEFT: text content ────────────────────────────────────────── -->
+		<div class="hero__content">
+
+			<!-- // label — matches SectionTitle elaborate variant language -->
+			<div class="hero__label" aria-hidden="true">
+				<span class="hero__label-slash">// </span>PORTFOLIO_CORE.EXE
 			</div>
-			<div class="header-controls">
-				<div class="control-btn"></div>
-				<div class="control-btn"></div>
-				<div class="control-btn"></div>
-			</div>
-		</div>
 
-		<!-- Terminal content -->
-		<div class="terminal-content" class:single-column={isMobile}>
-			<!-- Left pane: Title and text -->
-			<div class="pane pane-left">
-				<h1 class="portfolio-title">
-					<span class="title" data-text="Full-Stack Developer & Modern Web Architect">
-						Full-Stack Developer & Modern Web Architect
-					</span>
+			<!-- Main heading -->
+			<h1 class="hero__heading">
+				<span class="hero__heading-line hero__heading-line--1">
+					Full-Stack
+				</span>
+				<span class="hero__heading-line hero__heading-line--2">
+					Developer
+				</span>
+				<span class="hero__heading-line hero__heading-line--3">
+					& Web Architect
+				</span>
+			</h1>
 
-					<span class="subtitle" data-text="High-Performance Solutions from Concept to Deployment">
-						High-Performance Solutions from Concept to Deployment
-					</span>
-				</h1>
+			<!-- Subtitle rule — matches section __rule -->
+			<div class="hero__rule" aria-hidden="true"></div>
 
-				<h2 class="portfolio-subtitle">
-					Crafting seamless digital experiences with React, Svelte, PostgreSQL and more. Where clean code meets creativity in the cybernetic frontier.
-				</h2>
+			<!-- Description -->
+			<p class="hero__desc">
+				High-performance solutions from concept to deployment.
+				React, Svelte, Node, PostgreSQL — clean code meets the cybernetic frontier.
+			</p>
 
-				<!-- Data stream window -->
-				<div class="data-stream-window">
+			<!-- Data-stream panel -->
+			<div class="hero__stream" aria-label="System log">
+				<div class="hero__stream-header" aria-hidden="true">
+					<span class="hero__stream-dot"></span>
+					<span class="hero__stream-dot"></span>
+					<span class="hero__stream-dot"></span>
+					<span class="hero__stream-title">SYSTEM_LOG</span>
+				</div>
+				<div class="hero__stream-body">
 					{#each dataStreamLines as line (line.id)}
-						<div
-							class="stream-line"
-							style="--fade-delay: {line.delay}s; opacity: {line.opacity};"
-						>
-							<span class="stream-prompt">$</span>
-							<span class="stream-text">{line.text}</span>
+						<div class="hero__stream-line">
+							<span class="hero__stream-prompt" aria-hidden="true">$</span>
+							<span class="hero__stream-text">{line.text}</span>
 						</div>
 					{/each}
 				</div>
 			</div>
 
-			<!-- Right pane: Image - shown on all devices with adaptive sizing -->
-			{#if showImage}
-				<div class="pane pane-right">
-					<div class="image-container">
-						<div class="image-frame">
-							<img src="/src/lib/assets/images/od-2.webp" alt="Oleksandr Dorokhov" />
-							<div class="frame-glitch"></div>
-							<div class="frame-border"></div>
-						</div>
-					</div>
-				</div>
-			{/if}
+			<!-- CTA buttons — use the reusable CyberButton -->
+			<div class="hero__actions">
+				{#each ACTION_BUTTONS as btn (btn.id)}
+					<CyberButton
+						variant={btn.className === 'contact-btn' ? 'primary' : 'secondary'}
+						on:click={() => handleAction(btn.action)}
+						ariaLabel={btn.label}
+					>
+						{btn.label}
+						<span class="hero__btn-arrow" aria-hidden="true">→</span>
+					</CyberButton>
+				{/each}
+			</div>
+
 		</div>
 
-		<!-- Terminal footer with scanlines effect -->
-		<div class="terminal-footer">
-			<div class="scanlines"></div>
+		<!-- ── RIGHT: photo ──────────────────────────────────────────────── -->
+		<div class="hero__photo-wrap">
+
+			<!-- Decorative cross-hair corners -->
+			<div class="hero__photo-corner hero__photo-corner--tl" aria-hidden="true"></div>
+			<div class="hero__photo-corner hero__photo-corner--tr" aria-hidden="true"></div>
+			<div class="hero__photo-corner hero__photo-corner--bl" aria-hidden="true"></div>
+			<div class="hero__photo-corner hero__photo-corner--br" aria-hidden="true"></div>
+
+			<!-- Scan label -->
+			<div class="hero__photo-label" aria-hidden="true">SUBJECT_SCAN.jpg</div>
+
+			<div class="hero__photo-frame">
+				<img
+					src="/src/lib/assets/images/od-2.webp"
+					alt="Oleksandr Dorokhov"
+					loading="eager"
+					decoding="async"
+				/>
+				<!-- Colour grade overlays -->
+				<div class="hero__photo-grade" aria-hidden="true"></div>
+				<div class="hero__photo-scanline" aria-hidden="true"></div>
+			</div>
+
+			<!-- Status badge -->
+			<div class="hero__status" aria-label="Status: available for hire">
+				<span class="hero__status-dot" aria-hidden="true"></span>
+				AVAILABLE_FOR_HIRE
+			</div>
+
 		</div>
-	</div>
 
-	<!-- Action buttons -->
-	<div class="button-container">
-		{#each ACTION_BUTTONS as button (button.id)}
-			<button
-				class="action-btn {button.className}"
-				on:click={() => handleActionButtonClick(button.action)}
-				aria-label={button.label}
-				type="button"
-			>
-				<span class="btn-text">{button.label}</span>
-				<span class="btn-glyph">→</span>
-			</button>
-		{/each}
 	</div>
-
-	<!-- Floating accent elements -->
-	<div class="accent-element accent-1"></div>
-	<div class="accent-element accent-2"></div>
-	<div class="accent-element accent-3"></div>
 </section>
 
-<style lang="postcss">
-	:global(html, body) {
-		background-color: var(--cp-bg);
-		color: var(--cp-cyan);
-		font-family: var(--font-mono);
-		overflow-x: hidden;
-	}
-
-	.hero-container {
-		/* Height calculation: Full viewport minus navigation height */
+<style>
+	/* ═══════════════════════════════════════════════════════════════════════
+	   SECTION
+	══════════════════════════════════════════════════════════════════════ */
+	.hero {
 		position: relative;
 		width: 100%;
-		height: calc(100dvh - var(--nav-h));
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		padding: clamp(1rem, 3vw, 2rem);
+		min-height: calc(100dvh - var(--nav-h, 4rem));
+		background: var(--cp-bg, #06060a);
 		overflow: hidden;
-		gap: clamp(1.5rem, 3vw, 3rem);
+		display: flex;
+		align-items: center;
 	}
 
-	/* ─── Terminal Window ─────────────────────────────────────────────── */
-	.terminal-window {
+	/* Scanlines — same recipe as other sections */
+	.hero__scanlines {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		z-index: 1;
+		background: repeating-linear-gradient(
+			to bottom,
+			transparent 0px,
+			transparent 3px,
+			rgba(0, 0, 0, 0.07) 3px,
+			rgba(0, 0, 0, 0.07) 4px
+		);
+	}
+
+	/* ─── Inner — mirrors max-width / padding of other sections ── */
+	.hero__inner {
 		position: relative;
-		z-index: 10;
+		z-index: 2;
 		width: 100%;
-		max-width: clamp(320px, 95vw, 1200px);
-		background: rgba(6, 6, 10, 0.75);
-		border: clamp(2px, 0.2vw, 3px) solid var(--cp-cyan);
-		border-radius: clamp(4px, 0.5vw, 8px);
-		backdrop-filter: blur(20px);
-		box-shadow: 0 0 40px rgba(0, 245, 255, 0.4), inset 0 0 40px rgba(0, 245, 255, 0.05);
-		overflow: hidden;
-		animation: borderGlow 3s ease-in-out infinite;
+		max-width: var(--max-w, 1400px);
+		margin: 0 auto;
+		padding: clamp(3rem, 8vw, 6rem) clamp(1rem, 4vw, 3rem);
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: clamp(2.5rem, 5vw, 5rem);
+		align-items: center;
+	}
+
+	.hero__content {
+		padding: clamp(3rem, 8vw, 6rem) clamp(1rem, 4vw, 3rem);
+	}
+
+	/* ═══════════════════════════════════════════════════════════════════════
+	   ENTRANCE ANIMATIONS
+	   Staggered CSS sequence, triggered once on mount via .is-mounted class.
+	   Each child uses a CSS custom property for its delay.
+	══════════════════════════════════════════════════════════════════════ */
+
+	/* All animated elements start hidden */
+	.hero__label,
+	.hero__heading-line,
+	.hero__rule,
+	.hero__desc,
+	.hero__stream,
+	.hero__actions,
+	.hero__photo-wrap {
+		opacity: 0;
+		transform: translateY(24px);
+	}
+
+	/* When mounted, play entrance in sequence */
+	.is-mounted .hero__label         { animation: heroEnter 0.6s ease forwards 0.05s; }
+	.is-mounted .hero__heading-line--1{ animation: heroEnter 0.6s ease forwards 0.12s; }
+	.is-mounted .hero__heading-line--2{ animation: heroEnter 0.6s ease forwards 0.20s; }
+	.is-mounted .hero__heading-line--3{ animation: heroEnter 0.6s ease forwards 0.28s; }
+	.is-mounted .hero__rule          { animation: heroEnter 0.5s ease forwards 0.35s; }
+	.is-mounted .hero__desc          { animation: heroEnter 0.5s ease forwards 0.42s; }
+	.is-mounted .hero__stream        { animation: heroEnter 0.5s ease forwards 0.50s; }
+	.is-mounted .hero__actions       { animation: heroEnter 0.5s ease forwards 0.60s; }
+	.is-mounted .hero__photo-wrap    { animation: heroEnterRight 0.7s cubic-bezier(0.22,1,0.36,1) forwards 0.15s; }
+
+	@keyframes heroEnter {
+		from { opacity: 0; transform: translateY(24px); }
+		to   { opacity: 1; transform: translateY(0);    }
+	}
+
+	@keyframes heroEnterRight {
+		from { opacity: 0; transform: translateX(32px) scale(0.97); }
+		to   { opacity: 1; transform: translateX(0)    scale(1);    }
+	}
+
+	/* ═══════════════════════════════════════════════════════════════════════
+	   LEFT CONTENT
+	══════════════════════════════════════════════════════════════════════ */
+	.hero__content {
 		display: flex;
 		flex-direction: column;
-		max-height: 80%;
+		gap: clamp(1rem, 2.5vw, 1.75rem);
+		min-width: 0;
 	}
 
-	@keyframes borderGlow {
-		0%,
-		100% {
-			box-shadow: 0 0 40px rgba(0, 245, 255, 0.4), inset 0 0 40px rgba(0, 245, 255, 0.05);
-			border-color: var(--cp-cyan);
-		}
-		50% {
-			box-shadow: 0 0 60px rgba(0, 245, 255, 0.6), inset 0 0 60px rgba(0, 245, 255, 0.1);
-			border-color: var(--cp-cyan);
-		}
-	}
-
-	/* ─── Terminal Header ──────────────────────────────────────────────── */
-	.terminal-header {
+	/* ─── // label — matches SectionTitle elaborate variant ── */
+	.hero__label {
+		font-family: var(--font-mono, monospace);
+		font-size: clamp(0.6rem, 1.2vw, 0.75rem);
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+		color: var(--cp-muted, #4a5568);
 		display: flex;
-		justify-content: space-between;
 		align-items: center;
-		background: linear-gradient(90deg, rgba(0, 245, 255, 0.1) 0%, transparent 100%);
-		border-bottom: clamp(1px, 0.1vw, 2px) solid rgba(0, 245, 255, 0.3);
-		padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
-		font-size: clamp(0.75rem, 1.5vw, 0.9rem);
-		color: var(--cp-green);
-		flex-shrink: 0;
+		gap: 0.4em;
 	}
 
-	.header-title {
+	.hero__label-slash {
+		color: var(--cp-cyan, #00f5ff);
+		font-weight: 700;
+	}
+
+	/* ─── Heading ── */
+	.hero__heading {
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.1em;
+		/* Font matches SectionTitle elaborate h2 */
+		font-family: var(--font-bionical, var(--font-logo, monospace));
+		font-weight: 400;
+		line-height: 1.0;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	.hero__heading-line {
+		display: block;
+	}
+
+	.hero__heading-line--1 {
+		font-size: var(--font-display);
+		color: var(--cp-cyan, #00f5ff);
+		text-shadow: 0 0 40px rgba(0, 245, 255, 0.35);
+	}
+
+	.hero__heading-line--2 {
+		font-size: var(--font-display);
+		/* Slight indent for visual rhythm */
+		padding-left: clamp(0.5rem, 2vw, 1.5rem);
+		color: rgba(255, 255, 255, 0.88);
+	}
+
+	.hero__heading-line--3 {
+		font-size: clamp(1.2rem, 3vw, 2.4rem);
+		color: var(--cp-pink, #ff0055);
+		text-shadow: 0 0 28px rgba(255, 0, 85, 0.4);
+		padding-left: clamp(1rem, 3vw, 2.5rem);
+	}
+
+	/* ─── Rule — matches SectionTitle __rule ── */
+	.hero__rule {
+		width: clamp(3rem, 8vw, 6rem);
+		height: 2px;
+		background: linear-gradient(90deg, var(--cp-cyan, #00f5ff), transparent);
+	}
+
+	/* ─── Description ── */
+	.hero__desc {
+		font-family: var(--font-ui, sans-serif);
+		font-size: clamp(0.82rem, 1.5vw, 1rem);
+		line-height: 1.75;
+		color: rgba(226, 232, 240, 0.65);
+		margin: 0;
+		max-width: 50ch;
+	}
+
+	/* ═══════════════════════════════════════════════════════════════════════
+	   DATA STREAM PANEL
+	══════════════════════════════════════════════════════════════════════ */
+	.hero__stream {
+		border: 1px solid rgba(0, 245, 255, 0.18);
+		background: rgba(0, 245, 255, 0.03);
+		overflow: hidden;
+	}
+
+	.hero__stream-header {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
+		padding: 0.5rem 0.85rem;
+		background: rgba(0, 245, 255, 0.06);
+		border-bottom: 1px solid rgba(0, 245, 255, 0.1);
+	}
+
+	.hero__stream-dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: var(--cp-cyan, #00f5ff);
+		opacity: 0.5;
+	}
+
+	.hero__stream-dot:first-child { opacity: 0.85; }
+	.hero__stream-dot:last-of-type { opacity: 0.25; }
+
+	.hero__stream-title {
+		font-family: var(--font-mono, monospace);
+		font-size: 0.6rem;
+		letter-spacing: 0.18em;
+		color: var(--cp-cyan, #00f5ff);
+		opacity: 0.6;
+		margin-left: auto;
+	}
+
+	.hero__stream-body {
+		padding: 0.75rem 0.85rem;
+		max-height: clamp(80px, 14vh, 140px);
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+	}
+
+	.hero__stream-line {
+		display: flex;
+		gap: 0.5rem;
+		font-family: var(--font-mono, monospace);
+		font-size: clamp(0.6rem, 1.1vw, 0.7rem);
+		animation: streamIn 0.4s ease-out both;
 		min-width: 0;
 	}
 
-	.title-text {
-		color: var(--cp-green);
-		font-weight: bold;
-		letter-spacing: var(--tracking-wide);
-		text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-		white-space: nowrap;
+	@keyframes streamIn {
+		from { opacity: 0; transform: translateX(-8px); }
+		to   { opacity: 1; transform: translateX(0);    }
+	}
+
+	.hero__stream-prompt {
+		color: var(--cp-cyan, #00f5ff);
+		flex-shrink: 0;
+	}
+
+	.hero__stream-text {
+		color: rgba(0, 255, 136, 0.8);
 		overflow: hidden;
 		text-overflow: ellipsis;
-	}
-
-	.header-controls {
-		display: flex;
-		gap: clamp(0.5rem, 1vw, 0.8rem);
-		flex-shrink: 0;
-	}
-
-	.control-btn {
-		width: clamp(8px, 1.5vw, 12px);
-		height: clamp(8px, 1.5vw, 12px);
-		border-radius: 50%;
-		background: var(--cp-cyan);
-		box-shadow: 0 0 8px rgba(0, 245, 255, 0.6);
-	}
-
-	/* ─── Terminal Content ─────────────────────────────────────────────── */
-	.terminal-content {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: clamp(1rem, 3vw, 2rem);
-		padding: clamp(1rem, 2vw, 2rem);
-		flex: 1;
-		align-items: center;
-	}
-
-	/* Single column layout for mobile */
-	.terminal-content.single-column {
-		grid-template-columns: 1fr;
-		gap: clamp(1rem, 2vw, 1.5rem);
-		padding: clamp(0.75rem, 1.5vw, 1.5rem);
-	}
-
-	/* ─── Panes ───────────────────────────────────────────────────────── */
-	.pane {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
+		white-space: nowrap;
 		min-width: 0;
 	}
 
-	.pane-left {
-		gap: clamp(1rem, 2vw, 1.5rem);
-	}
-
-	/* ─── Portfolio Title ──────────────────────────────────────────────── */
-	.portfolio-title {
-		font-size: var(--font-h1);
-		margin: 0;
-		color: var(--cp-cyan);
-		text-shadow: 0 0 20px rgba(0, 245, 255, 0.6);
+	/* ═══════════════════════════════════════════════════════════════════════
+	   CTA ACTIONS
+	══════════════════════════════════════════════════════════════════════ */
+	.hero__actions {
 		display: flex;
-		flex-direction: column;
-		gap: clamp(0.5rem, 1vw, 1rem);
-		line-height: var(--line-heading);
-		word-break: break-word;
+		gap: clamp(0.75rem, 2vw, 1.25rem);
+		flex-wrap: wrap;
 	}
 
-	.title {
+	/* Arrow glyph inside button */
+	.hero__btn-arrow {
+		font-size: 1.1em;
+		transition: transform 0.25s ease;
+		display: inline-block;
+	}
+
+	:global(.cyber-btn:hover) .hero__btn-arrow {
+		transform: translateX(4px);
+	}
+
+	/* ═══════════════════════════════════════════════════════════════════════
+	   RIGHT COLUMN — PHOTO
+	══════════════════════════════════════════════════════════════════════ */
+	.hero__photo-wrap {
 		position: relative;
 		display: flex;
-		color: var(--cp-cyan);
-	}
-
-	.subtitle {
-		font-size: var(--font-h2);
-		color: var(--cp-pink);
-		text-shadow: 0 0 15px rgba(255, 0, 85, 0.5);
-		margin: 0;
-		line-height: var(--line-heading);
-	}
-
-	/* ─── Portfolio Subtitle ───────────────────────────────────────────── */
-	.portfolio-subtitle {
-		font-size: var(--font-body);
-		color: var(--cp-lime);
-		text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
-		line-height: var(--line-body);
-		margin: 0;
-		max-width: 100%;
-		word-break: break-word;
-	}
-
-	/* ─── Data Stream Window ───────────────────────────────────────────── */
-	.data-stream-window {
-		background: rgba(0, 20, 40, 0);
-		border: clamp(1px, 0.1vw, 2px) solid rgba(0, 255, 136, 0.5);
-		border-radius: clamp(2px, 0.2vw, 4px);
-		padding: clamp(0.75rem, 1.5vw, 1rem);
-		font-size: var(--font-caption);
-		color: var(--cp-green);
-		overflow: hidden;
-		height: clamp(100px, 20vw, 250px);
-		max-height: clamp(120px, 20vh, 180px);
-		margin-top: clamp(0.5rem, 1vw, 1rem);
-		background-clip: padding-box;
-		backdrop-filter: blur(10px);
-	}
-
-	.stream-line {
-		display: flex;
-		gap: clamp(0.3rem, 1vw, 0.5rem);
-		margin-bottom: clamp(0.25rem, 0.5vw, 0.5rem);
-		animation: fadeIn 0.5s ease-out;
-		min-width: 0;
-		word-break: break-word;
-	}
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-			transform: translateX(-10px);
-		}
-		to {
-			opacity: 1;
-			transform: translateX(0);
-		}
-	}
-
-	.stream-prompt {
-		color: var(--cp-cyan);
-		font-weight: bold;
-		flex-shrink: 0;
-		min-width: max-content;
-	}
-
-	.stream-text {
-		color: var(--cp-green);
-		white-space: normal;
-		overflow-wrap: break-word;
-		word-break: break-word;
-		animation: typing 0.5s steps(30, end);
-		min-width: 0;
-	}
-
-	@keyframes typing {
-		from {
-			width: 0;
-		}
-		to {
-			width: 100%;
-		}
-	}
-
-	/* ─── Right Pane - Image ───────────────────────────────────────────── */
-	.pane-right {
-		display: flex;
-		justify-content: center;
+		flex-direction: column;
 		align-items: center;
-		min-width: 0;
+		gap: 1rem;
+		/* Give the corner decorations room */
+		padding: 1.25rem;
 	}
 
-	.image-container {
-		width: 100%;
-		max-width: clamp(150px, 40vw, 500px);
-		aspect-ratio: 1;
+	/* ─── Corner decorations ── */
+	.hero__photo-corner {
+		position: absolute;
+		width: 20px;
+		height: 20px;
+		border-color: var(--cp-cyan, #00f5ff);
+		border-style: solid;
+		opacity: 0.55;
+		pointer-events: none;
+		transition: opacity 0.3s ease, width 0.3s ease, height 0.3s ease;
 	}
 
-	.image-frame {
+	.hero__photo-wrap:hover .hero__photo-corner {
+		opacity: 0.9;
+		width: 28px;
+		height: 28px;
+	}
+
+	.hero__photo-corner--tl { top: 0; left: 0;  border-width: 2px 0 0 2px; }
+	.hero__photo-corner--tr { top: 0; right: 0; border-width: 2px 2px 0 0; }
+	.hero__photo-corner--bl { bottom: 0; left: 0;  border-width: 0 0 2px 2px; }
+	.hero__photo-corner--br { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+
+	/* ─── Scan label ── */
+	.hero__photo-label {
+		font-family: var(--font-mono, monospace);
+		font-size: 0.58rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: var(--cp-muted, #4a5568);
+		align-self: flex-start;
+	}
+
+	/* ─── Photo frame ── */
+	.hero__photo-frame {
 		position: relative;
 		width: 100%;
-		height: 100%;
-		border: clamp(2px, 0.2vw, 3px) solid var(--cp-pink);
-		border-radius: clamp(2px, 0.2vw, 4px);
+		max-width: clamp(220px, 40vw, 440px);
+		aspect-ratio: 3 / 4;
+		border: 1px solid var(--cp-pink, #ff0055);
 		overflow: hidden;
-		box-shadow: 0 0 30px rgba(255, 0, 85, 0.4), inset 0 0 30px rgba(255, 0, 85, 0.1);
-		background: var(--cp-bg);
+		background: var(--cp-bg, #06060a);
+		box-shadow:
+			0 0 24px rgba(255, 0, 85, 0.3),
+			inset 0 0 24px rgba(255, 0, 85, 0.06);
+		transition: box-shadow 0.35s ease;
 	}
 
-	.image-frame img {
+	.hero__photo-wrap:hover .hero__photo-frame {
+		box-shadow:
+			0 0 40px rgba(255, 0, 85, 0.45),
+			inset 0 0 32px rgba(255, 0, 85, 0.1);
+	}
+
+	.hero__photo-frame img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		object-position: center top;
 		display: block;
 		opacity: 0.9;
-		filter: saturate(1.2) contrast(1.1);
+		filter: saturate(1.15) contrast(1.08);
 	}
 
-	.frame-glitch {
+	/* Colour-grade overlay */
+	.hero__photo-grade {
 		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
+		inset: 0;
 		background: linear-gradient(
 			180deg,
-			rgba(0, 245, 255, 0.1) 0%,
-			transparent 50%,
+			rgba(0, 245, 255, 0.07) 0%,
+			transparent 40%,
 			rgba(255, 0, 85, 0.05) 100%
 		);
 		pointer-events: none;
-		z-index: 2;
-		animation: scanlineGlitch 0.15s infinite;
+		z-index: 1;
 	}
 
-	@keyframes scanlineGlitch {
-		0%,
-		100% {
-			transform: translateY(0);
-		}
-		50% {
-			transform: translateY(2px);
-		}
-	}
-
-	.frame-border {
+	/* Moving scanline effect */
+	.hero__photo-scanline {
 		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		border: 1px solid rgba(255, 0, 85, 0.3);
-		pointer-events: none;
-		z-index: 3;
-		animation: borderPulse 2s ease-in-out infinite;
-	}
-
-	@keyframes borderPulse {
-		0%,
-		100% {
-			box-shadow: inset 0 0 10px rgba(255, 0, 85, 0.2);
-		}
-		50% {
-			box-shadow: inset 0 0 20px rgba(255, 0, 85, 0.4);
-		}
-	}
-
-	/* ─── Terminal Footer ──────────────────────────────────────────────── */
-	.terminal-footer {
-		position: relative;
-		height: clamp(12px, 2vw, 20px);
-		background: rgba(0, 255, 0, 0.05);
-		border-top: clamp(1px, 0.1vw, 1px) solid rgba(0, 255, 136, 0.3);
-		overflow: hidden;
-		flex-shrink: 0;
-	}
-
-	.scanlines {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
+		inset: 0;
 		background: repeating-linear-gradient(
-			0deg,
-			rgba(0, 0, 0, 0.3) 0px,
-			rgba(0, 0, 0, 0.3) 1px,
-			transparent 1px,
-			transparent 2px
+			to bottom,
+			transparent 0px,
+			transparent 3px,
+			rgba(0, 0, 0, 0.08) 3px,
+			rgba(0, 0, 0, 0.08) 4px
 		);
-		animation: scanlineScroll 0.5s linear infinite;
 		pointer-events: none;
+		z-index: 2;
+		animation: photoScan 8s linear infinite;
+		will-change: background-position;
 	}
 
-	@keyframes scanlineScroll {
-		0% {
-			transform: translateY(0);
-		}
-		100% {
-			transform: translateY(2px);
-		}
+	@keyframes photoScan {
+		from { background-position: 0 0; }
+		to   { background-position: 0 40px; }
 	}
 
-	/* ─── Action Buttons ───────────────────────────────────────────────── */
-	.button-container {
-		display: flex;
-		gap: clamp(1rem, 3vw, 2rem);
-		justify-content: center;
-		flex-wrap: wrap;
-		position: relative;
-		z-index: 10;
-		margin-block: clamp(0.5rem, 1vw, 1rem);
-		width: 100%;
-		max-width: clamp(300px, 95vw, 1200px);
-	}
-
-	.action-btn {
-		position: relative;
-		padding: clamp(0.75rem, 1.5vw, 1rem) clamp(1rem, 3vw, 2rem);
-		font-size: var(--font-body);
-		font-family: var(--font-mono);
-		font-weight: bold;
-		border: clamp(1px, 0.1vw, 2px) solid;
-		border-radius: clamp(2px, 0.2vw, 4px);
-		cursor: pointer;
+	/* ─── Status badge ── */
+	.hero__status {
 		display: flex;
 		align-items: center;
-		gap: clamp(0.5rem, 1vw, 0.8rem);
-		transition: all 0.3s ease;
-		letter-spacing: var(--tracking-wide);
-		overflow: hidden;
-		background: rgba(6, 6, 10, 0.5);
-		backdrop-filter: blur(10px);
-		white-space: nowrap;
-		text-decoration: none;
+		gap: 0.5rem;
+		font-family: var(--font-mono, monospace);
+		font-size: 0.6rem;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: rgba(0, 255, 136, 0.7);
+		align-self: flex-start;
 	}
 
-	.action-btn:disabled {
-		opacity: 0.5;
-		cursor: none;
-	}
-
-	.contact-btn {
-		color: var(--cp-cyan);
-		border-color: var(--cp-cyan);
-		text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
-	}
-
-	.contact-btn::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: -100%;
-		width: 100%;
-		height: 100%;
-		background: rgba(0, 245, 255, 0.2);
-		transition: left 0.3s ease;
-		z-index: -1;
-	}
-
-	.contact-btn:hover:not(:disabled) {
-		color: var(--cp-bg);
-		background: rgba(0, 245, 255, 0.3);
-		box-shadow: 0 0 20px rgba(0, 245, 255, 0.6), inset 0 0 20px rgba(0, 245, 255, 0.2);
-		text-shadow: 0 0 20px rgba(0, 245, 255, 0.8);
-		transform: translateX(4px);
-	}
-
-	.contact-btn:active:not(:disabled) {
-		transform: translateX(2px) scale(0.98);
-		box-shadow: 0 0 30px rgba(0, 245, 255, 0.8), inset 0 0 30px rgba(0, 245, 255, 0.3);
-	}
-
-	.learn-btn {
-		color: var(--cp-pink);
-		border-color: var(--cp-pink);
-		text-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
-	}
-
-	.learn-btn::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: -100%;
-		width: 100%;
-		height: 100%;
-		background: rgba(255, 0, 85, 0.2);
-		transition: left 0.3s ease;
-		z-index: -1;
-	}
-
-	.learn-btn:hover:not(:disabled) {
-		color: var(--cp-bg);
-		background: rgba(255, 0, 85, 0.3);
-		box-shadow: 0 0 20px rgba(255, 0, 85, 0.6), inset 0 0 20px rgba(255, 0, 85, 0.2);
-		text-shadow: 0 0 20px rgba(255, 0, 85, 0.8);
-		transform: translateX(4px);
-	}
-
-	.learn-btn:active:not(:disabled) {
-		transform: translateX(2px) scale(0.98);
-		box-shadow: 0 0 30px rgba(255, 0, 85, 0.8), inset 0 0 30px rgba(255, 0, 85, 0.3);
-	}
-
-	.btn-text {
-		letter-spacing: var(--tracking-wide);
-	}
-
-	.btn-glyph {
-		font-size: clamp(1rem, 2vw, 1.3em);
-		animation: arrowPulse 1s ease-in-out infinite;
-	}
-
-	@keyframes arrowPulse {
-		0%,
-		100% {
-			transform: translateX(0);
-		}
-		50% {
-			transform: translateX(4px);
-		}
-	}
-
-	/* ─── Floating Accent Elements ─────────────────────────────────────── */
-	.accent-element {
-		position: absolute;
-		pointer-events: none;
-		opacity: 0.15;
-	}
-
-	.accent-1 {
-		width: clamp(100px, 20vw, 200px);
-		height: clamp(100px, 20vw, 200px);
-		top: 10%;
-		right: 5%;
-		background: radial-gradient(circle, rgba(0, 255, 255, 0.5) 0%, transparent 70%);
+	.hero__status-dot {
+		width: 7px;
+		height: 7px;
 		border-radius: 50%;
-		animation: float 8s ease-in-out infinite;
-		z-index: 0;
+		background: #39ff14;
+		box-shadow: 0 0 8px rgba(57, 255, 20, 0.8);
+		flex-shrink: 0;
+		animation: statusBlink 2.5s ease-in-out infinite;
 	}
 
-	.accent-2 {
-		width: clamp(75px, 15vw, 150px);
-		height: clamp(75px, 15vw, 150px);
-		bottom: 15%;
-		left: 5%;
-		background: radial-gradient(circle, rgba(255, 0, 255, 0.5) 0%, transparent 70%);
-		border-radius: 50%;
-		animation: float 10s ease-in-out infinite reverse;
-		z-index: 0;
+	@keyframes statusBlink {
+		0%, 100% { opacity: 1;   box-shadow: 0 0 8px  rgba(57,255,20,0.8); }
+		50%       { opacity: 0.5; box-shadow: 0 0 16px rgba(57,255,20,0.4); }
 	}
 
-	.accent-3 {
-		width: clamp(50px, 10vw, 100px);
-		height: clamp(50px, 10vw, 100px);
-		top: 50%;
-		left: 50%;
-		background: radial-gradient(circle, rgba(0, 255, 136, 0.5) 0%, transparent 70%);
-		border-radius: 50%;
-		animation: float 12s ease-in-out infinite;
-		z-index: 0;
-		transform: translate(-50%, -50%);
-	}
+	/* ═══════════════════════════════════════════════════════════════════════
+	   RESPONSIVE
+	══════════════════════════════════════════════════════════════════════ */
 
-	@keyframes float {
-		0%,
-		100% {
-			transform: translateY(0px) scale(1);
+	/* Tablet — single column, photo below */
+	@media (max-width: 900px) {
+		.hero__inner {
+			grid-template-columns: 1fr;
+			gap: clamp(2rem, 5vw, 3rem);
 		}
-		50% {
-			transform: translateY(-30px) scale(1.1);
-		}
-	}
 
-	/* ─── Mobile Adjustments ───────────────────────────────────────────── */
-	@media (max-width: 480px) {
-		.hero-container {
-			all: unset;
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
+		.hero__photo-wrap {
+			/* Centre the photo on tablet/mobile */
 			align-items: center;
-			min-height: calc(90dvh - 5rem);
-			
-
-			padding: clamp(0.75rem, 2vw, 1rem);
-			gap: clamp(1rem, 2vw, 1.5rem);
-			padding-top: clamp(1rem, 2vw, 1.5rem);
+			order: -1; /* Move photo above text on small screens */
 		}
 
-		.terminal-content {
-			grid-template-columns: 1fr;
-			gap: clamp(1rem, 2vw, 1.5rem);
-			padding: clamp(0.5rem, 1vw, 1rem);
-			align-items: start;
+		.hero__photo-frame {
+			max-width: clamp(200px, 55vw, 320px);
+			aspect-ratio: 3 / 4;
 		}
 
-		.pane-left {
-			gap: clamp(0.75rem, 1vw, 1rem);
+		.hero__photo-label,
+		.hero__status {
+			align-self: center;
 		}
 
-		.pane-right {
-			width: 100%;
-			max-width: 100%;
+		.hero__heading-line--2,
+		.hero__heading-line--3 {
+			padding-left: 0;
+		}
+	}
+
+	/* Mobile */
+	@media (max-width: 480px) {
+		.hero__inner {
+			padding-inline: 0.75rem;
 		}
 
-		.image-container {
-			max-width: clamp(250px, 30vw, 300px);
-			margin: 0 auto;
-		}
-
-		.button-container {
-			gap: clamp(0.75rem, 1.5vw, 1rem);
-		}
-
-		.action-btn {
-			flex: 1;
-			min-width: 140px;
-			justify-content: center;
-		}
-
-		.data-stream-window {
-			display: none;
-		}
-
+		.hero__heading-line--1, .hero__heading-line--2 {
+			font-size: var(--font-h1);
+		}		
 		
-		.title {
-			font-size: 1.75rem;
-		}
-		
-		.subtitle {
-			font-size: 1.5rem;
+		.hero__stream {
+			display: none; /* hidden on very small screens for space */
 		}
 
-		.portfolio-subtitle {
-			font-size: 0.7rem;
+		.hero__actions {
+			gap: 0.65rem;
+		}
+
+		.hero__photo-frame {
+			max-width: clamp(160px, 60vw, 260px);
 		}
 	}
 
-	/* ─── Tablet Adjustments ───────────────────────────────────────────── */
-	@media (min-width: 481px) and (max-width: 1024px) {
-		.terminal-content {
-			grid-template-columns: 1fr;
-		}
 
-		.image-container {
-			max-width: clamp(180px, 50vw, 300px);
-		}
-
-		.data-stream-window {
-			display: none;
-		}
-	}
-
-	/* ─── Desktop Adjustments ──────────────────────────────────────────── */
-	@media (min-width: 1025px) {
-		.terminal-window {
-			max-width: min(95vw, 1400px);
-		}
-
-		.button-container {
-			gap: 2rem;
-		}
-
-		.action-btn {
-			min-width: 200px;
-		}
-	}
-
-	/* ─── High-Resolution Display ──────────────────────────────────────── */
-	@media (min-width: 1920px) {
-		.hero-container {
-			padding: 3rem;
-			gap: 3rem;
-		}
-
-		.terminal-window {
-			max-width: 1400px;
-		}
-
-		.action-btn {
-			padding: 1.25rem 3rem;
-			font-size: 1.2rem;
-		}
-	}
-
-	/* ─── Reduce Motion ───────────────────────────────────────────────── */
+	/* ─── Reduce motion ── */
 	@media (prefers-reduced-motion: reduce) {
-		.terminal-window,
-		.action-btn,
-		.btn-glyph,
-		.accent-element,
-		.stream-line,
-		.frame-glitch,
-		.frame-border {
-			animation: none;
-			transition: none;
-		}
-	}
-
-	/* ─── Dark Mode / High Contrast ────────────────────────────────────── */
-	@media (prefers-contrast: more) {
-		.terminal-window {
-			border-color: var(--cp-cyan);
-			border-width: 3px;
+		.hero__label,
+		.hero__heading-line,
+		.hero__rule,
+		.hero__desc,
+		.hero__stream,
+		.hero__actions,
+		.hero__photo-wrap {
+			animation: none !important;
+			opacity: 1 !important;
+			transform: none !important;
 		}
 
-		.action-btn {
-			border-width: 2px;
+		.hero__stream-line,
+		.hero__photo-scanline,
+		.hero__status-dot {
+			animation: none !important;
 		}
 	}
 </style>
