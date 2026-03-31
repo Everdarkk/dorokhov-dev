@@ -20,7 +20,11 @@
 	 */
 
 	import SectionTitle from './SectionTitle.svelte'
-	import background from '$lib/assets/images/background.svg'
+	import bg1 from '$lib/assets/images/background.svg'
+	import bg2 from '$lib/assets/images/background-2.svg'
+	import bg3 from '$lib/assets/images/background-3.svg'
+	import bg4 from '$lib/assets/images/background-4.svg'
+	import bg5 from '$lib/assets/images/background-5.svg'
 	import { scrollReveal } from '$lib/actions/scrollReveal'
 	import {
 		WORK_STEPS,
@@ -37,16 +41,23 @@
 	let direction: 'next' | 'prev' = 'next';
 	let animating      = false;
 	let slideKey       = 0;
+	let prevBgImage    = '';
 
 	let touchStartX = 0;
 	let touchStartY = 0;
 	const SWIPE_THRESHOLD = 50;
+
+	// ─── Backgrounds ──────────────────────────────────────────────────────────
+
+	const BACKGROUNDS = [bg1, bg2, bg3, bg4, bg5];
 
 	// ─── Derived ──────────────────────────────────────────────────────────────
 
 	$: step    = WORK_STEPS[current];
 	$: isFirst = current === 0;
 	$: isLast  = current === WORK_STEPS.length - 1;
+	$: bgAccent = colorVar(step.accentColor);
+	$: bgImage  = BACKGROUNDS[current % BACKGROUNDS.length];
 
 	// ─── Navigation ───────────────────────────────────────────────────────────
 
@@ -54,18 +65,20 @@
 		if (animating) return;
 		if (dir === 'next' && isLast)  return;
 		if (dir === 'prev' && isFirst) return;
-		direction = dir;
-		animating = true;
-		current  += dir === 'next' ? 1 : -1;
+		direction   = dir;
+		animating   = true;
+		prevBgImage = bgImage;
+		current    += dir === 'next' ? 1 : -1;
 		slideKey++;
 		setTimeout(() => { animating = false; }, 520);
 	}
 
 	function goTo(index: number): void {
 		if (index === current || animating) return;
-		direction = index > current ? 'next' : 'prev';
-		animating = true;
-		current   = index;
+		direction   = index > current ? 'next' : 'prev';
+		animating   = true;
+		prevBgImage = bgImage;
+		current     = index;
 		slideKey++;
 		setTimeout(() => { animating = false; }, 520);
 	}
@@ -111,11 +124,18 @@
 	on:reveal={() => (sectionVisible = true)}
 	aria-label="How I Work – process carousel"
 	tabindex="-1"
-
+	style="--bg-accent: {bgAccent}"
 >
 
-	<!-- Animated perspective-halftone background -->
-	<!-- <WorkProcessBackground color={colorVar(step.accentColor)} /> -->
+	<!-- ── Background crossfade layers ───────────────────────────────────── -->
+	{#if prevBgImage}
+		{#key prevBgImage}
+			<div class="wp-bg wp-bg--out" style="background-image: url({prevBgImage})" aria-hidden="true"></div>
+		{/key}
+	{/if}
+	{#key bgImage}
+		<div class="wp-bg wp-bg--in" style="background-image: url({bgImage})" aria-hidden="true"></div>
+	{/key}
 
 	<!-- ── Content wrapper ────────────────────────────────────────────────── -->
 	<div class="wp-inner">
@@ -253,11 +273,35 @@
 		display: flex;
 		align-items: stretch;
 		outline: none;
-		background-image: url('/src/lib/assets/images/background.svg');
+	}
+
+	/* ─── Background crossfade layers ── */
+	.wp-bg {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
 		background-repeat: no-repeat;
 		background-position: center;
 		background-size: contain;
+		pointer-events: none;
+	}
 
+	.wp-bg--in {
+		animation: bgFadeIn 0.6s ease forwards;
+	}
+
+	.wp-bg--out {
+		animation: bgFadeOut 0.6s ease forwards;
+	}
+
+	@keyframes bgFadeIn {
+		from { opacity: 0; }
+		to   { opacity: 1; }
+	}
+
+	@keyframes bgFadeOut {
+		from { opacity: 1; }
+		to   { opacity: 0; }
 	}
 
 	.wp-inner {
@@ -667,7 +711,8 @@
 		.wp-arrow,
 		.wp-dot__fill,
 		.wp-carousel,
-		.wp-dots {
+		.wp-dots,
+		.wp-bg {
 			animation: none !important;
 			transition: none !important;
 		}
