@@ -5,6 +5,7 @@
   import ValueProposition from "$lib/components/ValueProposition.svelte";
   import WorkProcess from "$lib/components/WorkProcess.svelte";
   import KeyServices from "$lib/components/KeyServices.svelte";
+  import Faq from "$lib/components/Faq.svelte";
 </script>
 
 <!-- STRUCTURE -->
@@ -12,5 +13,6 @@
 <Marquee />
 <ValueProposition />
 <RecentLaunches />
-<WorkProcess />
 <KeyServices />
+<WorkProcess />
+<Faq />

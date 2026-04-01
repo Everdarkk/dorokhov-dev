@@ -370,6 +370,7 @@
 		border: 1px solid rgba(0, 245, 255, 0.18);
 		background: rgba(0, 245, 255, 0.03);
 		overflow: hidden;
+		height: 10rem;
 	}
 
 	.hero__stream-header {
