@@ -24,6 +24,8 @@
 	import { onDestroy } from 'svelte';
 	import SectionTitle from './SectionTitle.svelte';
 	import { scrollReveal } from '$lib/actions/scrollReveal';
+	import { reducedMotion } from '$lib/stores/motion';
+	import { createTypewriter, type TypewriterController } from '$lib/utils/typewriter';
 	import {
 		FAQ_ITEMS,
 		FAQ_ACCENT_VARS,
@@ -64,15 +66,8 @@
 	/** Currently animating item id (only one at a time) */
 	let activeId: string | null = null;
 
-	/** Holds the active timer handles so we can cancel them */
-	let charTimer: ReturnType<typeof setTimeout> | null = null;
-	let lineTimer: ReturnType<typeof setTimeout> | null = null;
-
-	/** Whether the user prefers reduced motion */
-	const reducedMotion =
-		typeof window !== 'undefined'
-			? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-			: false;
+	/** Holds the active typewriter controller so we can cancel it */
+	let activeTypewriter: TypewriterController | null = null;
 
 	// ─── Helpers ──────────────────────────────────────────────────────────────
 
@@ -96,8 +91,10 @@
 	 * Safe to call even when nothing is running.
 	 */
 	function cancelCurrent(): void {
-		if (charTimer !== null) { clearTimeout(charTimer); charTimer = null; }
-		if (lineTimer !== null) { clearTimeout(lineTimer); lineTimer = null; }
+		if (activeTypewriter !== null) {
+			activeTypewriter.cancel();
+			activeTypewriter = null;
+		}
 		if (activeId !== null) {
 			setState(activeId, { running: false });
 			activeId = null;
@@ -128,7 +125,7 @@
 		setState(id, { completedLines: [], currentLine: '', running: true, done: false });
 
 		// Instant mode for reduced-motion users
-		if (reducedMotion) {
+		if ($reducedMotion) {
 			setState(id, {
 				completedLines: item.answerLines,
 				currentLine: '',
@@ -139,54 +136,31 @@
 			return;
 		}
 
-		// Typewriter: process line by line
-		let lineIndex = 0;
-
-		function nextLine(): void {
-			if (lineIndex >= item!.answerLines.length) {
-				// All lines done
-				setState(id, { currentLine: '', running: false, done: true });
-				activeId = null;
-				return;
-			}
-
-			const fullLine = item!.answerLines[lineIndex];
-			lineIndex++;
-
-			// Empty line — push blank immediately, move to next
-			if (fullLine === '') {
+		activeTypewriter = createTypewriter({
+			lines: item.answerLines,
+			charDelay: FAQ_TYPEWRITER_CONFIG.charDelay,
+			lineDelay: FAQ_TYPEWRITER_CONFIG.lineDelay,
+			bootDelay: FAQ_TYPEWRITER_CONFIG.bootDelay,
+			onLineStart: () => {
+				setState(id, { currentLine: '' });
+			},
+			onChar: (partialLine) => {
+				setState(id, { currentLine: partialLine });
+			},
+			onLineComplete: (fullLine) => {
 				setState(id, {
-					completedLines: [...getState(id).completedLines, ''],
+					completedLines: [...getState(id).completedLines, fullLine],
+					currentLine: '',
 				});
-				lineTimer = setTimeout(nextLine, FAQ_TYPEWRITER_CONFIG.lineDelay);
-				return;
-			}
+			},
+			onDone: () => {
+				setState(id, { currentLine: '', running: false, done: true });
+				activeTypewriter = null;
+				activeId = null;
+			},
+		});
 
-			// Type this line character by character
-			let charIndex = 0;
-			setState(id, { currentLine: '' });
-
-			function nextChar(): void {
-				if (charIndex >= fullLine.length) {
-					// Line complete — commit it and start next line
-					setState(id, {
-						completedLines: [...getState(id).completedLines, fullLine],
-						currentLine: '',
-					});
-					lineTimer = setTimeout(nextLine, FAQ_TYPEWRITER_CONFIG.lineDelay);
-					return;
-				}
-
-				charIndex++;
-				setState(id, { currentLine: fullLine.slice(0, charIndex) });
-				charTimer = setTimeout(nextChar, FAQ_TYPEWRITER_CONFIG.charDelay);
-			}
-
-			nextChar();
-		}
-
-		// Small boot delay before first character
-		lineTimer = setTimeout(nextLine, FAQ_TYPEWRITER_CONFIG.bootDelay);
+		activeTypewriter.start();
 	}
 
 	// ─── Cleanup ──────────────────────────────────────────────────────────────
