@@ -262,7 +262,9 @@
 		overflow: hidden;
 		transition:
 			border-color 0.3s ease,
-			box-shadow 0.3s ease;
+			box-shadow 0.3s ease,
+			transform 0.3s ease,
+			opacity 0.3s ease;
 		/* Cards start invisible; animation is triggered by the parent class below */
 		transform: translateY(36px);
 		opacity: 0;
@@ -605,6 +607,11 @@
 		.vp-card__corner {
 			animation: none !important;
 			transition: none !important;
+		}
+
+		/* Keep hover static in reduced-motion mode despite the more specific hover rule */
+		.vp-cards-grid--visible .vp-card:hover {
+			transform: translateY(0);
 		}
 
 		/* Immediately show cards regardless of scroll position */

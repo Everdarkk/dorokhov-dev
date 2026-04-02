@@ -299,6 +299,7 @@
 		will-change: transform, opacity;
 
 		transition:
+			transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
 			border-color 0.3s ease,
 			box-shadow 0.3s ease;
 	}
@@ -306,10 +307,6 @@
 	/* Card hover lift — only after the entrance animation has settled */
 	.tm-grid--visible .tm-card:hover {
 		transform: translateY(-4px);
-		transition:
-			transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-			border-color 0.3s ease,
-			box-shadow 0.3s ease;
 	}
 
 	/* ── Entrance stagger ── */
@@ -808,10 +805,11 @@
 			transition: none !important;
 		}
 
-		/* Immediately show everything */
-		.tm-card {
+		/* Immediately show everything and disable hover movement */
+		.tm-card,
+		.tm-grid--visible .tm-card:hover {
 			opacity: 1;
-			transform: none;
+			transform: none !important;
 		}
 
 		.tm-card__bar {
