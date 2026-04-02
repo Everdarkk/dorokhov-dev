@@ -234,6 +234,10 @@
 		width: 100%;
 		background: var(--cp-bg);
 		overflow: hidden;
+		background-image: url('/src/lib/assets/images/testimonials.svg');
+		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
 	}
 
 	/* CRT scanlines — same pattern used across all sections */
