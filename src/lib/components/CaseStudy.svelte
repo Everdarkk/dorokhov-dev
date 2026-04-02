@@ -12,7 +12,8 @@
 
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
-	import { reducedMotion } from '$lib/stores/motion';
+	import { easeOutCubic, reducedMotion } from '$lib/stores/motion';
+	import { TERNO_TOP_DATA, type CaseStudyMetric } from '$lib/constants/case-study.constants';
 	import ttOld from '$lib/assets/images/tt-old.webp';
 	import ttNew from '$lib/assets/images/tt-new.webp';
 
@@ -38,61 +39,12 @@
 
 	// ─── Metric Counter ───────────────────────────────────────────────────────
 
-	type MetricDef = {
-		id: string;
-		label: string;
-		sublabel: string;
-		before: string;
-		endValue: number;
-		format: (n: number) => string;
-		color: string;
-	};
-
-	const METRICS: MetricDef[] = [
-		{
-			id: 'conversion',
-			label: 'Conversion Rate',
-			sublabel: 'First month result',
-			before: '~1%',
-			endValue: 15,
-			format: (n) => `+${n}%`,
-			color: 'var(--cp-lime, #00ff88)'
-		},
-		{
-			id: 'views',
-			label: 'Monthly Views',
-			sublabel: '6-month growth',
-			before: '400',
-			endValue: 4200,
-			format: (n) => (n >= 1000 ? `${(n / 1000).toFixed(1)}K+` : String(n)),
-			color: 'var(--cp-cyan, #00f5ff)'
-		},
-		{
-			id: 'pagespeed',
-			label: 'PageSpeed Score',
-			sublabel: 'Google Lighthouse',
-			before: '58',
-			endValue: 96,
-			format: (n) => String(n),
-			color: 'var(--cp-yellow, #ffe600)'
-		},
-		{
-			id: 'organic',
-			label: 'Organic Traffic',
-			sublabel: 'Search growth',
-			before: '—',
-			endValue: 320,
-			format: (n) => `+${n}%`,
-			color: 'var(--cp-pink, #ff0055)'
-		}
-	];
+	const METRICS: CaseStudyMetric[] = TERNO_TOP_DATA.metrics;
+	const TECH: string[] = TERNO_TOP_DATA.tech;
+	const META: [string, string][] = TERNO_TOP_DATA.meta;
 
 	let displayValues: number[] = METRICS.map(() => 0);
 	let metricsStarted = false;
-
-	function easeOutCubic(t: number): number {
-		return 1 - (1 - t) ** 3;
-	}
 
 	function runCounters() {
 		if (metricsStarted) return;
@@ -140,7 +92,6 @@
 		};
 	});
 
-	const TECH = ['SvelteKit', 'TypeScript', 'Supabase', 'Google Maps', 'Nodemailer', 'Vercel'];
 </script>
 
 <!-- ── Bridge: visual connector from VP cards to case study ───────────────── -->
@@ -281,7 +232,7 @@
 	<!-- ── Footer ── -->
 	<footer class="cs-footer">
 		<div class="cs-project-meta">
-			{#each [['YEAR', '2026'], ['COMMITS', '86+'], ['TYPE', 'Local Biz']] as [k, v] (k)}
+			{#each META as [k, v] (k)}
 				<div class="cs-meta-item">
 					<span class="cs-meta__key">{k}</span>
 					<span class="cs-meta__val">{v}</span>
