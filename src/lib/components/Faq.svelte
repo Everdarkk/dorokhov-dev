@@ -182,8 +182,9 @@
 	<!-- Background -->
 	<NeatBackground 
 		flowScale={1}
-		colorPressure={2000}
-		colors={['#091413', '#285A48', '#408A71', '#B0E4CC']}
+		colorPressure={1}
+		colors={['#06060a', '#4B5D67', '#06060a', '#4B5D67', '#06060a']}
+		
 	/>
 
 
