@@ -252,18 +252,24 @@
 	/* Card base state — hidden before reveal */
 	.vp-card {
 		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
 		padding: clamp(1rem, 2vw, 2.5rem);
-		background: linear-gradient(135deg, rgba(16, 66, 233, 0.1) 0%, rgba(16, 66, 233, 0.05) 100%);
-		min-width: 320px;
+		background: rgba(255, 255, 255, 0.02);
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		min-width: 290px;
 		overflow: hidden;
-		transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-		            box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-		            border-color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+		transition:
+			border-color 0.3s ease,
+			box-shadow 0.3s ease,
+			transform 0.3s ease,
+			opacity 0.3s ease;
 		/* Cards start invisible; animation is triggered by the parent class below */
-		transform: translateY(40px);
+		transform: translateY(36px);
 		opacity: 0;
-		will-change: transform, box-shadow, border-color;
-		cursor: none;
+		will-change: transform, opacity;
+		cursor: default;
 		flex: 0;
 	}
 
@@ -279,7 +285,7 @@
 
 	@keyframes cardEnter {
 		from {
-			transform: translateY(40px);
+			transform: translateY(36px);
 			opacity: 0;
 		}
 		to {
@@ -288,40 +294,92 @@
 		}
 	}
 
-	/* Card hover state — only translate when not mid-entrance animation */
-	.vp-card:hover {
-		transform: scale(1.05);
-		border-color: var(--vp-border-color-hover);
+	/* Card hover lift — only after the entrance animation has settled */
+	.vp-cards-grid--visible .vp-card:hover {
+		transform: translateY(-4px);
+		transition:
+			transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+			border-color 0.3s ease,
+			box-shadow 0.3s ease;
 	}
 
 	.vp-card:hover .vp-card__glow {
 		opacity: 1;
 	}
 
+	.vp-card--cyan {
+		border-color: rgba(0, 245, 255, 0.14);
+	}
+
+	.vp-card--cyan:hover {
+		border-color: rgba(0, 245, 255, 0.38);
+		box-shadow:
+			0 0 32px rgba(0, 245, 255, 0.12),
+			inset 0 0 20px rgba(0, 245, 255, 0.04);
+	}
+
+	.vp-card--pink {
+		border-color: rgba(255, 0, 85, 0.14);
+	}
+
+	.vp-card--pink:hover {
+		border-color: rgba(255, 0, 85, 0.38);
+		box-shadow:
+			0 0 32px rgba(255, 0, 85, 0.12),
+			inset 0 0 20px rgba(255, 0, 85, 0.04);
+	}
+
+	.vp-card--purple {
+		border-color: rgba(179, 0, 255, 0.14);
+	}
+
+	.vp-card--purple:hover {
+		border-color: rgba(179, 0, 255, 0.38);
+		box-shadow:
+			0 0 32px rgba(179, 0, 255, 0.12),
+			inset 0 0 20px rgba(179, 0, 255, 0.04);
+	}
+
+	.vp-card--yellow {
+		border-color: rgba(255, 230, 0, 0.14);
+	}
+
+	.vp-card--yellow:hover {
+		border-color: rgba(255, 230, 0, 0.38);
+		box-shadow:
+			0 0 32px rgba(255, 230, 0, 0.1),
+			inset 0 0 20px rgba(255, 230, 0, 0.04);
+	}
+
 	/* Glow effect background */
 	.vp-card__glow {
 		position: absolute;
-		inset: 0;
+		bottom: -40%;
+		left: 50%;
+		width: 80%;
+		height: 60%;
+		transform: translateX(-50%);
+		border-radius: 50%;
 		opacity: 0;
-		transition: opacity 0.3s ease;
+		transition: opacity 0.4s ease;
 		will-change: opacity;
 		pointer-events: none;
 	}
 
 	.vp-card--cyan .vp-card__glow {
-		background: radial-gradient(circle at center, rgba(0, 245, 255, 0.2) 0%, transparent 70%);
+		background: radial-gradient(ellipse at center, rgba(0, 245, 255, 0.15) 0%, transparent 70%);
 	}
 
 	.vp-card--pink .vp-card__glow {
-		background: radial-gradient(circle at center, rgba(255, 0, 85, 0.2) 0%, transparent 70%);
+		background: radial-gradient(ellipse at center, rgba(255, 0, 85, 0.15) 0%, transparent 70%);
 	}
 
 	.vp-card--purple .vp-card__glow {
-		background: radial-gradient(circle at center, rgba(179, 0, 255, 0.2) 0%, transparent 70%);
+		background: radial-gradient(ellipse at center, rgba(179, 0, 255, 0.15) 0%, transparent 70%);
 	}
 
 	.vp-card--yellow .vp-card__glow {
-		background: radial-gradient(circle at center, rgba(255, 230, 0, 0.2) 0%, transparent 70%);
+		background: radial-gradient(ellipse at center, rgba(255, 230, 0, 0.12) 0%, transparent 70%);
 	}
 
 	/* Border accent animation */
@@ -333,24 +391,23 @@
 	}
 
 	.vp-card--cyan .vp-card__border {
-		box-shadow: inset 0 0 20px rgba(0, 245, 255, 0.3), 0 0 30px rgba(0, 245, 255, 0.2);
+		box-shadow: inset 0 0 24px rgba(0, 245, 255, 0.18);
 	}
 
 	.vp-card--pink .vp-card__border {
-		box-shadow: inset 0 0 20px rgba(255, 0, 85, 0.3), 0 0 30px rgba(255, 0, 85, 0.2);
+		box-shadow: inset 0 0 24px rgba(255, 0, 85, 0.18);
 	}
 
 	.vp-card--purple .vp-card__border {
-		box-shadow: inset 0 0 20px rgba(179, 0, 255, 0.3), 0 0 30px rgba(179, 0, 255, 0.2);
+		box-shadow: inset 0 0 24px rgba(179, 0, 255, 0.18);
 	}
 
 	.vp-card--yellow .vp-card__border {
-		box-shadow: inset 0 0 20px rgba(255, 230, 0, 0.3), 0 0 30px rgba(255, 230, 0, 0.2);
+		box-shadow: inset 0 0 24px rgba(255, 230, 0, 0.15);
 	}
 
 	.vp-card:hover .vp-card__border {
-		opacity: 1;
-		animation: borderGlow 2s ease-in-out infinite;
+		animation: borderGlow 2.2s ease-in-out infinite;
 	}
 
 	@keyframes borderGlow {
@@ -358,7 +415,7 @@
 			opacity: 1;
 		}
 		50% {
-			opacity: 0.7;
+			opacity: 0.5;
 		}
 	}
 
@@ -366,7 +423,7 @@
 	.vp-card__icon {
 		width: clamp(3rem, 8vw, 4.5rem);
 		height: clamp(3rem, 8vw, 4.5rem);
-		margin: 0 auto 1.5rem;
+		margin: 0 auto 1rem;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -445,43 +502,45 @@
 	/* Corner accent marks for cyberpunk aesthetic */
 	.vp-card__corner {
 		position: absolute;
-		width: 20px;
-		height: 20px;
+		width: 14px;
+		height: 14px;
 		pointer-events: none;
-		opacity: 0.6;
-		transition: opacity 0.3s ease;
+		opacity: 0.35;
+		transition: opacity 0.3s ease, width 0.3s ease, height 0.3s ease;
 	}
 
 	.vp-card:hover .vp-card__corner {
-		opacity: 1;
+		opacity: 0.9;
+		width: 18px;
+		height: 18px;
 	}
 
 	.vp-card__corner--top-left {
 		top: 0;
 		left: 0;
-		border-top: 2px solid currentColor;
-		border-left: 2px solid currentColor;
+		border-top: 1.5px solid currentColor;
+		border-left: 1.5px solid currentColor;
 	}
 
 	.vp-card__corner--top-right {
 		top: 0;
 		right: 0;
-		border-top: 2px solid currentColor;
-		border-right: 2px solid currentColor;
+		border-top: 1.5px solid currentColor;
+		border-right: 1.5px solid currentColor;
 	}
 
 	.vp-card__corner--bottom-left {
 		bottom: 0;
 		left: 0;
-		border-bottom: 2px solid currentColor;
-		border-left: 2px solid currentColor;
+		border-bottom: 1.5px solid currentColor;
+		border-left: 1.5px solid currentColor;
 	}
 
 	.vp-card__corner--bottom-right {
 		bottom: 0;
 		right: 0;
-		border-bottom: 2px solid currentColor;
-		border-right: 2px solid currentColor;
+		border-bottom: 1.5px solid currentColor;
+		border-right: 1.5px solid currentColor;
 	}
 
 	.vp-card--cyan .vp-card__corner {
@@ -548,6 +607,11 @@
 		.vp-card__corner {
 			animation: none !important;
 			transition: none !important;
+		}
+
+		/* Keep hover static in reduced-motion mode despite the more specific hover rule */
+		.vp-cards-grid--visible .vp-card:hover {
+			transform: translateY(0);
 		}
 
 		/* Immediately show cards regardless of scroll position */
