@@ -9,11 +9,11 @@
 	 * instead of being hardcoded to fire on page load.
 	 */
 
+	import { onMount } from 'svelte';
 	import SectionTitle from './SectionTitle.svelte';
-	import ValuePropositionBackground from './ValuePropositionBackground.svelte';
+	import CaseStudy from './CaseStudy.svelte';
 	import {
 		VALUE_PROP_CARDS,
-		VP_ANIMATION_CONFIG,
 		VP_RESPONSIVE_CONFIG,
 		type ValuePropCard
 	} from '$lib/constants/value-proposition.constants';
@@ -35,14 +35,6 @@
 	let sectionVisible = false;
 
 	// ─── Lifecycle ───────────────────────────────────────────────────────
-
-	// Only the resize listener remains here; IntersectionObserver is in the action.
-	$: if (typeof window !== 'undefined') {
-		screenWidth = window.innerWidth;
-		updateBreakpoints();
-	}
-
-	import { onMount } from 'svelte';
 
 	onMount(() => {
 		screenWidth = window.innerWidth;
@@ -144,9 +136,6 @@
 	on:reveal={() => (sectionVisible = true)}
 	style="--card-gap: {getCardGap()}; --section-padding: {getSectionPadding()};"
 >
-	<!-- Background component -->
-	<ValuePropositionBackground />
-
 	<div class="vp-inner">
 		<!-- Section header — now correctly invisible until scrolled into view -->
 		<SectionTitle
@@ -155,7 +144,7 @@
 			label="VALUE_PROPOSITION.exe"
 			isVisible={sectionVisible}
 		/>
-		
+
 		<!-- Content container with positioning context -->
 		<div class="vp-container">
 			<!-- Cards grid — `vp-cards-grid--visible` enables the CSS stagger -->
@@ -172,6 +161,7 @@
 						<div class="vp-card__border"></div>
 						<!-- Icon -->
 						<div class="vp-card__icon">
+							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 							{@html getSvgIcon(card.icon)}
 						</div>
 						<!-- Title -->
@@ -187,6 +177,9 @@
 				{/each}
 			</div>
 		</div>
+
+		<!-- Featured case study — visually continues from the cards above -->
+		<CaseStudy isVisible={sectionVisible} />
 	</div>
 </section>
 
@@ -200,8 +193,7 @@
 	.vp-section {
 		position: relative;
 		width: 100%;
-        min-height: 80dvh;
-		background-color: var(--cp-bg);
+		min-height: 80dvh;
 		overflow: hidden;
 		z-index: 1;
         display: flex;
