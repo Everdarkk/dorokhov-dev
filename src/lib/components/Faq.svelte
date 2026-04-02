@@ -32,6 +32,8 @@
 		FAQ_TYPEWRITER_CONFIG,
 		type FaqAccent,
 	} from '$lib/constants/faq.constants';
+	import NeatBackground from './NeatBackground.svelte';
+	
 
 	// ─── Types ────────────────────────────────────────────────────────────────
 
@@ -177,6 +179,13 @@
 	aria-label="Frequently Asked Questions"
 	id="faq"
 >
+	<!-- Background -->
+	<NeatBackground 
+		flowScale={1}
+		colorPressure={2000}
+		colors={['#091413', '#285A48', '#408A71', '#B0E4CC']}
+	/>
+
 
 	<!-- Scanlines — consistent with rest of app -->
 	<div class="faq-scanlines" aria-hidden="true"></div>
