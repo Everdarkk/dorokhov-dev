@@ -354,15 +354,29 @@
     };
 
     const dpr = Math.min(devicePixelRatio, 2);
+
+    // Stage resize dimensions — applied at the top of the next tick so the
+    // canvas clear and redraw land in the same composited frame (no flicker).
+    let pendingW = 0;
+    let pendingH = 0;
+
     const ro  = new ResizeObserver(([e]) => {
       const w = Math.round(e.contentRect.width  * dpr);
       const h = Math.round(e.contentRect.height * dpr);
-      if (w && h) { canvas.width = w; canvas.height = h; gl.viewport(0,0,w,h); }
+      if (w && h) { pendingW = w; pendingH = h; }
     });
     ro.observe(canvas);
 
     function tick() {
       if (destroyed) return;
+
+      if (pendingW > 0 && pendingH > 0) {
+        if (canvas.width !== pendingW || canvas.height !== pendingH) {
+          canvas.width = pendingW; canvas.height = pendingH;
+          gl?.viewport(0, 0, pendingW, pendingH);
+        }
+        pendingW = 0; pendingH = 0;
+      }
 
       const t  = ((performance.now() - startTime) / 1000) * speed;
 

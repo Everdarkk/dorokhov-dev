@@ -22,6 +22,8 @@
 	import { onMount } from 'svelte';
 	import Background from './Background.svelte';
 	import CyberButton from './CyberButton.svelte';
+	import { reducedMotion } from '$lib/stores/motion';
+	import { createTypewriter, type TypewriterController } from '$lib/utils/typewriter';
 	import type { DataStreamLine } from '$lib/types/types';
 	import {
 		DATA_STREAM_MESSAGES,
@@ -29,7 +31,6 @@
 		ACTION_BUTTONS,
 		MAX_VISIBLE_LINES,
 		MESSAGE_UPDATE_INTERVAL,
-		INITIAL_MESSAGE_DELAY,
 	} from '$lib/constants/hero.constants';
 
 	// ─── State ────────────────────────────────────────────────────────────────
@@ -37,6 +38,84 @@
 	let dataStreamLines: DataStreamLine[] = [];
 	let currentLineId = 0;
 	let mounted = false;
+	let messageQueue: string[] = [];
+	let streamTypewriter: TypewriterController | null = null;
+	let streamInterval: ReturnType<typeof setInterval> | null = null;
+	let activeLineId: number | null = null;
+	let isTyping = false;
+
+	const HERO_STREAM_CHAR_DELAY = 14;
+
+	function trimStreamLines(): void {
+		if (dataStreamLines.length > MAX_VISIBLE_LINES) {
+			dataStreamLines = dataStreamLines.slice(-MAX_VISIBLE_LINES);
+		}
+	}
+
+	function setLineText(lineId: number, text: string): void {
+		dataStreamLines = dataStreamLines.map((line) =>
+			line.id === lineId ? { ...line, text } : line
+		);
+	}
+
+	function appendInstantLine(text: string): void {
+		dataStreamLines = [
+			...dataStreamLines,
+			{ id: currentLineId++, text, delay: 0, opacity: 1 },
+		];
+		trimStreamLines();
+	}
+
+	function runNextMessage(): void {
+		if (isTyping || messageQueue.length === 0) return;
+
+		const nextMessage = messageQueue[0];
+		messageQueue = messageQueue.slice(1);
+
+		if ($reducedMotion) {
+			appendInstantLine(nextMessage);
+			runNextMessage();
+			return;
+		}
+
+		const lineId = currentLineId++;
+		activeLineId = lineId;
+		isTyping = true;
+		dataStreamLines = [
+			...dataStreamLines,
+			{ id: lineId, text: '', delay: 0, opacity: 1 },
+		];
+		trimStreamLines();
+
+		streamTypewriter = createTypewriter({
+			lines: [nextMessage],
+			charDelay: HERO_STREAM_CHAR_DELAY,
+			lineDelay: 0,
+			onChar: (partialLine) => {
+				if (activeLineId !== null) {
+					setLineText(activeLineId, partialLine);
+				}
+			},
+			onLineComplete: (line) => {
+				if (activeLineId !== null) {
+					setLineText(activeLineId, line);
+				}
+			},
+			onDone: () => {
+				isTyping = false;
+				activeLineId = null;
+				streamTypewriter = null;
+				runNextMessage();
+			},
+		});
+
+		streamTypewriter.start();
+	}
+
+	function enqueueMessage(message: string): void {
+		messageQueue = [...messageQueue, message];
+		runNextMessage();
+	}
 
 	// ─── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -44,32 +123,30 @@
 		// Trigger entrance animations
 		requestAnimationFrame(() => { mounted = true; });
 
-		// Seed the data stream
-		DATA_STREAM_MESSAGES.forEach((msg, idx) => {
-			setTimeout(() => {
-				dataStreamLines = [
-					...dataStreamLines,
-					{ id: currentLineId++, text: msg, delay: 0, opacity: 1 },
-				];
-				if (dataStreamLines.length > MAX_VISIBLE_LINES) {
-					dataStreamLines = dataStreamLines.slice(-MAX_VISIBLE_LINES);
-				}
-			}, idx * INITIAL_MESSAGE_DELAY);
-		});
+		// Seed the data stream through a shared typewriter pipeline
+		for (const msg of DATA_STREAM_MESSAGES) {
+			enqueueMessage(msg);
+		}
 
-		// Periodic new messages
-		const iv = setInterval(() => {
+		// Periodic new messages continue through the same queue
+		streamInterval = setInterval(() => {
 			const msg = RANDOM_MESSAGES[Math.floor(Math.random() * RANDOM_MESSAGES.length)];
-			dataStreamLines = [
-				...dataStreamLines,
-				{ id: currentLineId++, text: msg, delay: 0, opacity: 1 },
-			];
-			if (dataStreamLines.length > MAX_VISIBLE_LINES) {
-				dataStreamLines = dataStreamLines.slice(-MAX_VISIBLE_LINES);
-			}
+			enqueueMessage(msg);
 		}, MESSAGE_UPDATE_INTERVAL);
 
-		return () => clearInterval(iv);
+		return () => {
+			if (streamInterval !== null) {
+				clearInterval(streamInterval);
+				streamInterval = null;
+			}
+			if (streamTypewriter !== null) {
+				streamTypewriter.cancel();
+				streamTypewriter = null;
+			}
+			messageQueue = [];
+			isTyping = false;
+			activeLineId = null;
+		};
 	});
 
 	// ─── Helpers ──────────────────────────────────────────────────────────────
@@ -370,6 +447,7 @@
 		border: 1px solid rgba(0, 245, 255, 0.18);
 		background: rgba(0, 245, 255, 0.03);
 		overflow: hidden;
+		height: 10rem;
 	}
 
 	.hero__stream-header {
