@@ -10,7 +10,7 @@
 	 * animations are perfectly timed with the VP card stagger.
 	 */
 
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import { reducedMotion } from '$lib/stores';
 	import { easeOutCubic } from '$lib/utils';
@@ -26,11 +26,13 @@
 
 	let sliderPos = 50;
 	let isDragging = false;
-	let compareEl: HTMLElement;
+	let compareEl: HTMLElement | null = null;
 
 	function onPointerDown(e: MouseEvent | TouchEvent) {
 		isDragging = true;
-		e.preventDefault();
+		if (e instanceof TouchEvent) {
+			e.preventDefault();
+		}
 	}
 
 	function moveSlider(clientX: number) {
@@ -47,9 +49,23 @@
 
 	let displayValues: number[] = METRICS.map(() => 0);
 	let metricsStarted = false;
+	let metricsTimeoutId: ReturnType<typeof setTimeout> | null = null;
+	let metricsRafId: number | null = null;
+
+	function clearMetricsScheduling(): void {
+		if (metricsTimeoutId !== null) {
+			clearTimeout(metricsTimeoutId);
+			metricsTimeoutId = null;
+		}
+		if (metricsRafId !== null) {
+			cancelAnimationFrame(metricsRafId);
+			metricsRafId = null;
+		}
+	}
 
 	function runCounters() {
 		if (metricsStarted) return;
+		metricsTimeoutId = null;
 		metricsStarted = true;
 
 		if (get(reducedMotion)) {
@@ -64,12 +80,17 @@
 			const progress = Math.min((now - t0) / DURATION, 1);
 			const eased = easeOutCubic(progress);
 			displayValues = METRICS.map((m) => Math.round(m.endValue * eased));
-			if (progress < 1) requestAnimationFrame(tick);
+			if (progress < 1) {
+				metricsRafId = requestAnimationFrame(tick);
+			} else {
+				metricsRafId = null;
+			}
 		})(t0);
 	}
 
 	$: if (isVisible && !metricsStarted) {
-		setTimeout(runCounters, get(reducedMotion) ? 0 : 500);
+		clearMetricsScheduling();
+		metricsTimeoutId = setTimeout(runCounters, get(reducedMotion) ? 0 : 500);
 	}
 
 	// ─── Lifecycle ────────────────────────────────────────────────────────────
@@ -87,11 +108,16 @@
 		window.addEventListener('touchend', up);
 
 		return () => {
+			clearMetricsScheduling();
 			window.removeEventListener('mousemove', mm);
 			window.removeEventListener('mouseup', up);
 			window.removeEventListener('touchmove', tm);
 			window.removeEventListener('touchend', up);
 		};
+	});
+
+	onDestroy(() => {
+		clearMetricsScheduling();
 	});
 
 </script>
@@ -195,7 +221,6 @@
 				<span class="cs-compare__lbl cs-compare__lbl--after" aria-hidden="true">AFTER</span>
 
 				<!-- Draggable handle -->
-				<!-- svelte-ignore a11y-interactive-supports-focus -->
 				<div
 					class="cs-compare__handle"
 					style="left: {sliderPos}%;"
