@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { menuItems, type MenuItem } from '../data/menu';
+	import { menuItems } from '$lib/data/menu';
+	import type { MenuItem } from '$lib/types';
 	import { onDestroy } from 'svelte';
 
 	const bodyNoScrollClass = 'navigation-mobile-menu-open';

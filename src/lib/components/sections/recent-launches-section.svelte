@@ -1,7 +1,7 @@
 <script lang="ts">
-	import SectionTitle from './SectionTitle.svelte';
-	import { scrollReveal } from '$lib/actions/scrollReveal';
-	import { PROJECTS, COLOR_MAP } from '$lib/constants/recent-launches.constants';
+	import SectionTitle from '$lib/components/common/section-title.svelte';
+	import { scrollReveal } from '$lib/actions';
+	import { PROJECTS, COLOR_MAP } from '$lib/constants/recent-launches';
 	
 
 	// ─── State ────────────────────────────────────────────────────────────────
@@ -11,9 +11,14 @@
 	let transitioning = false;
 	let visible = false;       // driven by scrollReveal action
 	let videoEl: HTMLVideoElement | undefined;
+	const handleSectionReveal = () => (visible = true);
 
 	$: active  = PROJECTS.find(p => p.id === activeId)!;
 	$: colors  = COLOR_MAP[active.color];
+
+	function itemColor(color: keyof typeof COLOR_MAP): string {
+		return COLOR_MAP[color].primary;
+	}
 
 	// ─── Project switch — cross-fade with brief lock ───────────────────────────
 
@@ -54,8 +59,7 @@
 <section
 	class="rl-section"
 	class:is-visible={visible}
-	use:scrollReveal={{ threshold: 0.08 }}
-	on:reveal={() => (visible = true)}
+	use:scrollReveal={{ threshold: 0.08, onReveal: handleSectionReveal }}
 	id="launches"
 	aria-label="Recent launches"
 >
@@ -97,8 +101,7 @@
 					<button
 						class="rl-item"
 						class:is-active={activeId === project.id}
-						class:color-{project.color}={true}
-						style="--i: {i}"
+						style="--i: {i}; --item-color: {itemColor(project.color)}"
 						aria-current={activeId === project.id ? 'true' : 'false'}
 						aria-label="View {project.name}"
 						on:click={() => selectProject(project.id)}
@@ -203,11 +206,8 @@
 	</div><!-- /rl-inner -->
 </section>
 
-<!-- STYLES -->
 <style>
-	/* ═══════════════════════════════════════════════════════════════════════
-	   ROOT SECTION
-	══════════════════════════════════════════════════════════════════════ */
+	/* ROOT SECTION */
 	.rl-section {
 		position: relative;
 		width: 100%;
@@ -330,15 +330,9 @@
 
 	/* Active state — colour driven by per-item class */
 	.rl-item.is-active {
-		background: rgba(0, 245, 255, 0.07);
-		border-color: rgba(0, 245, 255, 0.25);
+		background: color-mix(in srgb, var(--item-color, var(--cp-cyan, #00f5ff)) 7%, transparent);
+		border-color: color-mix(in srgb, var(--item-color, var(--cp-cyan, #00f5ff)) 25%, transparent);
 	}
-
-	/* Per-colour active overrides */
-	.rl-item.is-active.color-pink   { background: rgba(255,0,85,0.07);   border-color: rgba(255,0,85,0.25);   }
-	.rl-item.is-active.color-purple { background: rgba(179,0,255,0.07);  border-color: rgba(179,0,255,0.25);  }
-	.rl-item.is-active.color-yellow { background: rgba(255,230,0,0.07);  border-color: rgba(255,230,0,0.25);  }
-	.rl-item.is-active.color-green  { background: rgba(0,255,136,0.07);  border-color: rgba(0,255,136,0.25);  }
 
 	/* Index number */
 	.rl-item__index {
@@ -351,11 +345,7 @@
 		text-align: center;
 	}
 
-	.rl-item.is-active .rl-item__index { color: var(--cp-cyan, #00f5ff); }
-	.rl-item.is-active.color-pink   .rl-item__index { color: var(--cp-pink,   #ff0055); }
-	.rl-item.is-active.color-purple .rl-item__index { color: var(--cp-purple, #b300ff); }
-	.rl-item.is-active.color-yellow .rl-item__index { color: var(--cp-yellow, #ffe600); }
-	.rl-item.is-active.color-green  .rl-item__index { color: var(--cp-green,  #00ff88); }
+	.rl-item.is-active .rl-item__index { color: var(--item-color, var(--cp-cyan, #00f5ff)); }
 
 	/* Text block */
 	.rl-item__info {
@@ -378,11 +368,7 @@
 		transition: color 0.25s;
 	}
 
-	.rl-item.is-active .rl-item__name         { color: var(--cp-cyan,   #00f5ff); }
-	.rl-item.is-active.color-pink   .rl-item__name { color: var(--cp-pink,   #ff0055); }
-	.rl-item.is-active.color-purple .rl-item__name { color: var(--cp-purple, #b300ff); }
-	.rl-item.is-active.color-yellow .rl-item__name { color: var(--cp-yellow, #ffe600); }
-	.rl-item.is-active.color-green  .rl-item__name { color: var(--cp-green,  #00ff88); }
+	.rl-item.is-active .rl-item__name { color: var(--item-color, var(--cp-cyan, #00f5ff)); }
 
 	.rl-item__tag {
 		font-family: var(--font-mono, monospace);
@@ -408,10 +394,7 @@
 	}
 
 	.rl-item.is-active .rl-item__bar                { transform: translateY(-50%) scaleY(1); }
-	.rl-item.is-active.color-pink   .rl-item__bar   { background: var(--cp-pink,   #ff0055); }
-	.rl-item.is-active.color-purple .rl-item__bar   { background: var(--cp-purple, #b300ff); }
-	.rl-item.is-active.color-yellow .rl-item__bar   { background: var(--cp-yellow, #ffe600); }
-	.rl-item.is-active.color-green  .rl-item__bar   { background: var(--cp-green,  #00ff88); }
+	.rl-item.is-active .rl-item__bar { background: var(--item-color, var(--cp-cyan, #00f5ff)); }
 
 	/* Chevron */
 	.rl-item__chevron {
@@ -424,13 +407,8 @@
 	.rl-item:hover .rl-item__chevron,
 	.rl-item.is-active .rl-item__chevron {
 		transform: translateX(3px);
-		color: var(--cp-cyan, #00f5ff);
+		color: var(--item-color, var(--cp-cyan, #00f5ff));
 	}
-
-	.rl-item.is-active.color-pink   .rl-item__chevron { color: var(--cp-pink,   #ff0055); }
-	.rl-item.is-active.color-purple .rl-item__chevron { color: var(--cp-purple, #b300ff); }
-	.rl-item.is-active.color-yellow .rl-item__chevron { color: var(--cp-yellow, #ffe600); }
-	.rl-item.is-active.color-green  .rl-item__chevron { color: var(--cp-green,  #00ff88); }
 
 	/* ═══════════════════════════════════════════════════════════════════════
 	   RIGHT — PROJECT DETAIL

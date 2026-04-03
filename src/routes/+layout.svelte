@@ -1,8 +1,8 @@
 <script lang="ts">
 	import favicon from '$lib/assets/favicon.svg'
-	import Cursor from '$lib/components/Cursor.svelte'
+	import Cursor from '$lib/components/layout/cursor.svelte'
 	import '../app.css'
-	import Navigation from '$lib/components/Navigation.svelte'
+	import Navigation from '$lib/components/layout/navigation.svelte'
 
 	let { children } = $props()
 </script>

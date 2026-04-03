@@ -1,0 +1,9 @@
+export { default as HeroSection } from './hero-section.svelte';
+export { default as MarqueeSection } from './marquee-section.svelte';
+export { default as ValuePropositionSection } from './value-proposition-section.svelte';
+export { default as CaseStudySection } from './case-study-section.svelte';
+export { default as KeyServicesSection } from './key-services-section.svelte';
+export { default as WorkProcessSection } from './work-process-section.svelte';
+export { default as FaqSection } from './faq-section.svelte';
+export { default as TestimonialsSection } from './testimonials-section.svelte';
+export { default as RecentLaunchesSection } from './recent-launches-section.svelte';

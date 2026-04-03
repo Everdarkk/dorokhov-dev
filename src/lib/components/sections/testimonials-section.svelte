@@ -12,14 +12,14 @@
 	 */
 
 	import { onDestroy } from 'svelte';
-	import SectionTitle from './SectionTitle.svelte';
-	import { scrollReveal } from '$lib/actions/scrollReveal';
-	import { reducedMotion } from '$lib/stores/motion';
+	import SectionTitle from '$lib/components/common/section-title.svelte';
+	import { scrollReveal } from '$lib/actions';
+	import { reducedMotion } from '$lib/stores';
 	import {
 		TESTIMONIALS,
 		SIGNAL_BAR_COUNT,
 		SIGNAL_BAR_HEIGHTS,
-	} from '$lib/constants/testimonials.constants';
+	} from '$lib/constants/testimonials';
 
 	// ─── State ───────────────────────────────────────────────────────────────
 
@@ -111,8 +111,7 @@
 <section
 	class="tm-section"
 	aria-label="Client testimonials"
-	use:scrollReveal={{ threshold: 0.08 }}
-	on:reveal={handleReveal}
+	use:scrollReveal={{ threshold: 0.08, onReveal: handleReveal }}
 >
 	<!-- Scanlines overlay -->
 	<div class="tm-scanlines" aria-hidden="true"></div>
@@ -225,9 +224,7 @@
 </section>
 
 <style>
-	/* ═══════════════════════════════════════════════════════════════════════════
-	   SECTION
-	   ═══════════════════════════════════════════════════════════════════════════ */
+	/* SECTION */
 
 	.tm-section {
 		position: relative;

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import type { MarqueeItem } from '$lib/types/types';
-	import { DEFAULT_MARQUEE_ITEMS, MARQUEE_ICONS } from '$lib/constants/marquee.constants';
+	import type { MarqueeItem } from '$lib/types';
+	import { DEFAULT_MARQUEE_ITEMS, MARQUEE_ICONS } from '$lib/constants/marquee';
 
 	// ─── Props ────────────────────────────────────────────────────────────────
 

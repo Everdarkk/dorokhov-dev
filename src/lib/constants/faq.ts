@@ -1,44 +1,5 @@
-/**
- * faq.constants.ts
- *
- * All static data for the FAQ section.
- * Separating data from the component keeps FAQ.svelte logic-only
- * and makes content edits trivial.
- */
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export type FaqAccent = 'cyan' | 'pink' | 'purple' | 'yellow' | 'green';
-
-export interface FaqItem {
-	/** Unique key used for {#key} and aria attributes */
-	id: string;
-	/** Terminal-style command that acts as the question */
-	command: string;
-	/** Human-readable question label shown above the command */
-	question: string;
-	/**
-	 * Answer split into lines — each line is streamed in sequence,
-	 * simulating terminal output. Use empty string '' for a blank line.
-	 */
-	answerLines: string[];
-	/** Accent colour for this terminal block */
-	accent: FaqAccent;
-	/** Fake process/pid label shown in the terminal header */
-	pid: string;
-}
-
-// ─── Accent colour CSS-var map ────────────────────────────────────────────────
-
-export const FAQ_ACCENT_VARS: Record<FaqAccent, string> = {
-	cyan:   'var(--cp-cyan,   #00f5ff)',
-	pink:   'var(--cp-pink,   #ff0055)',
-	purple: 'var(--cp-purple, #b300ff)',
-	yellow: 'var(--cp-yellow, #ffe600)',
-	green:  'var(--cp-green,  #39ff14)',
-};
-
-// ─── Typewriter config ────────────────────────────────────────────────────────
+import type { FaqItem } from '$lib/types';
+export type { FaqItem } from '$lib/types';
 
 export const FAQ_TYPEWRITER_CONFIG = {
 	/** Delay between each character in ms */

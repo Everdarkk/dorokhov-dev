@@ -22,17 +22,17 @@
 	 */
 
 	import { onDestroy } from 'svelte';
-	import SectionTitle from './SectionTitle.svelte';
-	import { scrollReveal } from '$lib/actions/scrollReveal';
-	import { reducedMotion } from '$lib/stores/motion';
-	import { createTypewriter, type TypewriterController } from '$lib/utils/typewriter';
+	import SectionTitle from '$lib/components/common/section-title.svelte';
+	import { scrollReveal } from '$lib/actions';
+	import { reducedMotion } from '$lib/stores';
+	import { createTypewriter, type TypewriterController } from '$lib/utils';
 	import {
 		FAQ_ITEMS,
-		FAQ_ACCENT_VARS,
 		FAQ_TYPEWRITER_CONFIG,
-		type FaqAccent,
-	} from '$lib/constants/faq.constants';
-	import NeatBackground from './NeatBackground.svelte';
+		type FaqItem,
+	} from '$lib/constants/faq';
+	import { ACCENT_VARS } from '$lib/config';
+	import NeatBackground from '$lib/components/backgrounds/neat-background.svelte';
 	
 
 	// ─── Types ────────────────────────────────────────────────────────────────
@@ -73,7 +73,8 @@
 
 	// ─── Helpers ──────────────────────────────────────────────────────────────
 
-	const accentVar = (a: FaqAccent): string => FAQ_ACCENT_VARS[a];
+	const accentVar = (a: FaqItem['accent']): string => ACCENT_VARS[a];
+	const handleSectionReveal = () => (sectionVisible = true);
 
 	function getState(id: string): TerminalState {
 		return terminals[id] ?? { ...DEFAULT_TERMINAL_STATE };
@@ -174,8 +175,7 @@
 <section
 	class="faq-section"
 	class:is-visible={sectionVisible}
-	use:scrollReveal={{ threshold: 0.06 }}
-	on:reveal={() => (sectionVisible = true)}
+	use:scrollReveal={{ threshold: 0.06, onReveal: handleSectionReveal }}
 	aria-label="Frequently Asked Questions"
 	id="faq"
 >
@@ -302,9 +302,7 @@
 </section>
 
 <style>
-	/* ═══════════════════════════════════════════════════════════════════════
-	   SECTION
-	══════════════════════════════════════════════════════════════════════ */
+	/* Section */
 	.faq-section {
 		position: relative;
 		width: 100%;
@@ -653,11 +651,6 @@
 	@keyframes cursorBlink {
 		0%, 100% { opacity: 1; }
 		50%       { opacity: 0; }
-	}
-
-	/* Special line colouring — lines starting with [OK] get accent colour */
-	.faq-terminal__line:has([data-ok]) {
-		color: var(--accent);
 	}
 
 	/* ═══════════════════════════════════════════════════════════════════════

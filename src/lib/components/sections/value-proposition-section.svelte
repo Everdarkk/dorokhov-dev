@@ -9,16 +9,17 @@
 	 * instead of being hardcoded to fire on page load.
 	 */
 
-	import SectionTitle from './SectionTitle.svelte';
-	import ValuePropositionBackground from './ValuePropositionBackground.svelte';
+	import { onMount } from 'svelte';
+	import SectionTitle from '$lib/components/common/section-title.svelte';
+	import CaseStudy from '$lib/components/sections/case-study-section.svelte';
 	import {
 		VALUE_PROP_CARDS,
-		VP_ANIMATION_CONFIG,
 		VP_RESPONSIVE_CONFIG,
 		type ValuePropCard
-	} from '$lib/constants/value-proposition.constants';
-	import { BREAKPOINTS } from '$lib/constants/hero.constants';
-	import { scrollReveal } from '$lib/actions/scrollReveal';
+	} from '$lib/constants/value-proposition';
+	import { BREAKPOINTS } from '$lib/config';
+	import { scrollReveal } from '$lib/actions';
+  import NeatBackground from '$lib/components/backgrounds/neat-background.svelte';
 
 	// ─── State ───────────────────────────────────────────────────────────
 
@@ -33,16 +34,9 @@
 	 * `onMount` stagger — the stagger is now handled in CSS with `animation-delay`.
 	 */
 	let sectionVisible = false;
+	const handleSectionReveal = () => (sectionVisible = true);
 
 	// ─── Lifecycle ───────────────────────────────────────────────────────
-
-	// Only the resize listener remains here; IntersectionObserver is in the action.
-	$: if (typeof window !== 'undefined') {
-		screenWidth = window.innerWidth;
-		updateBreakpoints();
-	}
-
-	import { onMount } from 'svelte';
 
 	onMount(() => {
 		screenWidth = window.innerWidth;
@@ -140,12 +134,17 @@
 -->
 <section
 	class="vp-section"
-	use:scrollReveal={{ threshold: 0.08 }}
-	on:reveal={() => (sectionVisible = true)}
+	use:scrollReveal={{ threshold: 0.08, onReveal: handleSectionReveal }}
 	style="--card-gap: {getCardGap()}; --section-padding: {getSectionPadding()};"
 >
-	<!-- Background component -->
-	<ValuePropositionBackground />
+	<!-- Background -->
+	<NeatBackground 
+		speed={0.01}
+		flowScale={0.1}
+		colorPressure={50}
+		grain={0.01}
+		colors={['#06060a', '#343a40', '#0c1821', '#2a2b2e', '#06060a']}
+	/>
 
 	<div class="vp-inner">
 		<!-- Section header — now correctly invisible until scrolled into view -->
@@ -155,7 +154,7 @@
 			label="VALUE_PROPOSITION.exe"
 			isVisible={sectionVisible}
 		/>
-		
+
 		<!-- Content container with positioning context -->
 		<div class="vp-container">
 			<!-- Cards grid — `vp-cards-grid--visible` enables the CSS stagger -->
@@ -172,6 +171,7 @@
 						<div class="vp-card__border"></div>
 						<!-- Icon -->
 						<div class="vp-card__icon">
+							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 							{@html getSvgIcon(card.icon)}
 						</div>
 						<!-- Title -->
@@ -187,11 +187,15 @@
 				{/each}
 			</div>
 		</div>
+
+		<!-- Featured case study — visually continues from the cards above -->
+		<CaseStudy isVisible={sectionVisible} />
 	</div>
 </section>
 
 <style>
-	:root {
+	/* Card styling */
+	.vp-section {
 		--vp-border-color: rgba(0, 247, 255, 0.3);
 		--vp-border-color-hover: rgba(0, 247, 255, 0.6);
 	}
@@ -200,8 +204,7 @@
 	.vp-section {
 		position: relative;
 		width: 100%;
-        min-height: 80dvh;
-		background-color: var(--cp-bg);
+		min-height: 80dvh;
 		overflow: hidden;
 		z-index: 1;
         display: flex;

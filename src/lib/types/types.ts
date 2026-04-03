@@ -1,79 +1,174 @@
-import type { Breakpoint } from '$lib/constants/hero.constants';
+import type { AccentColor } from '$lib/config/colors';
 
-/**
- * Data stream line interface for terminal-style text animation
- */
-export interface DataStreamLine {
-	id: number;
-	text: string;
-	delay: number;
-	opacity: number;
+export type { AccentColor } from '$lib/config/colors';
+export type { Breakpoint }  from '$lib/config/breakpoints';
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+
+export interface MenuItem {
+id: number;
+label: string;
+href: string;
+icon: string;
 }
 
-/**
- * Hero section configuration
- */
-export interface HeroConfig {
-	navigationHeight: number; // Navigation height in rem/pixels
-	showImage: boolean; // Show image on device
-	showButtons: boolean; // Show action buttons
-	columnsLayout: 'single' | 'two-column'; // Layout variation
-	maxWidth: number; // Maximum width of content
-}
+// ─── Interaction / Actions ────────────────────────────────────────────────────
 
-/**
- * Device capability detection
- */
-export interface DeviceCapabilities {
-	isMobile: boolean;
-	isTablet: boolean;
-	isLowPowerDevice: boolean;
-	screenHeight: number;
-	screenWidth: number;
-}
-
-/**
- * Button action type
- */
 export type ButtonAction = 'contact' | 'learn-more' | 'scroll' | 'external-link';
 
-/**
- * Action button interface
- */
 export interface ActionButton {
-	id: string;
-	label: string;
-	action: ButtonAction;
-	href?: string;
-	target?: '_blank' | '_self' | '_parent' | '_top';
-	className?: string;
+id: string;
+label: string;
+action: ButtonAction;
+href?: string;
+target?: '_blank' | '_self' | '_parent' | '_top';
+className?: string;
 }
 
-/**
- * Marquee item interface
- */
+// ─── Hero / Stream ────────────────────────────────────────────────────────────
+
+export interface DataStreamLine {
+id: number;
+text: string;
+delay: number;
+opacity: number;
+}
+
+export interface HeroConfig {
+navigationHeight: number;
+showImage: boolean;
+showButtons: boolean;
+columnsLayout: 'single' | 'two-column';
+maxWidth: number;
+}
+
+export interface DeviceCapabilities {
+isMobile: boolean;
+isTablet: boolean;
+isLowPowerDevice: boolean;
+screenHeight: number;
+screenWidth: number;
+}
+
+// ─── Marquee ──────────────────────────────────────────────────────────────────
+
 export interface MarqueeItem {
-	id: string;
-	label: string;
-	icon: string;
-	color: 'cyan' | 'pink' | 'purple' | 'yellow' | 'green';
+id: string;
+label: string;
+icon: string;
+color: AccentColor;
 }
 
-export interface ProjectKey {
-		label: string;
-		value: string;
-	}
+// ─── Projects / Launches ─────────────────────────────────────────────────────
+
+export interface ProjectKey { label: string; value: string; }
 
 export interface Project {
-	id: string;
-	index: string;          // e.g. "01"
-	name: string;
-	tag: string;            // short category tag
-	year: string;
-	url: string;
-	color: 'cyan' | 'pink' | 'purple' | 'yellow' | 'green';
-	description: string;
-	keys: ProjectKey[];     // key achievements / what was built
-	videoUrl: string;       // URL to screen-capture video (mp4 / webm)
-	videoPoster: string;    // poster image for the video
+id: string;
+index: string;
+name: string;
+tag: string;
+year: string;
+url: string;
+color: AccentColor;
+description: string;
+keys: ProjectKey[];
+videoUrl: string;
+videoPoster: string;
+}
+
+// ─── Case Study ───────────────────────────────────────────────────────────────
+
+export interface CaseStudyMetric {
+id: string;
+label: string;
+sublabel: string;
+before: string;
+endValue: number;
+format: (n: number) => string;
+color: string;
+}
+
+export type CaseStudyMetaItem = [string, string];
+
+export interface CaseStudyData {
+metrics: CaseStudyMetric[];
+tech: string[];
+meta: CaseStudyMetaItem[];
+}
+
+// ─── FAQ ──────────────────────────────────────────────────────────────────────
+
+export interface FaqItem {
+id: string;
+command: string;
+question: string;
+answerLines: string[];
+accent: AccentColor;
+pid: string;
+}
+
+// ─── Key Services ─────────────────────────────────────────────────────────────
+
+export interface ServiceBenefit { label: string; value: string; }
+export interface ServiceTool    { name: string; tag: string; }
+
+export interface Service {
+id: string;
+index: number;
+layout: 'text-visual' | 'visual-text';
+accent: AccentColor;
+code: string;
+title: string;
+tagline: string;
+description: string;
+benefits: ServiceBenefit[];
+tools: ServiceTool[];
+icon: string;
+}
+
+// ─── Testimonials ─────────────────────────────────────────────────────────────
+
+export interface TestimonialMetric {
+before: string;
+beforeLabel: string;
+after: string;
+afterLabel: string;
+counterTarget: number;
+}
+
+export interface Testimonial {
+id: string;
+name: string;
+role: string;
+company: string;
+initials: string;
+review: string;
+accent: AccentColor;
+year: string;
+metric?: TestimonialMetric;
+}
+
+// ─── Value Proposition ────────────────────────────────────────────────────────
+
+export interface ValuePropCard {
+id: string;
+title: string;
+description: string;
+icon: string;
+accentColor: AccentColor;
+}
+
+// ─── Work Process ─────────────────────────────────────────────────────────────
+
+export interface WorkStep {
+id: string;
+index: number;
+title: string;
+subtitle: string;
+description: string;
+processCode: string;
+accentColor: AccentColor;
+icon: string;
+tools: string[];
 }
