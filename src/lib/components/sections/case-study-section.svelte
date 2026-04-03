@@ -12,8 +12,10 @@
 
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
-	import { easeOutCubic, reducedMotion } from '$lib/stores/motion';
-	import { TERNO_TOP_DATA, type CaseStudyMetric } from '$lib/constants/case-study.constants';
+	import { reducedMotion } from '$lib/stores';
+	import { easeOutCubic } from '$lib/utils';
+	import { TERNO_TOP_DATA } from '$lib/constants/case-study';
+	import type { CaseStudyMetric } from '$lib/types';
 	import ttOld from '$lib/assets/images/tt-old.webp';
 	import ttNew from '$lib/assets/images/tt-new.webp';
 

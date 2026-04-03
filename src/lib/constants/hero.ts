@@ -1,4 +1,4 @@
-import type { ActionButton } from '$lib/types/types';
+import type { ActionButton } from '$lib/types';
 
 /**
  * Initial data stream messages displayed on hero section load
@@ -43,23 +43,6 @@ export const ACTION_BUTTONS: ActionButton[] = [
 		className: 'learn-btn'
 	}
 ];
-
-/**
- * Responsive design breakpoints for device adaptation
- * Use this as the single source of truth for all breakpoint values
- */
-export const BREAKPOINTS = {
-	mobile: 480,
-	tablet: 768,
-	laptop: 1024,
-	desktop: 1280,
-	ultra: 1920
-} as const;
-
-/**
- * Type-safe breakpoint names derived from BREAKPOINTS object
- */
-export type Breakpoint = keyof typeof BREAKPOINTS;
 
 /**
  * Maximum number of visible lines in the data stream window

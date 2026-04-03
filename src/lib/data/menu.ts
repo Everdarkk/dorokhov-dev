@@ -1,9 +1,4 @@
-export interface MenuItem {
-	id: number;
-	label: string;
-	href: string;
-	icon: string;
-}
+import type { MenuItem } from '$lib/types';
 
 export const menuItems: MenuItem[] = [
 	{

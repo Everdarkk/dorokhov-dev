@@ -1,26 +1,5 @@
-export type TestimonialAccent = 'cyan' | 'purple' | 'yellow';
-
-export interface TestimonialMetric {
-	before: string;
-	beforeLabel: string;
-	after: string;
-	afterLabel: string;
-	/** Integer target for the animated counter */
-	counterTarget: number;
-}
-
-export interface Testimonial {
-	id: string;
-	name: string;
-	role: string;
-	company: string;
-	/** Two-letter initials rendered inside the avatar circle */
-	initials: string;
-	review: string;
-	accent: TestimonialAccent;
-	year: string;
-	metric?: TestimonialMetric;
-}
+import type { Testimonial } from '$lib/types';
+export type { Testimonial } from '$lib/types';
 
 export const TESTIMONIALS: Testimonial[] = [
 	{
@@ -70,3 +49,4 @@ export const SIGNAL_BAR_COUNT = 5 as const;
 
 /** Heights (px) for each signal bar — ascending left-to-right */
 export const SIGNAL_BAR_HEIGHTS: readonly number[] = [8, 12, 16, 20, 24];
+

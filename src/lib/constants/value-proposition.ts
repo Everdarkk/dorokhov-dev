@@ -1,17 +1,6 @@
-/**
- * Value Proposition card data
- */
-export interface ValuePropCard {
-	id: string;
-	title: string;
-	description: string;
-	icon: string; // SVG icon identifier
-	accentColor: 'cyan' | 'pink' | 'purple' | 'yellow';
-}
+import type { ValuePropCard } from '$lib/types';
+export type { ValuePropCard } from '$lib/types';
 
-/**
- * Value proposition cards displayed in the portfolio
- */
 export const VALUE_PROP_CARDS: ValuePropCard[] = [
 	{
 		id: 'innovation',
@@ -66,3 +55,4 @@ export const VP_RESPONSIVE_CONFIG = {
 	tabletPadding: '2rem',
 	desktopPadding: '3rem'
 } as const;
+

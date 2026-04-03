@@ -20,18 +20,18 @@
 	 */
 
 	import { onMount } from 'svelte';
-	import Background from './Background.svelte';
-	import CyberButton from './CyberButton.svelte';
-	import { reducedMotion } from '$lib/stores/motion';
-	import { createTypewriter, type TypewriterController } from '$lib/utils/typewriter';
-	import type { DataStreamLine } from '$lib/types/types';
+	import Background from '$lib/components/backgrounds/background-canvas.svelte';
+	import CyberButton from '$lib/components/common/cyber-button.svelte';
+	import { reducedMotion } from '$lib/stores';
+	import { createTypewriter, type TypewriterController } from '$lib/utils';
+	import type { DataStreamLine } from '$lib/types';
 	import {
 		DATA_STREAM_MESSAGES,
 		RANDOM_MESSAGES,
 		ACTION_BUTTONS,
 		MAX_VISIBLE_LINES,
 		MESSAGE_UPDATE_INTERVAL,
-	} from '$lib/constants/hero.constants';
+	} from '$lib/constants/hero';
 
 	// ─── State ────────────────────────────────────────────────────────────────
 

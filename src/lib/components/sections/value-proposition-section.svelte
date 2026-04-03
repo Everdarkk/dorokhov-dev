@@ -10,15 +10,16 @@
 	 */
 
 	import { onMount } from 'svelte';
-	import SectionTitle from './SectionTitle.svelte';
-	import CaseStudy from './CaseStudy.svelte';
+	import SectionTitle from '$lib/components/common/section-title.svelte';
+	import CaseStudy from '$lib/components/sections/case-study-section.svelte';
 	import {
 		VALUE_PROP_CARDS,
 		VP_RESPONSIVE_CONFIG,
 		type ValuePropCard
-	} from '$lib/constants/value-proposition.constants';
-	import { BREAKPOINTS } from '$lib/constants/hero.constants';
-	import { scrollReveal } from '$lib/actions/scrollReveal';
+	} from '$lib/constants/value-proposition';
+	import { BREAKPOINTS } from '$lib/config';
+	import { scrollReveal } from '$lib/actions';
+  import NeatBackground from '$lib/components/backgrounds/neat-background.svelte';
 
 	// ─── State ───────────────────────────────────────────────────────────
 
@@ -33,6 +34,7 @@
 	 * `onMount` stagger — the stagger is now handled in CSS with `animation-delay`.
 	 */
 	let sectionVisible = false;
+	const handleSectionReveal = () => (sectionVisible = true);
 
 	// ─── Lifecycle ───────────────────────────────────────────────────────
 
@@ -132,10 +134,18 @@
 -->
 <section
 	class="vp-section"
-	use:scrollReveal={{ threshold: 0.08 }}
-	on:reveal={() => (sectionVisible = true)}
+	use:scrollReveal={{ threshold: 0.08, onReveal: handleSectionReveal }}
 	style="--card-gap: {getCardGap()}; --section-padding: {getSectionPadding()};"
 >
+	<!-- Background -->
+	<NeatBackground 
+		speed={0.01}
+		flowScale={0.1}
+		colorPressure={50}
+		grain={0.01}
+		colors={['#06060a', '#343a40', '#0c1821', '#2a2b2e', '#06060a']}
+	/>
+
 	<div class="vp-inner">
 		<!-- Section header — now correctly invisible until scrolled into view -->
 		<SectionTitle
@@ -184,7 +194,8 @@
 </section>
 
 <style>
-	:root {
+	/* Card styling */
+	.vp-section {
 		--vp-border-color: rgba(0, 247, 255, 0.3);
 		--vp-border-color-hover: rgba(0, 247, 255, 0.6);
 	}

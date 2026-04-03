@@ -19,20 +19,20 @@
 	 * Touch / swipe supported via pointer events.
 	 */
 
-	import SectionTitle from './SectionTitle.svelte'
+	import SectionTitle from '$lib/components/common/section-title.svelte'
 	import bg1 from '$lib/assets/images/background.svg'
 	import bg2 from '$lib/assets/images/background-2.svg'
 	import bg3 from '$lib/assets/images/background-3.svg'
 	import bg4 from '$lib/assets/images/background-4.svg'
 	import bg5 from '$lib/assets/images/background-5.svg'
-	import { scrollReveal } from '$lib/actions/scrollReveal'
+	import { scrollReveal } from '$lib/actions'
 	import {
 		WORK_STEPS,
 		WP_ANIMATION_CONFIG,
-		type StepAccentColor,
 		STEP_ACCENT_COLOR_MAP,
 		WORK_STEP_ICONS,
-	} from '$lib/constants/work-process.constants'
+	} from '$lib/constants/work-process'
+	import type { AccentColor } from '$lib/types'
 
 	// ─── State ────────────────────────────────────────────────────────────────
 
@@ -107,21 +107,22 @@
 
 	// ─── Helpers ──────────────────────────────────────────────────────────────
 
-	function colorVar(color: StepAccentColor): string {
+	function colorVar(color: AccentColor): string {
 		return STEP_ACCENT_COLOR_MAP[color];
 	}
 
 	function getStepIcon(name: string): string {
 		return WORK_STEP_ICONS[name] ?? WORK_STEP_ICONS.code;
 	}
+
+	const handleSectionReveal = () => (sectionVisible = true);
 </script>
 
 <!-- ─── Section ──────────────────────────────────────────────────────────── -->
 <section
 	class="wp-section"
 	class:is-visible={sectionVisible}
-	use:scrollReveal={{ threshold: WP_ANIMATION_CONFIG.revealThreshold }}
-	on:reveal={() => (sectionVisible = true)}
+	use:scrollReveal={{ threshold: WP_ANIMATION_CONFIG.revealThreshold, onReveal: handleSectionReveal }}
 	aria-label="How I Work – process carousel"
 	tabindex="-1"
 	style="--bg-accent: {bgAccent}"
@@ -261,9 +262,7 @@
 </section>
 
 <style>
-	/* ═══════════════════════════════════════════════════════════════════════
-	   SECTION
-	══════════════════════════════════════════════════════════════════════ */
+	/* SECTION */
 	.wp-section {
 		position: relative;
 		width: 100%;

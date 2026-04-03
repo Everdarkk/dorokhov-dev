@@ -1,46 +1,5 @@
-/**
- * key-services.constants.ts
- *
- * All static data for the KeyServices section.
- * Keeping data here means KeyServices.svelte stays logic-only.
- */
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export type ServiceAccent = 'cyan' | 'pink' | 'purple';
-
-/** A single benefit bullet shown inside the service row */
-export interface ServiceBenefit {
-	label: string;
-	value: string;
-}
-
-/** A tech / tool badge shown in the visual panel */
-export interface ServiceTool {
-	name: string;
-	/** short mono label (3-5 chars) for the badge */
-	tag: string;
-}
-
-export interface Service {
-	id: string;
-	/** 1-based order index */
-	index: number;
-	/** Layout direction on desktop: text first or visual first */
-	layout: 'text-visual' | 'visual-text';
-	accent: ServiceAccent;
-	/** Monospace process code shown as top badge */
-	code: string;
-	title: string;
-	tagline: string;
-	description: string;
-	benefits: ServiceBenefit[];
-	tools: ServiceTool[];
-	/** Inline SVG icon name for the visual panel centerpiece */
-	icon: string;
-}
-
-// ─── Data ─────────────────────────────────────────────────────────────────────
+import type { Service } from '$lib/types';
+export type { Service } from '$lib/types';
 
 export const SERVICES: Service[] = [
 	{
@@ -118,8 +77,3 @@ export const SERVICES: Service[] = [
 ];
 
 /** CSS colour map — keeps colour logic out of component markup */
-export const ACCENT_VARS: Record<ServiceAccent, string> = {
-	cyan:   'var(--cp-cyan,   #00f5ff)',
-	pink:   'var(--cp-pink,   #ff0055)',
-	purple: 'var(--cp-purple, #b300ff)',
-};

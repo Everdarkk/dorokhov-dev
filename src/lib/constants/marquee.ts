@@ -1,4 +1,4 @@
-import type { MarqueeItem } from '$lib/types/types';
+import type { MarqueeItem } from '$lib/types';
 
 /**
  * Default marquee items

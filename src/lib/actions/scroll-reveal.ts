@@ -1,3 +1,5 @@
+import type { ActionReturn } from 'svelte/action';
+
 /**
  * scrollReveal — Svelte Action
  *
@@ -22,22 +24,25 @@ export interface ScrollRevealOptions {
 	rootMargin?: string;
 	once?: boolean;
 	activeClass?: string;
+	onReveal?: () => void;
 }
 
 export function scrollReveal(
 	node: HTMLElement,
 	options: ScrollRevealOptions = {}
-) {
+): ActionReturn<ScrollRevealOptions, { 'on:reveal'?: (event: CustomEvent<void>) => void }> {
 	const {
 		threshold  = 0.08,
 		rootMargin = '0px',
 		once       = true,
 		activeClass = 'is-revealed',
+		onReveal,
 	} = options;
 
 	// SSR / old-browser guard — reveal immediately so content is never hidden
 	if (typeof IntersectionObserver === 'undefined') {
 		node.classList.add(activeClass);
+		onReveal?.();
 		node.dispatchEvent(new CustomEvent('reveal'));
 		return {};
 	}
@@ -48,6 +53,7 @@ export function scrollReveal(
 			if (!entry.isIntersecting) return;
 
 			node.classList.add(activeClass);
+			onReveal?.();
 			node.dispatchEvent(new CustomEvent('reveal', { bubbles: false }));
 
 			if (once) observer.disconnect();

@@ -1,48 +1,6 @@
-/**
- * work-process.constants.ts
- *
- * All static data and configuration for the WorkProcess section.
- * Keeping data here ensures WorkProcess.svelte stays logic-only.
- */
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export type StepAccentColor = 'cyan' | 'pink' | 'purple' | 'yellow' | 'green';
-
-export interface WorkStep {
-	/** Unique identifier (used as key in #each) */
-	id: string;
-	/** 1-based display index */
-	index: number;
-	/** Step name */
-	title: string;
-	/** One-liner shown as a sub-label */
-	subtitle: string;
-	/** Short paragraph describing the step */
-	description: string;
-	/** Monospace process-code shown on the card badge */
-	processCode: string;
-	/** Accent colour family for this step */
-	accentColor: StepAccentColor;
-	/** SVG icon name key (resolved via getStepIcon) */
-	icon: string;
-	/** Tool/tech logos shown as text badges */
-	tools: string[];
-}
-
-export interface WPAnimationConfig {
-	cardDuration: string;
-	staggerStep: number; // seconds between each card
-	revealThreshold: number;
-}
-
-export interface WPResponsiveConfig {
-	mobilePadding: string;
-	tabletPadding: string;
-	desktopPadding: string;
-}
-
-// ─── Data ─────────────────────────────────────────────────────────────────────
+import type { WorkStep, AccentColor } from '$lib/types';
+import { ACCENT_VARS } from '$lib/config/colors';
+export type { WorkStep } from '$lib/types';
 
 export const WORK_STEPS: WorkStep[] = [
 	{
@@ -104,13 +62,7 @@ export const WORK_STEPS: WorkStep[] = [
 
 // ─── Static Maps ─────────────────────────────────────────────────────────────
 
-export const STEP_ACCENT_COLOR_MAP: Record<StepAccentColor, string> = {
-	cyan:   'var(--cp-cyan,   #00f5ff)',
-	pink:   'var(--cp-pink,   #ff0055)',
-	purple: 'var(--cp-purple, #b300ff)',
-	yellow: 'var(--cp-yellow, #ffe600)',
-	green:  'var(--cp-green,  #39ff14)',
-};
+export const STEP_ACCENT_COLOR_MAP: Record<AccentColor, string> = ACCENT_VARS;
 
 export const WORK_STEP_ICONS: Record<string, string> = {
 	radar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -142,13 +94,13 @@ export const WORK_STEP_ICONS: Record<string, string> = {
 	</svg>`,
 };
 
-export const WP_ANIMATION_CONFIG: WPAnimationConfig = {
+export const WP_ANIMATION_CONFIG = {
 	cardDuration:    '0.7s',
 	staggerStep:     0.12,
 	revealThreshold: 0.06,
 };
 
-export const WP_RESPONSIVE_CONFIG: WPResponsiveConfig = {
+export const WP_RESPONSIVE_CONFIG = {
 	mobilePadding:  'clamp(2rem, 5vw, 3rem) clamp(0.75rem, 3vw, 1.5rem)',
 	tabletPadding:  'clamp(3rem, 6vw, 4.5rem) clamp(1.5rem, 4vw, 2.5rem)',
 	desktopPadding: 'clamp(4rem, 8vw, 6rem) clamp(2rem, 5vw, 3rem)',

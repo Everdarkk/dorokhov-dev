@@ -13,14 +13,14 @@
 	 *  • Each icon is visually self-contained at any size from 48 px to 200 px.
 	 */
 
-	import SectionTitle from './SectionTitle.svelte';
-	import { scrollReveal } from '$lib/actions/scrollReveal';
+	import SectionTitle from '$lib/components/common/section-title.svelte';
+	import { scrollReveal } from '$lib/actions';
+	import { ACCENT_VARS } from '$lib/config';
 	import {
 		SERVICES,
-		ACCENT_VARS,
-		type ServiceAccent,
-	} from '$lib/constants/key-services.constants';
-	import DitherBackground from './DitherBackground.svelte';
+		type Service,
+	} from '$lib/constants/key-services';
+	import DitherBackground from '$lib/components/backgrounds/dither-background.svelte';
 
 	// ─── Icons ────────────────────────────────────────────────────────────────
 	// Defined at module scope — allocated once, never re-created per render call.
@@ -285,16 +285,16 @@
 
 	// ─── Helpers ──────────────────────────────────────────────────────────────
 
-	const accentVar = (a: ServiceAccent): string => ACCENT_VARS[a];
+	const accentVar = (a: Service['accent']): string => ACCENT_VARS[a];
 	const getIcon = (name: string): string => SERVICE_ICONS[name] ?? SERVICE_ICONS.landing;
+	const handleSectionReveal = () => (visible = true);
 </script>
 
 <!-- ─── Section ──────────────────────────────────────────────────────────── -->
 <section
 	class="ks-section"
 	class:is-visible={visible}
-	use:scrollReveal={{ threshold: 0.06 }}
-	on:reveal={() => (visible = true)}
+	use:scrollReveal={{ threshold: 0.06, onReveal: handleSectionReveal }}
 	aria-label="Key Services"
 >
 	<!-- BACKGROUND -->
@@ -403,9 +403,7 @@
 </section>
 
 <style>
-	/* ═══════════════════════════════════════════════════════════════════════
-	   SECTION
-	══════════════════════════════════════════════════════════════════════ */
+	/* SECTION */
 	.ks-section {
 		position: relative;
 		width: 100%;

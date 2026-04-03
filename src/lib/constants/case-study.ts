@@ -1,20 +1,4 @@
-export type CaseStudyMetric = {
-	id: string;
-	label: string;
-	sublabel: string;
-	before: string;
-	endValue: number;
-	format: (n: number) => string;
-	color: string;
-};
-
-export type CaseStudyMetaItem = [string, string];
-
-export type CaseStudyData = {
-	metrics: CaseStudyMetric[];
-	tech: string[];
-	meta: CaseStudyMetaItem[];
-};
+import type { CaseStudyData } from '$lib/types';
 
 export const TERNO_TOP_DATA: CaseStudyData = {
 	metrics: [

@@ -1,11 +1,11 @@
 <script lang="ts">
-  import Hero from "$lib/components/Hero.svelte";
-  import Marquee from "$lib/components/Marquee.svelte";
-  import ValueProposition from "$lib/components/ValueProposition.svelte";
-  import WorkProcess from "$lib/components/WorkProcess.svelte";
-  import KeyServices from "$lib/components/KeyServices.svelte";
-  import Faq from "$lib/components/Faq.svelte";
-  import Testimonials from "$lib/components/Testimonials.svelte";
+  import Hero from "$lib/components/sections/hero-section.svelte";
+  import Marquee from "$lib/components/sections/marquee-section.svelte";
+  import ValueProposition from "$lib/components/sections/value-proposition-section.svelte";
+  import WorkProcess from "$lib/components/sections/work-process-section.svelte";
+  import KeyServices from "$lib/components/sections/key-services-section.svelte";
+  import Faq from "$lib/components/sections/faq-section.svelte";
+  import Testimonials from "$lib/components/sections/testimonials-section.svelte";
 </script>
 
 <!-- STRUCTURE -->
