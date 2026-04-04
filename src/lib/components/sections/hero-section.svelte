@@ -124,16 +124,20 @@
 	onMount((): (() => void) => {
 		// Trigger entrance animations
 		requestAnimationFrame(() => { mounted = true; });
+		let idleRevealId: number | null = null;
+		let timeoutRevealId: ReturnType<typeof setTimeout> | null = null;
+		let disposed = false;
 
 		if (typeof window !== 'undefined') {
 			const revealBackground = () => {
+				if (disposed) return;
 				showBackground = true;
 			};
 
 			if ('requestIdleCallback' in window) {
-				window.requestIdleCallback(revealBackground, { timeout: 600 });
+				idleRevealId = window.requestIdleCallback(revealBackground, { timeout: 600 });
 			} else {
-				setTimeout(revealBackground, 220);
+				timeoutRevealId = setTimeout(revealBackground, 220);
 			}
 		}
 
@@ -149,6 +153,15 @@
 		}, MESSAGE_UPDATE_INTERVAL);
 
 		return () => {
+			disposed = true;
+			if (idleRevealId !== null && typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
+				window.cancelIdleCallback(idleRevealId);
+				idleRevealId = null;
+			}
+			if (timeoutRevealId !== null) {
+				clearTimeout(timeoutRevealId);
+				timeoutRevealId = null;
+			}
 			if (streamInterval !== null) {
 				clearInterval(streamInterval);
 				streamInterval = null;

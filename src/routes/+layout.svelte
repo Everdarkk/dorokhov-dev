@@ -7,7 +7,10 @@
 	let { children } = $props()
 	let CursorComponent = $state<((typeof import('$lib/components/layout/cursor.svelte'))['default'] | null)>(null)
 
-	onMount(async () => {
+	onMount(() => {
+		let disposed = false
+
+		const initCursor = async () => {
 		if (typeof window === 'undefined') return
 
 		const supportsFinePointer = window.matchMedia('(pointer: fine)').matches
@@ -16,7 +19,15 @@
 		if (!supportsFinePointer || reducedMotion) return
 
 		const mod = await import('$lib/components/layout/cursor.svelte')
+		if (disposed) return
 		CursorComponent = mod.default
+		}
+
+		void initCursor()
+
+		return () => {
+			disposed = true
+		}
 	})
 </script>
 

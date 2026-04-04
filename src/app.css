@@ -87,9 +87,9 @@
 }
 
 /* Hide cursor only when the custom cursor component is enabled */
-:global(body.custom-cursor-enabled) *,
-:global(body.custom-cursor-enabled) *::before,
-:global(body.custom-cursor-enabled) *::after {
+body.custom-cursor-enabled *,
+body.custom-cursor-enabled *::before,
+body.custom-cursor-enabled *::after {
     cursor: none !important;
 }
 
