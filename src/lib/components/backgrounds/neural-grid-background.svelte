@@ -228,7 +228,16 @@
 		const ro = new ResizeObserver(([entry]) => {
 			const nw = entry.contentRect.width;
 			const nh = entry.contentRect.height;
-			if (nw > 0 && nh > 0) { pendingW = nw; pendingH = nh; }
+			if (nw > 0 && nh > 0) {
+				pendingW = nw; pendingH = nh;
+				// When the RAF loop is paused (reduced-motion or hidden tab),
+				// schedule a one-off tick so the resize is applied and the
+				// static frame is redrawn immediately.
+				if ((isRM || document.hidden) && !destroyed) {
+					cancelAnimationFrame(rafId);
+					rafId = requestAnimationFrame(tick);
+				}
+			}
 		});
 
 		const unsubRM = reducedMotion.subscribe((v) => {

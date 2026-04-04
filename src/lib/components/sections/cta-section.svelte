@@ -297,16 +297,16 @@
 	aria-modal="true"
 	aria-label="Project inquiry form"
 	aria-hidden={!modalOpen || undefined}
+	inert={!modalOpen || undefined}
 	bind:this={modalEl}
 	on:click={handleBackdropClick}
-	on:keydown={handleKeydown}
 >
 	<!-- Panel -->
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<div
 		class="cta-modal__panel"
 		role="document"
 		on:click|stopPropagation
-		on:keydown|stopPropagation
 	>
 		<!-- Modal scanlines -->
 		<div class="cta-modal__scanlines" aria-hidden="true"></div>
