@@ -20,6 +20,7 @@
 	 */
 
 	import SectionTitle from '$lib/components/common/section-title.svelte'
+	import { onDestroy } from 'svelte'
 	import bg1 from '$lib/assets/images/background.svg'
 	import bg2 from '$lib/assets/images/background-2.svg'
 	import bg3 from '$lib/assets/images/background-3.svg'
@@ -42,6 +43,7 @@
 	let animating      = false;
 	let slideKey       = 0;
 	let prevBgImage    = '';
+	let animationTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	let touchStartX = 0;
 	let touchStartY = 0;
@@ -70,7 +72,11 @@
 		prevBgImage = bgImage;
 		current    += dir === 'next' ? 1 : -1;
 		slideKey++;
-		setTimeout(() => { animating = false; }, 520);
+		if (animationTimeout !== null) clearTimeout(animationTimeout);
+		animationTimeout = setTimeout(() => {
+			animating = false;
+			animationTimeout = null;
+		}, 520);
 	}
 
 	function goTo(index: number): void {
@@ -80,7 +86,11 @@
 		prevBgImage = bgImage;
 		current     = index;
 		slideKey++;
-		setTimeout(() => { animating = false; }, 520);
+		if (animationTimeout !== null) clearTimeout(animationTimeout);
+		animationTimeout = setTimeout(() => {
+			animating = false;
+			animationTimeout = null;
+		}, 520);
 	}
 
 	// ─── Keyboard ─────────────────────────────────────────────────────────────
@@ -116,6 +126,10 @@
 	}
 
 	const handleSectionReveal = () => (sectionVisible = true);
+
+	onDestroy(() => {
+		if (animationTimeout !== null) clearTimeout(animationTimeout);
+	});
 </script>
 
 <!-- ─── Section ──────────────────────────────────────────────────────────── -->

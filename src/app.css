@@ -4,21 +4,21 @@
     font-style: normal;
     font-weight: normal;
     font-display: swap;
-    src: url("/fonts/Bionical.woff2"), url('Bionical.woff2') format('woff2');
+    src: url('/fonts/Bionical.woff2') format('woff2');
 }
 @font-face {
     font-family: 'CyberCipher';
     font-style: normal;
     font-weight: normal;
     font-display: swap;
-    src: url("/fonts/CyberCipher.woff2"), url('CyberCipher.woff2') format('woff2');
+    src: url('/fonts/CyberCipher.woff2') format('woff2');
 }
 @font-face {
     font-family: 'CyberGrid';
     font-style: normal;
     font-weight: normal;
     font-display: swap;
-    src: url("/fonts/CyberGrid.woff2"), url('CyberGrid.woff2') format('woff2');
+    src: url('/fonts/CyberGrid.woff2') format('woff2');
 }
 
 /* ROOT */
@@ -84,18 +84,12 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    cursor: none;
 }
 
-/* Explicitly hide cursor on interactive elements */
-button,
-a,
-[role="button"],
-input,
-textarea,
-select,
-label,
-[data-cursor-hover] {
+/* Hide cursor only when the custom cursor component is enabled */
+:global(body.custom-cursor-enabled) *,
+:global(body.custom-cursor-enabled) *::before,
+:global(body.custom-cursor-enabled) *::after {
     cursor: none !important;
 }
 

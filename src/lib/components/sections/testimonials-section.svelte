@@ -15,6 +15,7 @@
 	import SectionTitle from '$lib/components/common/section-title.svelte';
 	import { scrollReveal } from '$lib/actions';
 	import { reducedMotion } from '$lib/stores';
+	import testimonialsBg from '$lib/assets/images/testimonials.svg';
 	import {
 		TESTIMONIALS,
 		SIGNAL_BAR_COUNT,
@@ -112,6 +113,7 @@
 	class="tm-section"
 	aria-label="Client testimonials"
 	use:scrollReveal={{ threshold: 0.08, onReveal: handleReveal }}
+	style={`--tm-bg-image: url(${testimonialsBg});`}
 >
 	<!-- Scanlines overlay -->
 	<div class="tm-scanlines" aria-hidden="true"></div>
@@ -231,7 +233,7 @@
 		width: 100%;
 		background: var(--cp-bg);
 		overflow: hidden;
-		background-image: url('/src/lib/assets/images/testimonials.svg');
+		background-image: var(--tm-bg-image);
 		background-size: cover;
 		background-position: center;
 		background-repeat: no-repeat;

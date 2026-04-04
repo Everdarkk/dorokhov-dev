@@ -1,10 +1,23 @@
 <script lang="ts">
 	import favicon from '$lib/assets/favicon.svg'
-	import Cursor from '$lib/components/layout/cursor.svelte'
+	import { onMount } from 'svelte'
 	import '../app.css'
 	import Navigation from '$lib/components/layout/navigation.svelte'
 
 	let { children } = $props()
+	let CursorComponent = $state<((typeof import('$lib/components/layout/cursor.svelte'))['default'] | null)>(null)
+
+	onMount(async () => {
+		if (typeof window === 'undefined') return
+
+		const supportsFinePointer = window.matchMedia('(pointer: fine)').matches
+		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+		if (!supportsFinePointer || reducedMotion) return
+
+		const mod = await import('$lib/components/layout/cursor.svelte')
+		CursorComponent = mod.default
+	})
 </script>
 
 <svelte:head>
@@ -18,5 +31,6 @@
 <Navigation />
 {@render children()}
 
-
-<Cursor />
+{#if CursorComponent}
+	<CursorComponent />
+{/if}

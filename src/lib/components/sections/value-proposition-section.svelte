@@ -138,13 +138,15 @@
 	style="--card-gap: {getCardGap()}; --section-padding: {getSectionPadding()};"
 >
 	<!-- Background -->
-	<NeatBackground 
-		speed={0.01}
-		flowScale={0.1}
-		colorPressure={50}
-		grain={0.01}
-		colors={['#06060a', '#343a40', '#0c1821', '#2a2b2e', '#06060a']}
-	/>
+	{#if sectionVisible}
+		<NeatBackground 
+			speed={0.01}
+			flowScale={0.1}
+			colorPressure={50}
+			grain={0.01}
+			colors={['#06060a', '#343a40', '#0c1821', '#2a2b2e', '#06060a']}
+		/>
+	{/if}
 
 	<div class="vp-inner">
 		<!-- Section header — now correctly invisible until scrolled into view -->
@@ -465,7 +467,7 @@
 
 	/* Title styling */
 	.vp-card__title {
-		font-size: var(--font-h6);
+		font-size: var(--font-body);
 		font-family: var(--font-bionical);
 		font-weight: 400;
 		text-align: center;
@@ -494,7 +496,7 @@
 
 	/* Description styling */
 	.vp-card__description {
-		font-size: var(--font-body-sm);
+		font-size: var(--font-caption);
 		line-height: var(--line-body);
 		color: rgba(255, 255, 255, 0.8);
 		position: relative;
