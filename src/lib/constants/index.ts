@@ -7,3 +7,4 @@ export * from './recent-launches';
 export * from './testimonials';
 export * from './value-proposition';
 export * from './work-process';
+export * from './cta';
