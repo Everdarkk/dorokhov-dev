@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import SectionTitle from '$lib/components/common/section-title.svelte';
 	import { scrollReveal } from '$lib/actions';
+	import { reducedMotion } from '$lib/stores';
 	import { PROJECTS, COLOR_MAP } from '$lib/constants/recent-launches';
 	
 
@@ -11,6 +13,8 @@
 	let transitioning = false;
 	let visible = false;       // driven by scrollReveal action
 	let videoEl: HTMLVideoElement | undefined;
+	let switchTimeout: ReturnType<typeof setTimeout> | null = null;
+	let unlockTimeout: ReturnType<typeof setTimeout> | null = null;
 	const handleSectionReveal = () => (visible = true);
 
 	$: active  = PROJECTS.find(p => p.id === activeId)!;
@@ -27,12 +31,30 @@
 		transitioning = true;
 		prevId        = activeId;
 
-		setTimeout(() => {
+		if (switchTimeout !== null) {
+			clearTimeout(switchTimeout);
+			switchTimeout = null;
+		}
+		if (unlockTimeout !== null) {
+			clearTimeout(unlockTimeout);
+			unlockTimeout = null;
+		}
+
+		switchTimeout = setTimeout(() => {
 			activeId      = id;
 			prevId        = '';
-			setTimeout(() => { transitioning = false; }, 450);
+			unlockTimeout = setTimeout(() => {
+				transitioning = false;
+				unlockTimeout = null;
+			}, 450);
+			switchTimeout = null;
 		}, 30);
 	}
+
+	onDestroy(() => {
+		if (switchTimeout !== null) clearTimeout(switchTimeout);
+		if (unlockTimeout !== null) clearTimeout(unlockTimeout);
+	});
 
 	// ─── Keyboard navigation in project list ──────────────────────────────────
 
@@ -170,7 +192,7 @@
 						</ul>
 
 						<!-- Video capture — hidden if no URL -->
-						{#if active.videoUrl}
+						{#if active.videoUrl && visible}
 							<div class="rl-video-wrap">
 								<div class="rl-video-frame" aria-hidden="true"></div>
 								<div class="rl-video-label" aria-hidden="true">SCREEN_CAPTURE.mp4</div>
@@ -180,11 +202,11 @@
 									class="rl-video"
 									src={active.videoUrl}
 									poster={active.videoPoster || undefined}
-									autoplay
+									autoplay={!$reducedMotion}
 									muted
 									loop
 									playsinline
-									preload="metadata"
+									preload="none"
 									aria-label="{active.name} screen recording"
 								></video>
 							</div>

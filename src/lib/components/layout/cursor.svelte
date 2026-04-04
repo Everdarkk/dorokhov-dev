@@ -96,7 +96,7 @@
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
   onMount((): (() => void) => {
-    document.documentElement.style.cursor = 'none';
+    document.body.classList.add('custom-cursor-enabled');
 
     window.addEventListener('mousemove', onMouseMove, { passive: true });
     window.addEventListener('mousemove', checkHover, { passive: true });
@@ -108,7 +108,7 @@
     rafId = requestAnimationFrame(animate);
 
     return (): void => {
-      document.documentElement.style.cursor = '';
+      document.body.classList.remove('custom-cursor-enabled');
       cancelAnimationFrame(rafId);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mousemove', checkHover);

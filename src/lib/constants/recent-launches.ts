@@ -1,4 +1,14 @@
 import type { Project } from '$lib/types';
+import adVideo from '$lib/assets/videos/ad.webm';
+import adPoster from '$lib/assets/images/ad.webp';
+import omVideo from '$lib/assets/videos/om.webm';
+import omPoster from '$lib/assets/images/om.webp';
+import tagaVideo from '$lib/assets/videos/taga.webm';
+import tagaPoster from '$lib/assets/images/taga.webp';
+import nnVideo from '$lib/assets/videos/nn.webm';
+import nnPoster from '$lib/assets/images/nn.webp';
+import ttVideo from '$lib/assets/videos/tt.webm';
+import ttPoster from '$lib/assets/images/tt.webp';
 
 export const PROJECTS: Project[] = [
   {
@@ -17,8 +27,8 @@ export const PROJECTS: Project[] = [
       { label: 'Shipped',  value: '~10 days · solo' },
       { label: 'Deploy',   value: 'Vercel · custom GoDaddy domain' },
     ],
-    videoUrl: '/src/lib/assets/videos/ad.webm',
-    videoPoster: '/src/lib/assets/images/ad.webp',
+    videoUrl: adVideo,
+    videoPoster: adPoster,
   },
   {
     id: 'proj-02',
@@ -36,8 +46,8 @@ export const PROJECTS: Project[] = [
       { label: 'Scope',    value: 'Client project · 73 commits' },
       { label: 'Deploy',   value: 'Vercel' },
     ],
-    videoUrl: '/src/lib/assets/videos/om.webm',
-    videoPoster: '/src/lib/assets/images/om.webp',
+    videoUrl: omVideo,
+    videoPoster: omPoster,
   },
   {
     id: 'proj-03',
@@ -55,8 +65,8 @@ export const PROJECTS: Project[] = [
       { label: 'UI',       value: 'shadcn/ui · Framer Motion' },
       { label: 'Features', value: 'Auth · Feed · Tags · Favorites · Avatars' },
     ],
-    videoUrl: '/src/lib/assets/videos/taga.webm',
-    videoPoster: '/src/lib/assets/images/taga.webp',
+    videoUrl: tagaVideo,
+    videoPoster: tagaPoster,
   },
   {
     id: 'proj-04',
@@ -74,8 +84,8 @@ export const PROJECTS: Project[] = [
       { label: 'Parsing',  value: 'Readability · jsdom · web scraping' },
       { label: 'Data',     value: 'SWR · server-side API routes' },
     ],
-    videoUrl: '/src/lib/assets/videos/nn.webm',
-    videoPoster: '/src/lib/assets/images/nn.webp',
+    videoUrl: nnVideo,
+    videoPoster: nnPoster,
   },
   {
     id: 'proj-05',
@@ -93,8 +103,8 @@ export const PROJECTS: Project[] = [
       { label: 'Maps',     value: 'Google Maps API · @vis.gl/react-google-maps' },
       { label: 'Scope',    value: 'Client project · 86 commits · live' },
     ],
-    videoUrl: '/src/lib/assets/videos/tt.webm',
-    videoPoster: '/src/lib/assets/images/tt.webp',
+    videoUrl: ttVideo,
+    videoPoster: ttPoster,
   },
 ];
 

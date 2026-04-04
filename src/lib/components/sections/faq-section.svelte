@@ -180,12 +180,14 @@
 	id="faq"
 >
 	<!-- Background -->
-	<NeatBackground 
-		flowScale={1}
-		colorPressure={1}
-		colors={['#06060a', '#4B5D67', '#06060a', '#4B5D67', '#06060a']}
-		
-	/>
+	{#if sectionVisible}
+		<NeatBackground 
+			flowScale={1}
+			colorPressure={1}
+			colors={['#06060a', '#4B5D67', '#06060a', '#4B5D67', '#06060a']}
+			
+		/>
+	{/if}
 
 
 	<!-- Scanlines — consistent with rest of app -->

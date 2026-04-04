@@ -2,6 +2,7 @@
 	import { menuItems } from '$lib/data/menu';
 	import type { MenuItem } from '$lib/types';
 	import { onDestroy } from 'svelte';
+	import logoDark from '$lib/assets/images/logo-dark.svg';
 
 	const bodyNoScrollClass = 'navigation-mobile-menu-open';
 
@@ -47,7 +48,7 @@
 	<nav class="nav" aria-label="Main navigation">
 		<!-- ── Logo ─────────────────────────────────────────────── -->
 		<a href="/" class="logo" aria-label="Home">
-            <img src="src\lib\assets\images\logo-dark.svg" class="image" alt="Logo">
+	            <img src={logoDark} class="image" alt="Logo" loading="eager" decoding="async">
 			<span class="logo-text-wrap">
 				<span class="logo-bracket" aria-hidden="true">[</span>
 				<span class="logo-name">

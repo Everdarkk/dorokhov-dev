@@ -22,6 +22,7 @@
 	import { onMount } from 'svelte';
 	import Background from '$lib/components/backgrounds/background-canvas.svelte';
 	import CyberButton from '$lib/components/common/cyber-button.svelte';
+	import heroPhoto from '$lib/assets/images/od-2.webp';
 	import { reducedMotion } from '$lib/stores';
 	import { createTypewriter, type TypewriterController } from '$lib/utils';
 	import type { DataStreamLine } from '$lib/types';
@@ -43,6 +44,7 @@
 	let streamInterval: ReturnType<typeof setInterval> | null = null;
 	let activeLineId: number | null = null;
 	let isTyping = false;
+	let showBackground = false;
 
 	const HERO_STREAM_CHAR_DELAY = 14;
 
@@ -122,6 +124,22 @@
 	onMount((): (() => void) => {
 		// Trigger entrance animations
 		requestAnimationFrame(() => { mounted = true; });
+		let idleRevealId: number | null = null;
+		let timeoutRevealId: ReturnType<typeof setTimeout> | null = null;
+		let disposed = false;
+
+		if (typeof window !== 'undefined') {
+			const revealBackground = () => {
+				if (disposed) return;
+				showBackground = true;
+			};
+
+			if ('requestIdleCallback' in window) {
+				idleRevealId = window.requestIdleCallback(revealBackground, { timeout: 600 });
+			} else {
+				timeoutRevealId = setTimeout(revealBackground, 220);
+			}
+		}
 
 		// Seed the data stream through a shared typewriter pipeline
 		for (const msg of DATA_STREAM_MESSAGES) {
@@ -135,6 +153,15 @@
 		}, MESSAGE_UPDATE_INTERVAL);
 
 		return () => {
+			disposed = true;
+			if (idleRevealId !== null && typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
+				window.cancelIdleCallback(idleRevealId);
+				idleRevealId = null;
+			}
+			if (timeoutRevealId !== null) {
+				clearTimeout(timeoutRevealId);
+				timeoutRevealId = null;
+			}
 			if (streamInterval !== null) {
 				clearInterval(streamInterval);
 				streamInterval = null;
@@ -165,7 +192,9 @@
 <section class="hero" class:is-mounted={mounted} aria-label="Hero">
 
 	<!-- Shared canvas background — same as rest of page -->
-	<Background />
+	{#if showBackground}
+		<Background />
+	{/if}
 
 	<!-- Scanlines overlay -->
 	<div class="hero__scanlines" aria-hidden="true"></div>
@@ -251,9 +280,10 @@
 
 			<div class="hero__photo-frame">
 				<img
-					src="/src/lib/assets/images/od-2.webp"
+					src={heroPhoto}
 					alt="Oleksandr Dorokhov"
 					loading="eager"
+					fetchpriority="high"
 					decoding="async"
 				/>
 				<!-- Colour grade overlays -->

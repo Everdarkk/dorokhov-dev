@@ -298,16 +298,18 @@
 	aria-label="Key Services"
 >
 	<!-- BACKGROUND -->
-	<DitherBackground 
-		speed={0.6}
-		swirlScale={3}
-		ditherPattern='bayer8'
-		pixelSize={3}
-		spread={0.05}
-		colorA='#06060a'
-		colorB='#061E29'
+	{#if visible}
+		<DitherBackground 
+			speed={0.6}
+			swirlScale={3}
+			ditherPattern='bayer8'
+			pixelSize={3}
+			spread={0.05}
+			colorA='#06060a'
+			colorB='#061E29'
 
-	/>
+		/>
+	{/if}
 
 	<!-- ── Inner ──────────────────────────────────────────────────────────── -->
 	<div class="ks-inner">
