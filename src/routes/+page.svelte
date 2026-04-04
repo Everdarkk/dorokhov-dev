@@ -6,6 +6,7 @@
   import KeyServices from "$lib/components/sections/key-services-section.svelte";
   import Faq from "$lib/components/sections/faq-section.svelte";
   import Testimonials from "$lib/components/sections/testimonials-section.svelte";
+  import Cta from "$lib/components/sections/cta-section.svelte";
 </script>
 
 <!-- STRUCTURE -->
@@ -16,3 +17,4 @@
 <WorkProcess />
 <Faq />
 <Testimonials />
+<Cta />

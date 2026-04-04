@@ -7,3 +7,4 @@ export { default as WorkProcessSection } from './work-process-section.svelte';
 export { default as FaqSection } from './faq-section.svelte';
 export { default as TestimonialsSection } from './testimonials-section.svelte';
 export { default as RecentLaunchesSection } from './recent-launches-section.svelte';
+export { default as CtaSection } from './cta-section.svelte';
