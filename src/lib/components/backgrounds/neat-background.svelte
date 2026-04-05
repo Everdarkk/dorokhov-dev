@@ -29,7 +29,7 @@
    *   colors         string[]  2–5 hex colours (dark palette)
    */
 
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount } from 'svelte';
   import { get }                from 'svelte/store';
   import { browser }            from '$app/environment';
   import { reducedMotion }      from '$lib/stores/motion';
@@ -67,7 +67,7 @@
   // ── Internals ─────────────────────────────────────────────────────────────
 
   let canvas:    HTMLCanvasElement;
-  let rafId:     number;
+  let rafId:     number | null = null;
   let destroyed  = false;
   let startTime  = 0;
 
@@ -93,6 +93,9 @@
     });
     return out;
   }
+
+  let colorFlat = buildColorFlat();
+  $: colorFlat = buildColorFlat();
 
   // ── GLSL ──────────────────────────────────────────────────────────────────
 
@@ -325,8 +328,14 @@
       colorCount:    gl.getUniformLocation(prog, 'u_color_count'),
     } as const;
 
-    // DPR clamped to 2 — prevents excessive fragment load on hi-DPI displays
-    const dpr = Math.min(devicePixelRatio, 2);
+    // Lower fragment load on mobile/coarse-pointer devices.
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    const dprCap = isCoarsePointer ? 1.25 : 2;
+    const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
+
+    // Animation gate: only animate when motion is allowed, tab is visible,
+    // and this instance is actually in the viewport.
+    let isInViewport = true;
 
     // Pending canvas dimensions from ResizeObserver.
     // We intentionally do NOT resize the canvas inside the ResizeObserver
@@ -338,6 +347,9 @@
     // the same composited frame and the flicker disappears.
     let pendingW = 0;
     let pendingH = 0;
+
+    // Reduced-motion: animate by default; stop loop when user prefers no motion
+    let shouldAnimate = !get(reducedMotion);
 
     const ro = new ResizeObserver(([entry]) => {
       const w = Math.round(entry.contentRect.width  * dpr);
@@ -356,17 +368,43 @@
     });
     ro.observe(canvas);
 
-    // Reduced-motion: animate by default; stop loop when user prefers no motion
-    let shouldAnimate = !get(reducedMotion);
+    const canAnimate = (): boolean => shouldAnimate && isInViewport && !document.hidden && !destroyed;
+
+    const stopLoop = (): void => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
+
+    const startLoop = (): void => {
+      if (rafId === null && canAnimate()) {
+        rafId = requestAnimationFrame(tick);
+      }
+    };
 
     const unsubRM = reducedMotion.subscribe((val) => {
       shouldAnimate = !val;
-      // If motion was re-enabled and tab is visible, restart the loop
-      if (!val && !document.hidden && !destroyed) {
-        cancelAnimationFrame(rafId);
-        rafId = requestAnimationFrame(tick);
+
+      if (shouldAnimate) {
+        startLoop();
+      } else {
+        stopLoop();
       }
     });
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        isInViewport = entry?.isIntersecting ?? true;
+        if (isInViewport) {
+          startLoop();
+        } else {
+          stopLoop();
+        }
+      },
+      { threshold: 0.01 }
+    );
+    io.observe(canvas);
 
     function tick(): void {
       if (destroyed) return;
@@ -391,44 +429,45 @@
       gl?.uniform1f( U.flowScale,     flowScale);
       gl?.uniform1f( U.colorPressure, colorPressure);
       gl?.uniform1f( U.grain,         grain);
-      gl?.uniform3fv(U.colors,        buildColorFlat());
+      gl?.uniform3fv(U.colors,        colorFlat);
       gl?.uniform1i( U.colorCount,    Math.min(colors.length, MAX_COLORS));
 
       gl?.drawArrays(gl.TRIANGLES, 0, 3);
 
       // Continue loop only when motion is desired
-      if (shouldAnimate) {
+      if (canAnimate()) {
         rafId = requestAnimationFrame(tick);
+      } else {
+        rafId = null;
       }
     }
 
     const onVis = (): void => {
       if (document.hidden) {
-        cancelAnimationFrame(rafId);
-      } else if (shouldAnimate && !destroyed) {
-        rafId = requestAnimationFrame(tick);
+        stopLoop();
+      } else {
+        startLoop();
       }
     };
     document.addEventListener('visibilitychange', onVis);
 
-    // Always draw the first frame (static fallback for reduced-motion)
-    rafId = requestAnimationFrame(tick);
+    // Always draw the first frame.
+    const drawOnceId = requestAnimationFrame(tick);
+
+    // Continue only if this instance can animate.
+    startLoop();
 
     return () => {
       destroyed = true;
-      cancelAnimationFrame(rafId);
+      cancelAnimationFrame(drawOnceId);
+      stopLoop();
       document.removeEventListener('visibilitychange', onVis);
       unsubRM();
+      io.disconnect();
       ro.disconnect();
       gl.deleteVertexArray(vao);
       gl.deleteProgram(prog);
     };
-  });
-
-  onDestroy(() => {
-    if (!browser) return;
-    destroyed = true;
-    cancelAnimationFrame(rafId);
   });
 </script>
 

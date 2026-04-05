@@ -14,8 +14,7 @@
 	 *   • Resize deferred to next RAF tick (avoids blank-frame flash)
 	 */
 
-	import { onMount, onDestroy } from 'svelte';
-	import { browser }            from '$app/environment';
+	import { onMount } from 'svelte';
 	import { get }                from 'svelte/store';
 	import { reducedMotion }      from '$lib/stores';
 
@@ -23,7 +22,7 @@
 	export let connectionRadius: number = 148;
 
 	let canvasEl:  HTMLCanvasElement;
-	let rafId    = 0;
+	let rafId: number | null = null;
 	let destroyed = false;
 
 	// ── Colour palette ─────────────────────────────────────────────────────────
@@ -52,10 +51,9 @@
 	}
 
 	onMount(() => {
-		if (!browser) return;
-
 		const ctx = canvasEl.getContext('2d')!;
-		const dpr = Math.min(devicePixelRatio, 1.5);
+		const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+		const dpr = Math.min(window.devicePixelRatio || 1, isCoarsePointer ? 1.2 : 1.5);
 
 		let W = 0, H = 0;
 		let pendingW = 0, pendingH = 0;
@@ -63,6 +61,7 @@
 		let pulses: Pulse[]       = [];
 		let nextPulse   = 0;   // countdown (frames) before next pulse spawn
 		let isRM = get(reducedMotion);
+		let isInViewport = true;
 
 		// ── Helpers ────────────────────────────────────────────────────────────
 
@@ -220,8 +219,27 @@
 
 			if (!isRM) updateParticles();
 			draw();
-			if (!isRM) rafId = requestAnimationFrame(tick);
+			if (canAnimate()) {
+				rafId = requestAnimationFrame(tick);
+			} else {
+				rafId = null;
+			}
 		}
+
+		const canAnimate = (): boolean => !isRM && isInViewport && !document.hidden && !destroyed;
+
+		const stopLoop = (): void => {
+			if (rafId !== null) {
+				cancelAnimationFrame(rafId);
+				rafId = null;
+			}
+		};
+
+		const startLoop = (): void => {
+			if (rafId === null && canAnimate()) {
+				rafId = requestAnimationFrame(tick);
+			}
+		};
 
 		// ── Observers ─────────────────────────────────────────────────────────
 
@@ -233,8 +251,8 @@
 				// When the RAF loop is paused (reduced-motion or hidden tab),
 				// schedule a one-off tick so the resize is applied and the
 				// static frame is redrawn immediately.
-				if ((isRM || document.hidden) && !destroyed) {
-					cancelAnimationFrame(rafId);
+				if (!canAnimate() && !destroyed) {
+					stopLoop();
 					rafId = requestAnimationFrame(tick);
 				}
 			}
@@ -242,20 +260,33 @@
 
 		const unsubRM = reducedMotion.subscribe((v) => {
 			isRM = v;
-			if (!v && !document.hidden && !destroyed) {
-				cancelAnimationFrame(rafId);
-				rafId = requestAnimationFrame(tick);
+			if (canAnimate()) {
+				startLoop();
+			} else {
+				stopLoop();
 			}
 		});
 
 		const onVis = (): void => {
 			if (document.hidden) {
-				cancelAnimationFrame(rafId);
-			} else if (!isRM && !destroyed) {
-				rafId = requestAnimationFrame(tick);
+				stopLoop();
+			} else {
+				startLoop();
 			}
 		};
 		document.addEventListener('visibilitychange', onVis);
+
+		const io = new IntersectionObserver(
+			([entry]) => {
+				isInViewport = entry?.isIntersecting ?? true;
+				if (isInViewport) {
+					startLoop();
+				} else {
+					stopLoop();
+				}
+			},
+			{ rootMargin: '220px 0px 220px 0px', threshold: 0.01 }
+		);
 
 		// ── Bootstrap ─────────────────────────────────────────────────────────
 
@@ -264,22 +295,19 @@
 		applyResize(rect.width || 800, rect.height || 600);
 		initParticles();
 		ro.observe(parent);
+		io.observe(parent);
 
-		rafId = requestAnimationFrame(tick);
+		tick();
+		startLoop();
 
 		return () => {
 			destroyed = true;
-			cancelAnimationFrame(rafId);
+			stopLoop();
 			document.removeEventListener('visibilitychange', onVis);
 			unsubRM();
+			io.disconnect();
 			ro.disconnect();
 		};
-	});
-
-	onDestroy(() => {
-		if (!browser) return;
-		destroyed = true;
-		cancelAnimationFrame(rafId);
 	});
 </script>
 

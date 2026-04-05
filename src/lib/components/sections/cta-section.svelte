@@ -249,7 +249,7 @@
 	use:scrollReveal={{ threshold: 0.08, onReveal: () => (sectionRevealed = true) }}
 >
 	<!-- Animated particle-constellation background -->
-	{#if !$reducedMotion}
+	{#if sectionRevealed && !$reducedMotion}
 		<NeuralGridBackground />
 	{/if}
 

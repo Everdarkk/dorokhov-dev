@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
-  import { browser } from '$app/environment';
+  import { onMount } from 'svelte';
   import { SvelteMap } from 'svelte/reactivity';
 
   // ─── Types ────────────────────────────────────────────────────────────────
@@ -43,12 +42,14 @@
   let wrapper: HTMLDivElement;
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
-  let animId: number;
+  let animId: number | null = null;
   let width = 0;
   let height = 0;
   let frame = 0;
   let isMobile = false;
   let streams: Stream[] = [];
+  let isInViewport = true;
+  let deviceScale = 1;
 
   // Font string cache — avoids repeated string allocations
   const fontCache = new SvelteMap<number, string>();
@@ -152,10 +153,9 @@
     height = Math.round(rect.height) || wrapper.offsetHeight;
 
     // Sync canvas resolution to real pixels (sharp on HiDPI)
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width  = width  * dpr;
-    canvas.height = height * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    canvas.width  = width  * deviceScale;
+    canvas.height = height * deviceScale;
+    ctx.setTransform(deviceScale, 0, 0, deviceScale, 0, 0);
 
     isMobile = width < 768;
     fontCache.clear();
@@ -246,8 +246,28 @@
 
   let running = true;
 
+  function canRun(): boolean {
+    return running && isInViewport && !document.hidden;
+  }
+
+  function stopLoop(): void {
+    if (animId !== null) {
+      cancelAnimationFrame(animId);
+      animId = null;
+    }
+  }
+
+  function startLoop(): void {
+    if (animId === null && canRun()) {
+      animId = requestAnimationFrame(draw);
+    }
+  }
+
   function draw(): void {
-    if (!running) return;
+    if (!canRun()) {
+      animId = null;
+      return;
+    }
 
     ctx.fillStyle   = '#020408';
     ctx.globalAlpha = 0.22;
@@ -257,15 +277,23 @@
     drawStreams();
 
     frame++;
-    animId = requestAnimationFrame(draw);
+    if (canRun()) {
+      animId = requestAnimationFrame(draw);
+    } else {
+      animId = null;
+    }
   }
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
   onMount(() => {
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    const dprCap = isCoarsePointer ? 1.25 : 2;
+    deviceScale = Math.min(window.devicePixelRatio || 1, dprCap);
+
     ctx = canvas.getContext('2d', { alpha: false })!;
     initAll();
-    draw();
+    startLoop();
 
     // ResizeObserver watches the wrapper — works for any container, not just window
     let resizeTimer: ReturnType<typeof setTimeout>;
@@ -278,26 +306,34 @@
     // Page visibility: pause animation when tab is hidden
     const onVisibility = () => {
       if (document.hidden) {
-        running = false;
-        cancelAnimationFrame(animId);
+        stopLoop();
       } else {
-        running = true;
-        draw();
+        startLoop();
       }
     };
     document.addEventListener('visibilitychange', onVisibility);
 
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        isInViewport = entry?.isIntersecting ?? true;
+        if (isInViewport) {
+          startLoop();
+        } else {
+          stopLoop();
+        }
+      },
+      { rootMargin: '220px 0px 220px 0px', threshold: 0.01 }
+    );
+    io.observe(wrapper);
+
     return () => {
+      running = false;
+      stopLoop();
+      io.disconnect();
       ro.disconnect();
       clearTimeout(resizeTimer);
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  });
-
-  onDestroy(() => {
-    if (!browser) return;
-    running = false;
-    cancelAnimationFrame(animId);
   });
 </script>
 

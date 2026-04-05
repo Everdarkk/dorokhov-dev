@@ -39,8 +39,9 @@
    *   colorB         string  Light dither colour (hex)     '#1a2744'
    */
 
-  import { onMount, onDestroy } from 'svelte';
-  import { browser } from '$app/environment';
+  import { onMount } from 'svelte';
+  import { get } from 'svelte/store';
+  import { reducedMotion } from '$lib/stores';
 
   // ── Props ─────────────────────────────────────────────────────────────────
 
@@ -73,7 +74,7 @@
   // ── Internals ─────────────────────────────────────────────────────────────
 
   let canvas: HTMLCanvasElement;
-  let rafId:  number;
+  let rafId:  number | null = null;
   let destroyed = false;
   let startTime  = 0;
 
@@ -353,7 +354,12 @@
       colorB:     gl.getUniformLocation(prog, 'u_colorB'),
     };
 
-    const dpr = Math.min(devicePixelRatio, 2);
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    const dprCap = isCoarsePointer ? 1.2 : 2;
+    const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
+
+    let shouldAnimate = !get(reducedMotion);
+    let isInViewport = true;
 
     // Stage resize dimensions — applied at the top of the next tick so the
     // canvas clear and redraw land in the same composited frame (no flicker).
@@ -363,9 +369,56 @@
     const ro  = new ResizeObserver(([e]) => {
       const w = Math.round(e.contentRect.width  * dpr);
       const h = Math.round(e.contentRect.height * dpr);
-      if (w && h) { pendingW = w; pendingH = h; }
+      if (w && h) {
+        pendingW = w;
+        pendingH = h;
+        if (!canAnimate() || document.hidden) {
+          canvas.width = w;
+          canvas.height = h;
+          gl?.viewport(0, 0, w, h);
+          pendingW = 0;
+          pendingH = 0;
+        }
+      }
     });
     ro.observe(canvas);
+
+    const canAnimate = (): boolean => shouldAnimate && isInViewport && !document.hidden && !destroyed;
+
+    const stopLoop = (): void => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
+
+    const startLoop = (): void => {
+      if (rafId === null && canAnimate()) {
+        rafId = requestAnimationFrame(tick);
+      }
+    };
+
+    const unsubRM = reducedMotion.subscribe((val) => {
+      shouldAnimate = !val;
+      if (shouldAnimate) {
+        startLoop();
+      } else {
+        stopLoop();
+      }
+    });
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        isInViewport = entry?.isIntersecting ?? true;
+        if (isInViewport) {
+          startLoop();
+        } else {
+          stopLoop();
+        }
+      },
+      { rootMargin: '220px 0px 220px 0px', threshold: 0.01 }
+    );
+    io.observe(canvas);
 
     function tick() {
       if (destroyed) return;
@@ -392,34 +445,36 @@
       gl?.uniform3f(U.colorB,    ...rgbB);
 
       gl?.drawArrays(gl.TRIANGLES, 0, 3);
-      rafId = requestAnimationFrame(tick);
+      if (canAnimate()) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        rafId = null;
+      }
     }
 
     const onVis = () => {
       if (document.hidden) {
-        cancelAnimationFrame(rafId);
+        stopLoop();
       } else {
-        tick();
+        startLoop();
       }
     };
     document.addEventListener('visibilitychange', onVis);
 
-    if (!document.hidden) rafId = requestAnimationFrame(tick);
+    const drawOnceId = requestAnimationFrame(tick);
+    startLoop();
 
     return () => {
       destroyed = true;
-      cancelAnimationFrame(rafId);
+      cancelAnimationFrame(drawOnceId);
+      stopLoop();
       document.removeEventListener('visibilitychange', onVis);
+      io.disconnect();
+      unsubRM();
       ro.disconnect();
       gl.deleteVertexArray(vao);
       gl.deleteProgram(prog);
     };
-  });
-
-  onDestroy(() => {
-    if (!browser) return;
-    destroyed = true;
-    cancelAnimationFrame(rafId);
   });
 </script>
 
