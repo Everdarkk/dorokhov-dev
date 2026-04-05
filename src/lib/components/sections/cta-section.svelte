@@ -36,10 +36,32 @@
 	let modalOpen    = false;
 	let modalEl: HTMLElement | null = null;
 	let formOpenTime = 0;
+	let previousBodyOverflow = '';
+	let previousBodyPaddingRight = '';
+
+	function lockBodyScroll(): void {
+		if (!browser) return;
+
+		const { body, documentElement } = document;
+		previousBodyOverflow = body.style.overflow;
+		previousBodyPaddingRight = body.style.paddingRight;
+
+		const scrollbarWidth = Math.max(0, window.innerWidth - documentElement.clientWidth);
+		body.style.overflow = 'hidden';
+		if (scrollbarWidth > 0) {
+			body.style.paddingRight = `${scrollbarWidth}px`;
+		}
+	}
+
+	function unlockBodyScroll(): void {
+		if (!browser) return;
+		document.body.style.overflow = previousBodyOverflow;
+		document.body.style.paddingRight = previousBodyPaddingRight;
+	}
 
 	async function openModal(): Promise<void> {
 		modalOpen = true;
-		if (browser) document.body.style.overflow = 'hidden';
+		lockBodyScroll();
 		formOpenTime = Date.now();
 		await tick();
 		// Focus first visible text input
@@ -50,7 +72,7 @@
 
 	function closeModal(): void {
 		modalOpen = false;
-		if (browser) document.body.style.overflow = '';
+		unlockBodyScroll();
 		resetForm();
 	}
 
@@ -207,13 +229,13 @@
 		document.addEventListener('keydown', handleKeydown);
 		return () => {
 			document.removeEventListener('keydown', handleKeydown);
-			document.body.style.overflow = '';
+			unlockBodyScroll();
 		};
 	});
 
 	onDestroy(() => {
 		if (!browser) return;
-		document.body.style.overflow = '';
+		unlockBodyScroll();
 	});
 </script>
 
