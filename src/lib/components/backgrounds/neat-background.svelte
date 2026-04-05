@@ -30,9 +30,9 @@
    */
 
   import { onMount } from 'svelte';
-  import { get }                from 'svelte/store';
   import { browser }            from '$app/environment';
   import { reducedMotion }      from '$lib/stores/motion';
+  import { createAnimationLoop } from '$lib/utils';
 
   // ── Props ─────────────────────────────────────────────────────────────────
 
@@ -67,7 +67,6 @@
   // ── Internals ─────────────────────────────────────────────────────────────
 
   let canvas:    HTMLCanvasElement;
-  let rafId:     number | null = null;
   let destroyed  = false;
   let startTime  = 0;
 
@@ -348,8 +347,7 @@
     let pendingW = 0;
     let pendingH = 0;
 
-    // Reduced-motion: animate by default; stop loop when user prefers no motion
-    let shouldAnimate = !get(reducedMotion);
+    let loop: ReturnType<typeof createAnimationLoop> | undefined;
 
     const ro = new ResizeObserver(([entry]) => {
       const w = Math.round(entry.contentRect.width  * dpr);
@@ -359,52 +357,15 @@
         pendingH = h;
         // If the loop is paused (reduced-motion or hidden tab), apply
         // immediately — there is no upcoming tick to pick it up.
-        if (!shouldAnimate || document.hidden) {
+        if (!loop || !loop.isRunning()) {
           canvas.width  = w;
           canvas.height = h;
           gl?.viewport(0, 0, w, h);
         }
+        loop?.requestFrame();
       }
     });
     ro.observe(canvas);
-
-    const canAnimate = (): boolean => shouldAnimate && isInViewport && !document.hidden && !destroyed;
-
-    const stopLoop = (): void => {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
-    };
-
-    const startLoop = (): void => {
-      if (rafId === null && canAnimate()) {
-        rafId = requestAnimationFrame(tick);
-      }
-    };
-
-    const unsubRM = reducedMotion.subscribe((val) => {
-      shouldAnimate = !val;
-
-      if (shouldAnimate) {
-        startLoop();
-      } else {
-        stopLoop();
-      }
-    });
-
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        isInViewport = entry?.isIntersecting ?? true;
-        if (isInViewport) {
-          startLoop();
-        } else {
-          stopLoop();
-        }
-      },
-      { threshold: 0.01 }
-    );
-    io.observe(canvas);
 
     function tick(): void {
       if (destroyed) return;
@@ -433,37 +394,23 @@
       gl?.uniform1i( U.colorCount,    Math.min(colors.length, MAX_COLORS));
 
       gl?.drawArrays(gl.TRIANGLES, 0, 3);
-
-      // Continue loop only when motion is desired
-      if (canAnimate()) {
-        rafId = requestAnimationFrame(tick);
-      } else {
-        rafId = null;
-      }
     }
 
-    const onVis = (): void => {
-      if (document.hidden) {
-        stopLoop();
-      } else {
-        startLoop();
-      }
-    };
-    document.addEventListener('visibilitychange', onVis);
-
-    // Always draw the first frame.
-    const drawOnceId = requestAnimationFrame(tick);
-
-    // Continue only if this instance can animate.
-    startLoop();
+    loop = createAnimationLoop({
+      node: canvas,
+      reducedMotionStore: reducedMotion,
+      shouldAnimate: () => !destroyed,
+      threshold: 0.01,
+      frame: () => {
+        tick();
+      },
+    });
+    loop.requestFrame();
+    loop.start();
 
     return () => {
       destroyed = true;
-      cancelAnimationFrame(drawOnceId);
-      stopLoop();
-      document.removeEventListener('visibilitychange', onVis);
-      unsubRM();
-      io.disconnect();
+      loop?.destroy();
       ro.disconnect();
       gl.deleteVertexArray(vao);
       gl.deleteProgram(prog);

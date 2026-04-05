@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { SvelteMap } from 'svelte/reactivity';
+  import { reducedMotion } from '$lib/stores';
+  import { createAnimationLoop } from '$lib/utils';
 
   // ─── Types ────────────────────────────────────────────────────────────────
 
@@ -42,13 +44,11 @@
   let wrapper: HTMLDivElement;
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
-  let animId: number | null = null;
   let width = 0;
   let height = 0;
   let frame = 0;
   let isMobile = false;
   let streams: Stream[] = [];
-  let isInViewport = true;
   let deviceScale = 1;
 
   // Font string cache — avoids repeated string allocations
@@ -110,6 +110,12 @@
     return Math.floor(rand(4 + t * 16, 8 + t * 52));
   }
 
+  function getDeviceScale(): number {
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    const dprCap = isCoarsePointer ? 1.25 : 2;
+    return Math.min(window.devicePixelRatio || 1, dprCap);
+  }
+
   // ─── Stream factory ───────────────────────────────────────────────────────
 
   function createStream(xHint?: number): Stream {
@@ -146,18 +152,30 @@
 
   // ─── Resize & init ────────────────────────────────────────────────────────
 
-  function initAll(): void {
-    // Use the wrapper element's size, not window
+  function syncCanvasMetrics(): void {
     const rect = wrapper.getBoundingClientRect();
-    width  = Math.round(rect.width)  || wrapper.offsetWidth;
+    width = Math.round(rect.width) || wrapper.offsetWidth;
     height = Math.round(rect.height) || wrapper.offsetHeight;
+    deviceScale = getDeviceScale();
 
-    // Sync canvas resolution to real pixels (sharp on HiDPI)
-    canvas.width  = width  * deviceScale;
-    canvas.height = height * deviceScale;
+    // Keep the backing store aligned with the current DPR without changing CSS size.
+    canvas.width = Math.max(1, Math.round(width * deviceScale));
+    canvas.height = Math.max(1, Math.round(height * deviceScale));
     ctx.setTransform(deviceScale, 0, 0, deviceScale, 0, 0);
+  }
+
+  function initAll(): void {
+    const prevWidth = width;
+    const prevHeight = height;
+    const prevIsMobile = isMobile;
+
+    syncCanvasMetrics();
 
     isMobile = width < 768;
+    if (width === prevWidth && height === prevHeight && isMobile === prevIsMobile) {
+      return;
+    }
+
     fontCache.clear();
 
     const density = isMobile ? 22 : 16;
@@ -242,33 +260,9 @@
     ctx.globalAlpha = 1;
   }
 
-  // ─── Main loop ────────────────────────────────────────────────────────────
-
   let running = true;
 
-  function canRun(): boolean {
-    return running && isInViewport && !document.hidden;
-  }
-
-  function stopLoop(): void {
-    if (animId !== null) {
-      cancelAnimationFrame(animId);
-      animId = null;
-    }
-  }
-
-  function startLoop(): void {
-    if (animId === null && canRun()) {
-      animId = requestAnimationFrame(draw);
-    }
-  }
-
   function draw(): void {
-    if (!canRun()) {
-      animId = null;
-      return;
-    }
-
     ctx.fillStyle   = '#020408';
     ctx.globalAlpha = 0.22;
     ctx.fillRect(0, 0, width, height);
@@ -277,62 +271,53 @@
     drawStreams();
 
     frame++;
-    if (canRun()) {
-      animId = requestAnimationFrame(draw);
-    } else {
-      animId = null;
-    }
   }
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
   onMount(() => {
-    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
-    const dprCap = isCoarsePointer ? 1.25 : 2;
-    deviceScale = Math.min(window.devicePixelRatio || 1, dprCap);
+    let loop: ReturnType<typeof createAnimationLoop> | undefined;
 
     ctx = canvas.getContext('2d', { alpha: false })!;
     initAll();
-    startLoop();
+    loop = createAnimationLoop({
+      node: wrapper,
+      reducedMotionStore: reducedMotion,
+      shouldAnimate: () => running,
+      frame: () => {
+        draw();
+      },
+    });
+    loop.requestFrame();
+    loop.start();
+
+    let dprQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+    const onDevicePixelRatioChange = () => {
+      dprQuery.removeEventListener('change', onDevicePixelRatioChange);
+      initAll();
+      loop?.requestFrame();
+      dprQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+      dprQuery.addEventListener('change', onDevicePixelRatioChange);
+    };
+    dprQuery.addEventListener('change', onDevicePixelRatioChange);
 
     // ResizeObserver watches the wrapper — works for any container, not just window
     let resizeTimer: ReturnType<typeof setTimeout>;
     const ro = new ResizeObserver(() => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(initAll, 150);
+      resizeTimer = setTimeout(() => {
+        initAll();
+        loop?.requestFrame();
+      }, 150);
     });
     ro.observe(wrapper);
 
-    // Page visibility: pause animation when tab is hidden
-    const onVisibility = () => {
-      if (document.hidden) {
-        stopLoop();
-      } else {
-        startLoop();
-      }
-    };
-    document.addEventListener('visibilitychange', onVisibility);
-
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        isInViewport = entry?.isIntersecting ?? true;
-        if (isInViewport) {
-          startLoop();
-        } else {
-          stopLoop();
-        }
-      },
-      { rootMargin: '220px 0px 220px 0px', threshold: 0.01 }
-    );
-    io.observe(wrapper);
-
     return () => {
       running = false;
-      stopLoop();
-      io.disconnect();
+      loop?.destroy();
       ro.disconnect();
+      dprQuery.removeEventListener('change', onDevicePixelRatioChange);
       clearTimeout(resizeTimer);
-      document.removeEventListener('visibilitychange', onVisibility);
     };
   });
 </script>

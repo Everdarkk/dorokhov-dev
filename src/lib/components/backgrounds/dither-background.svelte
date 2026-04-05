@@ -40,8 +40,8 @@
    */
 
   import { onMount } from 'svelte';
-  import { get } from 'svelte/store';
   import { reducedMotion } from '$lib/stores';
+  import { createAnimationLoop } from '$lib/utils';
 
   // ── Props ─────────────────────────────────────────────────────────────────
 
@@ -74,7 +74,6 @@
   // ── Internals ─────────────────────────────────────────────────────────────
 
   let canvas: HTMLCanvasElement;
-  let rafId:  number | null = null;
   let destroyed = false;
   let startTime  = 0;
 
@@ -358,8 +357,7 @@
     const dprCap = isCoarsePointer ? 1.2 : 2;
     const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
 
-    let shouldAnimate = !get(reducedMotion);
-    let isInViewport = true;
+    let loop: ReturnType<typeof createAnimationLoop> | undefined;
 
     // Stage resize dimensions — applied at the top of the next tick so the
     // canvas clear and redraw land in the same composited frame (no flicker).
@@ -372,53 +370,17 @@
       if (w && h) {
         pendingW = w;
         pendingH = h;
-        if (!canAnimate() || document.hidden) {
+        if (!loop || !loop.isRunning()) {
           canvas.width = w;
           canvas.height = h;
           gl?.viewport(0, 0, w, h);
           pendingW = 0;
           pendingH = 0;
         }
+        loop?.requestFrame();
       }
     });
     ro.observe(canvas);
-
-    const canAnimate = (): boolean => shouldAnimate && isInViewport && !document.hidden && !destroyed;
-
-    const stopLoop = (): void => {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
-    };
-
-    const startLoop = (): void => {
-      if (rafId === null && canAnimate()) {
-        rafId = requestAnimationFrame(tick);
-      }
-    };
-
-    const unsubRM = reducedMotion.subscribe((val) => {
-      shouldAnimate = !val;
-      if (shouldAnimate) {
-        startLoop();
-      } else {
-        stopLoop();
-      }
-    });
-
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        isInViewport = entry?.isIntersecting ?? true;
-        if (isInViewport) {
-          startLoop();
-        } else {
-          stopLoop();
-        }
-      },
-      { rootMargin: '220px 0px 220px 0px', threshold: 0.01 }
-    );
-    io.observe(canvas);
 
     function tick() {
       if (destroyed) return;
@@ -445,32 +407,24 @@
       gl?.uniform3f(U.colorB,    ...rgbB);
 
       gl?.drawArrays(gl.TRIANGLES, 0, 3);
-      if (canAnimate()) {
-        rafId = requestAnimationFrame(tick);
-      } else {
-        rafId = null;
-      }
     }
 
-    const onVis = () => {
-      if (document.hidden) {
-        stopLoop();
-      } else {
-        startLoop();
-      }
-    };
-    document.addEventListener('visibilitychange', onVis);
-
-    const drawOnceId = requestAnimationFrame(tick);
-    startLoop();
+    loop = createAnimationLoop({
+      node: canvas,
+      reducedMotionStore: reducedMotion,
+      shouldAnimate: () => !destroyed,
+      rootMargin: '220px 0px 220px 0px',
+      threshold: 0.01,
+      frame: () => {
+        tick();
+      },
+    });
+    loop.requestFrame();
+    loop.start();
 
     return () => {
       destroyed = true;
-      cancelAnimationFrame(drawOnceId);
-      stopLoop();
-      document.removeEventListener('visibilitychange', onVis);
-      io.disconnect();
-      unsubRM();
+      loop?.destroy();
       ro.disconnect();
       gl.deleteVertexArray(vao);
       gl.deleteProgram(prog);
