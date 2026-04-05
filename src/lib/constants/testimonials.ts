@@ -11,7 +11,7 @@ export const TESTIMONIALS: Testimonial[] = [
 		review:
 			'My clients now have everything they need in one place — information about services, schedules, and a way to sign up for classes without any extra steps. It completely changed how I manage my practice and how clients engage with it.',
 		accent: 'cyan',
-		year: '2024',
+		year: '2025',
 	},
 	{
 		id: 'shura-artist',
@@ -22,7 +22,7 @@ export const TESTIMONIALS: Testimonial[] = [
 		review:
 			'People from all around the world can now visit my portfolio, browse the full collection, and read the story behind each piece — all in one seamless experience. My audience finally has a home that feels as intentional as the work itself.',
 		accent: 'purple',
-		year: '2024',
+		year: '2025',
 	},
 	{
 		id: 'ternotop-ortho-centre',
@@ -33,7 +33,7 @@ export const TESTIMONIALS: Testimonial[] = [
 		review:
 			'The redesign brought a fresh, modern look — trustworthy and fast. The real win was SEO: organic traffic jumped from around 400 views over six months to over 4 000 in the very first month after launch.',
 		accent: 'yellow',
-		year: '2024',
+		year: '2026',
 		metric: {
 			before: '400',
 			beforeLabel: 'views / 6 months',

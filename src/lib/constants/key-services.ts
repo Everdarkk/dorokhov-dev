@@ -38,7 +38,7 @@ export const SERVICES: Service[] = [
 			'Data-dense admin panels and SaaS UIs engineered for real usage — fast tables, real-time updates, role-based layouts, and a design system that scales with your product.',
 		benefits: [
 			{ label: 'Architecture',  value: 'Component-driven' },
-			{ label: 'Data layer',    value: 'REST / WebSocket'  },
+			{ label: 'Data layer',    value: 'REST'  },
 			{ label: 'Auth',          value: 'Role-based access'  },
 			{ label: 'Accessibility', value: 'WCAG AA'            },
 		],
@@ -46,7 +46,7 @@ export const SERVICES: Service[] = [
 			{ name: 'TypeScript', tag: 'TS'  },
 			{ name: 'Node.js',    tag: 'NOD' },
 			{ name: 'Postgres',   tag: 'PG'  },
-			{ name: 'TanStack',   tag: 'TQ'  },
+			{ name: 'Refine',   tag: 'RFN'  },
 		],
 		icon: 'dashboard',
 	},
@@ -62,7 +62,7 @@ export const SERVICES: Service[] = [
 			'Visual identity translated into a full web design system — typography, colour, motion, and component library — so every page you ship feels intentional and on-brand.',
 		benefits: [
 			{ label: 'Deliverable',  value: 'Figma design system' },
-			{ label: 'Components',   value: 'Fully unique'    },
+			{ label: 'Components',   value: 'Fully unique / Lib'    },
 			{ label: 'Tokens',       value: 'Colour, type, space' },
 			{ label: 'Handoff',      value: 'Dev-ready specs'     },
 		],

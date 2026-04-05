@@ -6,7 +6,7 @@
 export const CTA_STATS = [
 	{ value: '+250%',  label: 'Avg Organic Views Boost',   symbol: '◈' },
 	{ value: '3×',   label: 'Avg Performance Gain', symbol: '▲' },
-	{ value: '24h',  label: 'Response Guaranteed',  symbol: '◉' },
+	{ value: '12h',  label: 'Response Guaranteed',  symbol: '◉' },
 ] as const;
 
 export interface CtaService {

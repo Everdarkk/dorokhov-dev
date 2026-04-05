@@ -302,7 +302,7 @@
 
 		<!-- Trust note -->
 		<p class="cta-trust" aria-label="Commitment details">
-			Free consultation&nbsp;&nbsp;·&nbsp;&nbsp;48h response&nbsp;&nbsp;·&nbsp;&nbsp;No commitment
+			Free consultation&nbsp;&nbsp;·&nbsp;&nbsp;12h response&nbsp;&nbsp;·&nbsp;&nbsp;No commitment
 		</p>
 
 	</div>
