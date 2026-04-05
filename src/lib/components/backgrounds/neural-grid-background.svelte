@@ -14,16 +14,14 @@
 	 *   • Resize deferred to next RAF tick (avoids blank-frame flash)
 	 */
 
-	import { onMount, onDestroy } from 'svelte';
-	import { browser }            from '$app/environment';
-	import { get }                from 'svelte/store';
+	import { onMount } from 'svelte';
 	import { reducedMotion }      from '$lib/stores';
+	import { createAnimationLoop } from '$lib/utils';
 
 	export let particleCount:    number = 72;
 	export let connectionRadius: number = 148;
 
 	let canvasEl:  HTMLCanvasElement;
-	let rafId    = 0;
 	let destroyed = false;
 
 	// ── Colour palette ─────────────────────────────────────────────────────────
@@ -52,17 +50,16 @@
 	}
 
 	onMount(() => {
-		if (!browser) return;
-
 		const ctx = canvasEl.getContext('2d')!;
-		const dpr = Math.min(devicePixelRatio, 1.5);
+		const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+		const dpr = Math.min(window.devicePixelRatio || 1, isCoarsePointer ? 1.2 : 1.5);
 
 		let W = 0, H = 0;
 		let pendingW = 0, pendingH = 0;
 		let particles: Particle[] = [];
 		let pulses: Pulse[]       = [];
 		let nextPulse   = 0;   // countdown (frames) before next pulse spawn
-		let isRM = get(reducedMotion);
+		let loop: ReturnType<typeof createAnimationLoop> | undefined;
 
 		// ── Helpers ────────────────────────────────────────────────────────────
 
@@ -206,7 +203,7 @@
 
 		// ── RAF loop ──────────────────────────────────────────────────────────
 
-		function tick(): void {
+		function tick({ shouldAnimate }: { shouldAnimate: boolean }): void {
 			if (destroyed) return;
 
 			if (pendingW > 0) {
@@ -218,9 +215,8 @@
 				pendingW = pendingH = 0;
 			}
 
-			if (!isRM) updateParticles();
+			if (shouldAnimate) updateParticles();
 			draw();
-			if (!isRM) rafId = requestAnimationFrame(tick);
 		}
 
 		// ── Observers ─────────────────────────────────────────────────────────
@@ -230,32 +226,9 @@
 			const nh = entry.contentRect.height;
 			if (nw > 0 && nh > 0) {
 				pendingW = nw; pendingH = nh;
-				// When the RAF loop is paused (reduced-motion or hidden tab),
-				// schedule a one-off tick so the resize is applied and the
-				// static frame is redrawn immediately.
-				if ((isRM || document.hidden) && !destroyed) {
-					cancelAnimationFrame(rafId);
-					rafId = requestAnimationFrame(tick);
-				}
+				loop?.requestFrame();
 			}
 		});
-
-		const unsubRM = reducedMotion.subscribe((v) => {
-			isRM = v;
-			if (!v && !document.hidden && !destroyed) {
-				cancelAnimationFrame(rafId);
-				rafId = requestAnimationFrame(tick);
-			}
-		});
-
-		const onVis = (): void => {
-			if (document.hidden) {
-				cancelAnimationFrame(rafId);
-			} else if (!isRM && !destroyed) {
-				rafId = requestAnimationFrame(tick);
-			}
-		};
-		document.addEventListener('visibilitychange', onVis);
 
 		// ── Bootstrap ─────────────────────────────────────────────────────────
 
@@ -263,23 +236,24 @@
 		const rect   = parent.getBoundingClientRect();
 		applyResize(rect.width || 800, rect.height || 600);
 		initParticles();
+		loop = createAnimationLoop({
+			node: parent,
+			reducedMotionStore: reducedMotion,
+			shouldAnimate: () => !destroyed,
+			rootMargin: '220px 0px 220px 0px',
+			threshold: 0.01,
+			frame: tick,
+		});
 		ro.observe(parent);
 
-		rafId = requestAnimationFrame(tick);
+		loop.requestFrame();
+		loop.start();
 
 		return () => {
 			destroyed = true;
-			cancelAnimationFrame(rafId);
-			document.removeEventListener('visibilitychange', onVis);
-			unsubRM();
+			loop?.destroy();
 			ro.disconnect();
 		};
-	});
-
-	onDestroy(() => {
-		if (!browser) return;
-		destroyed = true;
-		cancelAnimationFrame(rafId);
 	});
 </script>
 

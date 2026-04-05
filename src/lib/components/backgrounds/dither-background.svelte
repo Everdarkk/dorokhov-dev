@@ -39,8 +39,9 @@
    *   colorB         string  Light dither colour (hex)     '#1a2744'
    */
 
-  import { onMount, onDestroy } from 'svelte';
-  import { browser } from '$app/environment';
+  import { onMount } from 'svelte';
+  import { reducedMotion } from '$lib/stores';
+  import { createAnimationLoop } from '$lib/utils';
 
   // ── Props ─────────────────────────────────────────────────────────────────
 
@@ -73,7 +74,6 @@
   // ── Internals ─────────────────────────────────────────────────────────────
 
   let canvas: HTMLCanvasElement;
-  let rafId:  number;
   let destroyed = false;
   let startTime  = 0;
 
@@ -353,7 +353,11 @@
       colorB:     gl.getUniformLocation(prog, 'u_colorB'),
     };
 
-    const dpr = Math.min(devicePixelRatio, 2);
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    const dprCap = isCoarsePointer ? 1.2 : 2;
+    const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
+
+    let loop: ReturnType<typeof createAnimationLoop> | undefined;
 
     // Stage resize dimensions — applied at the top of the next tick so the
     // canvas clear and redraw land in the same composited frame (no flicker).
@@ -363,7 +367,18 @@
     const ro  = new ResizeObserver(([e]) => {
       const w = Math.round(e.contentRect.width  * dpr);
       const h = Math.round(e.contentRect.height * dpr);
-      if (w && h) { pendingW = w; pendingH = h; }
+      if (w && h) {
+        pendingW = w;
+        pendingH = h;
+        if (!loop || !loop.isRunning()) {
+          canvas.width = w;
+          canvas.height = h;
+          gl?.viewport(0, 0, w, h);
+          pendingW = 0;
+          pendingH = 0;
+        }
+        loop?.requestFrame();
+      }
     });
     ro.observe(canvas);
 
@@ -392,34 +407,28 @@
       gl?.uniform3f(U.colorB,    ...rgbB);
 
       gl?.drawArrays(gl.TRIANGLES, 0, 3);
-      rafId = requestAnimationFrame(tick);
     }
 
-    const onVis = () => {
-      if (document.hidden) {
-        cancelAnimationFrame(rafId);
-      } else {
+    loop = createAnimationLoop({
+      node: canvas,
+      reducedMotionStore: reducedMotion,
+      shouldAnimate: () => !destroyed,
+      rootMargin: '220px 0px 220px 0px',
+      threshold: 0.01,
+      frame: () => {
         tick();
-      }
-    };
-    document.addEventListener('visibilitychange', onVis);
-
-    if (!document.hidden) rafId = requestAnimationFrame(tick);
+      },
+    });
+    loop.requestFrame();
+    loop.start();
 
     return () => {
       destroyed = true;
-      cancelAnimationFrame(rafId);
-      document.removeEventListener('visibilitychange', onVis);
+      loop?.destroy();
       ro.disconnect();
       gl.deleteVertexArray(vao);
       gl.deleteProgram(prog);
     };
-  });
-
-  onDestroy(() => {
-    if (!browser) return;
-    destroyed = true;
-    cancelAnimationFrame(rafId);
   });
 </script>
 

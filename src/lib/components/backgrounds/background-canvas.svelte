@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
-  import { browser } from '$app/environment';
+  import { onMount } from 'svelte';
   import { SvelteMap } from 'svelte/reactivity';
+  import { reducedMotion } from '$lib/stores';
+  import { createAnimationLoop } from '$lib/utils';
 
   // ─── Types ────────────────────────────────────────────────────────────────
 
@@ -43,12 +44,12 @@
   let wrapper: HTMLDivElement;
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
-  let animId: number;
   let width = 0;
   let height = 0;
   let frame = 0;
   let isMobile = false;
   let streams: Stream[] = [];
+  let deviceScale = 1;
 
   // Font string cache — avoids repeated string allocations
   const fontCache = new SvelteMap<number, string>();
@@ -109,6 +110,12 @@
     return Math.floor(rand(4 + t * 16, 8 + t * 52));
   }
 
+  function getDeviceScale(): number {
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    const dprCap = isCoarsePointer ? 1.25 : 2;
+    return Math.min(window.devicePixelRatio || 1, dprCap);
+  }
+
   // ─── Stream factory ───────────────────────────────────────────────────────
 
   function createStream(xHint?: number): Stream {
@@ -145,19 +152,30 @@
 
   // ─── Resize & init ────────────────────────────────────────────────────────
 
-  function initAll(): void {
-    // Use the wrapper element's size, not window
+  function syncCanvasMetrics(): void {
     const rect = wrapper.getBoundingClientRect();
-    width  = Math.round(rect.width)  || wrapper.offsetWidth;
+    width = Math.round(rect.width) || wrapper.offsetWidth;
     height = Math.round(rect.height) || wrapper.offsetHeight;
+    deviceScale = getDeviceScale();
 
-    // Sync canvas resolution to real pixels (sharp on HiDPI)
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width  = width  * dpr;
-    canvas.height = height * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Keep the backing store aligned with the current DPR without changing CSS size.
+    canvas.width = Math.max(1, Math.round(width * deviceScale));
+    canvas.height = Math.max(1, Math.round(height * deviceScale));
+    ctx.setTransform(deviceScale, 0, 0, deviceScale, 0, 0);
+  }
+
+  function initAll(): void {
+    const prevWidth = width;
+    const prevHeight = height;
+    const prevIsMobile = isMobile;
+
+    syncCanvasMetrics();
 
     isMobile = width < 768;
+    if (width === prevWidth && height === prevHeight && isMobile === prevIsMobile) {
+      return;
+    }
+
     fontCache.clear();
 
     const density = isMobile ? 22 : 16;
@@ -242,13 +260,9 @@
     ctx.globalAlpha = 1;
   }
 
-  // ─── Main loop ────────────────────────────────────────────────────────────
-
   let running = true;
 
   function draw(): void {
-    if (!running) return;
-
     ctx.fillStyle   = '#020408';
     ctx.globalAlpha = 0.22;
     ctx.fillRect(0, 0, width, height);
@@ -257,47 +271,54 @@
     drawStreams();
 
     frame++;
-    animId = requestAnimationFrame(draw);
   }
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
   onMount(() => {
+    let loop: ReturnType<typeof createAnimationLoop> | undefined;
+
     ctx = canvas.getContext('2d', { alpha: false })!;
     initAll();
-    draw();
+    loop = createAnimationLoop({
+      node: wrapper,
+      reducedMotionStore: reducedMotion,
+      shouldAnimate: () => running,
+      frame: () => {
+        draw();
+      },
+    });
+    loop.requestFrame();
+    loop.start();
+
+    let dprQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+    const onDevicePixelRatioChange = () => {
+      dprQuery.removeEventListener('change', onDevicePixelRatioChange);
+      initAll();
+      loop?.requestFrame();
+      dprQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+      dprQuery.addEventListener('change', onDevicePixelRatioChange);
+    };
+    dprQuery.addEventListener('change', onDevicePixelRatioChange);
 
     // ResizeObserver watches the wrapper — works for any container, not just window
     let resizeTimer: ReturnType<typeof setTimeout>;
     const ro = new ResizeObserver(() => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(initAll, 150);
+      resizeTimer = setTimeout(() => {
+        initAll();
+        loop?.requestFrame();
+      }, 150);
     });
     ro.observe(wrapper);
 
-    // Page visibility: pause animation when tab is hidden
-    const onVisibility = () => {
-      if (document.hidden) {
-        running = false;
-        cancelAnimationFrame(animId);
-      } else {
-        running = true;
-        draw();
-      }
-    };
-    document.addEventListener('visibilitychange', onVisibility);
-
     return () => {
+      running = false;
+      loop?.destroy();
       ro.disconnect();
+      dprQuery.removeEventListener('change', onDevicePixelRatioChange);
       clearTimeout(resizeTimer);
-      document.removeEventListener('visibilitychange', onVisibility);
     };
-  });
-
-  onDestroy(() => {
-    if (!browser) return;
-    running = false;
-    cancelAnimationFrame(animId);
   });
 </script>
 

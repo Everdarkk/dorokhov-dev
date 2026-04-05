@@ -29,10 +29,10 @@
    *   colors         string[]  2–5 hex colours (dark palette)
    */
 
-  import { onMount, onDestroy } from 'svelte';
-  import { get }                from 'svelte/store';
+  import { onMount } from 'svelte';
   import { browser }            from '$app/environment';
   import { reducedMotion }      from '$lib/stores/motion';
+  import { createAnimationLoop } from '$lib/utils';
 
   // ── Props ─────────────────────────────────────────────────────────────────
 
@@ -67,7 +67,6 @@
   // ── Internals ─────────────────────────────────────────────────────────────
 
   let canvas:    HTMLCanvasElement;
-  let rafId:     number;
   let destroyed  = false;
   let startTime  = 0;
 
@@ -93,6 +92,9 @@
     });
     return out;
   }
+
+  let colorFlat = buildColorFlat();
+  $: colorFlat = buildColorFlat();
 
   // ── GLSL ──────────────────────────────────────────────────────────────────
 
@@ -325,8 +327,14 @@
       colorCount:    gl.getUniformLocation(prog, 'u_color_count'),
     } as const;
 
-    // DPR clamped to 2 — prevents excessive fragment load on hi-DPI displays
-    const dpr = Math.min(devicePixelRatio, 2);
+    // Lower fragment load on mobile/coarse-pointer devices.
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    const dprCap = isCoarsePointer ? 1.25 : 2;
+    const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
+
+    // Animation gate: only animate when motion is allowed, tab is visible,
+    // and this instance is actually in the viewport.
+    let isInViewport = true;
 
     // Pending canvas dimensions from ResizeObserver.
     // We intentionally do NOT resize the canvas inside the ResizeObserver
@@ -339,6 +347,8 @@
     let pendingW = 0;
     let pendingH = 0;
 
+    let loop: ReturnType<typeof createAnimationLoop> | undefined;
+
     const ro = new ResizeObserver(([entry]) => {
       const w = Math.round(entry.contentRect.width  * dpr);
       const h = Math.round(entry.contentRect.height * dpr);
@@ -347,26 +357,15 @@
         pendingH = h;
         // If the loop is paused (reduced-motion or hidden tab), apply
         // immediately — there is no upcoming tick to pick it up.
-        if (!shouldAnimate || document.hidden) {
+        if (!loop || !loop.isRunning()) {
           canvas.width  = w;
           canvas.height = h;
           gl?.viewport(0, 0, w, h);
         }
+        loop?.requestFrame();
       }
     });
     ro.observe(canvas);
-
-    // Reduced-motion: animate by default; stop loop when user prefers no motion
-    let shouldAnimate = !get(reducedMotion);
-
-    const unsubRM = reducedMotion.subscribe((val) => {
-      shouldAnimate = !val;
-      // If motion was re-enabled and tab is visible, restart the loop
-      if (!val && !document.hidden && !destroyed) {
-        cancelAnimationFrame(rafId);
-        rafId = requestAnimationFrame(tick);
-      }
-    });
 
     function tick(): void {
       if (destroyed) return;
@@ -391,44 +390,31 @@
       gl?.uniform1f( U.flowScale,     flowScale);
       gl?.uniform1f( U.colorPressure, colorPressure);
       gl?.uniform1f( U.grain,         grain);
-      gl?.uniform3fv(U.colors,        buildColorFlat());
+      gl?.uniform3fv(U.colors,        colorFlat);
       gl?.uniform1i( U.colorCount,    Math.min(colors.length, MAX_COLORS));
 
       gl?.drawArrays(gl.TRIANGLES, 0, 3);
-
-      // Continue loop only when motion is desired
-      if (shouldAnimate) {
-        rafId = requestAnimationFrame(tick);
-      }
     }
 
-    const onVis = (): void => {
-      if (document.hidden) {
-        cancelAnimationFrame(rafId);
-      } else if (shouldAnimate && !destroyed) {
-        rafId = requestAnimationFrame(tick);
-      }
-    };
-    document.addEventListener('visibilitychange', onVis);
-
-    // Always draw the first frame (static fallback for reduced-motion)
-    rafId = requestAnimationFrame(tick);
+    loop = createAnimationLoop({
+      node: canvas,
+      reducedMotionStore: reducedMotion,
+      shouldAnimate: () => !destroyed,
+      threshold: 0.01,
+      frame: () => {
+        tick();
+      },
+    });
+    loop.requestFrame();
+    loop.start();
 
     return () => {
       destroyed = true;
-      cancelAnimationFrame(rafId);
-      document.removeEventListener('visibilitychange', onVis);
-      unsubRM();
+      loop?.destroy();
       ro.disconnect();
       gl.deleteVertexArray(vao);
       gl.deleteProgram(prog);
     };
-  });
-
-  onDestroy(() => {
-    if (!browser) return;
-    destroyed = true;
-    cancelAnimationFrame(rafId);
   });
 </script>
 
