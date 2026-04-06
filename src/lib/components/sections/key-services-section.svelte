@@ -328,7 +328,7 @@
 			{#each SERVICES as service, i (service.id)}
 
 				<li
-					id="service-{service.id}"
+					id={"service-" + service.id}
 					class="ks-row"
 					class:ks-row--reversed={service.layout === 'visual-text'}
 					style="--accent: {accentVar(service.accent)}; --row-index: {i};"

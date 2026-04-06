@@ -10,10 +10,11 @@
 	 *   Navigate — main links + service deep-links
 	 *   Connect  — social icon-links + mini CTA
 	 *
-	 * Bottom bar — copyright, system-status blinking dot, built-with note.
+	 * Bottom bar — copyright, system-status blinking dot.
 	 */
 
 	import logoLight from '$lib/assets/images/logo-light.svg';
+	import { SERVICES } from '$lib/constants/key-services';
 
 	const year = new Date().getFullYear();
 </script>
@@ -68,7 +69,7 @@
 
 			<ul class="ft-links" role="list">
 				<li>
-					<a href="#profile" class="ft-link">Profile</a>
+					<a href="/#profile" class="ft-link">Profile</a>
 				</li>
 				<li>
 					<a href="/deploys" class="ft-link">Deploys</a>
@@ -78,15 +79,11 @@
 			<p class="ft-col-label ft-col-label--spaced" aria-hidden="true">// SERVICES</p>
 
 			<ul class="ft-links" role="list">
-				<li>
-					<a href="#service-landing" class="ft-link">Landing Page</a>
-				</li>
-				<li>
-					<a href="#service-saas" class="ft-link">SaaS Dashboard</a>
-				</li>
-				<li>
-					<a href="#service-design" class="ft-link">Website Design</a>
-				</li>
+				{#each SERVICES as service (service.id)}
+					<li>
+						<a href={"/#service-" + service.id} class="ft-link">{service.title}</a>
+					</li>
+				{/each}
 			</ul>
 
 		</nav>
