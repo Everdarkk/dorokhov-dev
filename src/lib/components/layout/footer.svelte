@@ -165,7 +165,7 @@
 			</ul>
 
 			<!-- Mini CTA -->
-			<a href="#contact" class="ft-cta" aria-label="Start a project — go to contact section">
+			<a href="/#contact" class="ft-cta" aria-label="Start a project — go to contact section">
 				<span>Start a Project</span>
 				<svg viewBox="0 0 16 16" fill="none" aria-hidden="true" width="13" height="13">
 					<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
