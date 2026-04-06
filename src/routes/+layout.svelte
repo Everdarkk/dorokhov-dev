@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte'
 	import '../app.css'
 	import Navigation from '$lib/components/layout/navigation.svelte'
+	import Footer from '$lib/components/layout/footer.svelte'
 
 	let { children } = $props()
 	let CursorComponent = $state<((typeof import('$lib/components/layout/cursor.svelte'))['default'] | null)>(null)
@@ -41,6 +42,7 @@
 
 <Navigation />
 {@render children()}
+<Footer />
 
 {#if CursorComponent}
 	<CursorComponent />
