@@ -4,7 +4,7 @@
 	 *
 	 * Full-viewport (min-height: 100dvh) welcome section for the /deploys route.
 	 * Introduces the project archive, sets context for what the visitor will see,
-	 * and presents three quick stats derived from the live PROJECTS dataset.
+	 * and presents three quick stats sourced from deploy-specific constants.
 	 *
 	 * Entrance animations match the hero-section.svelte pattern exactly:
 	 *   • .is-mounted class added on the first RAF after mount
@@ -102,8 +102,8 @@
 
 		<!-- Stats row -->
 		<ul class="dh__stats" aria-label="Project statistics">
-			{#each DEPLOYS_HERO_STATS as stat, i (stat.label)}
-				<li class="dh__stat" style="--si: {i}">
+			{#each DEPLOYS_HERO_STATS as stat (stat.label)}
+				<li class="dh__stat">
 					<strong class="dh__stat-value">{stat.value}</strong>
 					<span  class="dh__stat-label">{stat.label}</span>
 				</li>
@@ -112,10 +112,9 @@
 
 		<!-- Project-type tags — colours mirror the project accent colours -->
 		<ul class="dh__tags" aria-label="Project types covered">
-			{#each DEPLOYS_HERO_TAGS as tag, i (tag.label)}
+			{#each DEPLOYS_HERO_TAGS as tag (tag.label)}
 				<li
 					class="dh__tag dh__tag--{tag.accent}"
-					style="--ti: {i}"
 					aria-label="{tag.label} project"
 				>
 					{tag.label}
@@ -390,7 +389,7 @@
 .dh__tag--pink   { color: var(--cp-pink,   #ff0055); border-color: rgba(255,   0,  85, 0.3); }
 .dh__tag--purple { color: var(--cp-purple, #b300ff); border-color: rgba(179,   0, 255, 0.3); }
 .dh__tag--yellow { color: var(--cp-yellow, #ffe600); border-color: rgba(255, 230,   0, 0.3); }
-.dh__tag--green  { color: var(--cp-lime,   #00ff88); border-color: rgba(0,   255, 136, 0.3); }
+.dh__tag--green  { color: var(--cp-green,  #00ff88); border-color: rgba(0,   255, 136, 0.3); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    SCROLL INDICATOR
