@@ -1,13 +1,13 @@
 import type { Project } from '$lib/types';
-import adVideo from '$lib/assets/videos/ad.webm';
+import adVideo from '$lib/assets/videos/ad.mp4';
 import adPoster from '$lib/assets/images/ad.webp';
-import omVideo from '$lib/assets/videos/om.webm';
+import omVideo from '$lib/assets/videos/om.mp4';
 import omPoster from '$lib/assets/images/om.webp';
-import tagaVideo from '$lib/assets/videos/taga.webm';
+import tagaVideo from '$lib/assets/videos/taga.mp4';
 import tagaPoster from '$lib/assets/images/taga.webp';
-import nnVideo from '$lib/assets/videos/nn.webm';
+import nnVideo from '$lib/assets/videos/nn.mp4';
 import nnPoster from '$lib/assets/images/nn.webp';
-import ttVideo from '$lib/assets/videos/tt.webm';
+import ttVideo from '$lib/assets/videos/tt.mp4';
 import ttPoster from '$lib/assets/images/tt.webp';
 
 export const PROJECTS: Project[] = [

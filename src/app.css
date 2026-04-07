@@ -1,3 +1,6 @@
+@import '@fontsource/courier-prime/400.css';
+@import '@fontsource/courier-prime/700.css';
+
 /* FONTS */
 @font-face {
     font-family: 'Bionical';
@@ -38,7 +41,7 @@
 	--cp-border:      rgba(0, 247, 255, 0.247);
 
     /* Fonts */
-	--font-ui:     'Сourier Prime', monospace;
+	--font-ui:     'Courier Prime', monospace;
     --font-cipher: 'CyberCipher', sans-serif;
     --font-grid: 'CyberGrid', sans-serif;
     --font-bionical: 'Bionical', sans-serif;
