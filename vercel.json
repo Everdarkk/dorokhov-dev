@@ -3,8 +3,6 @@
   "framework": "sveltekit",
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
-  "trailingSlash": false,
-  "cleanUrls": true,
   "headers": [
     {
       "source": "/(.*)",
@@ -27,7 +25,7 @@
         },
         {
           "key": "Strict-Transport-Security",
-          "value": "max-age=63072000; includeSubDomains; preload"
+          "value": "max-age=63072000"
         },
         {
           "key": "Cross-Origin-Opener-Policy",
