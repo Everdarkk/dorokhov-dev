@@ -385,6 +385,7 @@
 		padding: 0;
 		display: flex;
 		align-items: center;
+		justify-content: space-evenly;
 		gap: 0.15rem;
 		flex: 1;
 	}
@@ -427,7 +428,6 @@
 		align-items: center;
 		gap: 0.4rem;
 		flex-shrink: 0;
-		margin-left: auto;
 	}
 
 	/* ─── Hire Me button ────────────────────────────────────────────────────── */
@@ -698,16 +698,6 @@
 	}
 
 	/* ─── Responsive ────────────────────────────────────────────────────────── */
-	@media (max-width: 450px) {
-		.drawer {
-			top: 0.5rem;
-			right: 0.5rem;
-			width: calc(100vw - 1rem);
-			height: calc(100dvh - 1rem);
-			padding: calc(var(--nav-h) + 0.65rem) 0.9rem 1rem;
-			border-radius: 1.3rem;
-		}
-	}
 	@media (max-width: 640px) {
 		.nav-links,
 		.divider,
@@ -720,6 +710,17 @@
 		.pill {
 			max-width: 100%;
 			padding: 0 0.3rem 0 0.45rem;
+		}
+		.nav-actions {
+			margin-left: auto;
+		}
+		.drawer {
+			top: calc(var(--nav-h));
+			right: 0.5rem;
+			width: calc(100vw - 1rem);
+			height: calc(100dvh - var(--nav-h) - 0.5rem);
+			padding: 0.9rem 1rem;
+			border-radius: 1.3rem;
 		}
 	}
 
