@@ -9,3 +9,4 @@ export { default as TestimonialsSection } from './testimonials-section.svelte';
 export { default as RecentLaunchesSection } from './recent-launches-section.svelte';
 export { default as CtaSection } from './cta-section.svelte';
 export { default as DeploysHeroSection } from './deploys-hero-section.svelte';
+export { default as ProfileHeroSection } from './profile-hero-section.svelte';

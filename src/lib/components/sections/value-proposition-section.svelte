@@ -107,15 +107,6 @@
 	}
 
 	/**
-	 * Get section padding based on screen size
-	 */
-	function getSectionPadding(): string {
-		if (isMobile) return VP_RESPONSIVE_CONFIG.mobilePadding;
-		if (isTablet) return VP_RESPONSIVE_CONFIG.tabletPadding;
-		return VP_RESPONSIVE_CONFIG.desktopPadding;
-	}
-
-	/**
 	 * Get accent color class based on card's accent color
 	 */
 	function getAccentColorClass(color: ValuePropCard['accentColor']): string {
@@ -135,7 +126,7 @@
 <section
 	class="vp-section"
 	use:scrollReveal={{ threshold: 0.08, onReveal: handleSectionReveal }}
-	style="--card-gap: {getCardGap()}; --section-padding: {getSectionPadding()};"
+	style="--card-gap: {getCardGap()};"
 >
 	<!-- Background -->
 	{#if sectionVisible}

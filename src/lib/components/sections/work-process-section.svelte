@@ -58,7 +58,6 @@
 	$: step    = WORK_STEPS[current];
 	$: isFirst = current === 0;
 	$: isLast  = current === WORK_STEPS.length - 1;
-	$: bgAccent = colorVar(step.accentColor);
 	$: bgImage  = BACKGROUNDS[current % BACKGROUNDS.length];
 
 	// ─── Navigation ───────────────────────────────────────────────────────────
@@ -139,7 +138,6 @@
 	use:scrollReveal={{ threshold: WP_ANIMATION_CONFIG.revealThreshold, onReveal: handleSectionReveal }}
 	aria-label="How I Work – process carousel"
 	tabindex="-1"
-	style="--bg-accent: {bgAccent}"
 >
 
 	<!-- ── Background crossfade layers ───────────────────────────────────── -->
