@@ -284,8 +284,8 @@
 
 		<!-- Stats row -->
 		<ul class="cta-stats" aria-label="Key metrics">
-			{#each CTA_STATS as stat, i (stat.label)}
-				<li class="cta-stat" style="--si: {i}">
+			{#each CTA_STATS as stat (stat.label)}
+				<li class="cta-stat">
 					<span class="cta-stat__symbol" aria-hidden="true">{stat.symbol}</span>
 					<strong class="cta-stat__value">{stat.value}</strong>
 					<span class="cta-stat__label">{stat.label}</span>

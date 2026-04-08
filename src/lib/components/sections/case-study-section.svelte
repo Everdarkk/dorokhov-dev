@@ -173,7 +173,6 @@
 				<div
 					class="cs-metric"
 					class:cs-metric--visible={isVisible}
-					style="--mi: {i};"
 					role="listitem"
 				>
 					<span class="cs-metric__value" style="color: {m.color};">

@@ -119,11 +119,11 @@
 				<!-- Vertical track decoration -->
 				<div class="rl-list__track" aria-hidden="true"></div>
 
-				{#each PROJECTS as project, i (project.id)}
+				{#each PROJECTS as project (project.id)}
 					<button
 						class="rl-item"
 						class:is-active={activeId === project.id}
-						style="--i: {i}; --item-color: {itemColor(project.color)}"
+						style="--item-color: {itemColor(project.color)}"
 						aria-current={activeId === project.id ? 'true' : 'false'}
 						aria-label="View {project.name}"
 						on:click={() => selectProject(project.id)}

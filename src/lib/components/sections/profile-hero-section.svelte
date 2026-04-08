@@ -174,8 +174,8 @@
 
 			<!-- Quick facts -->
 			<ul class="ph__facts" aria-label="Quick facts">
-				{#each PROFILE_FACTS as fact, i (fact.label)}
-					<li class="ph__fact" style="--fi: {i}">
+				{#each PROFILE_FACTS as fact (fact.label)}
+					<li class="ph__fact">
 						<strong class="ph__fact-value">{fact.value}</strong>
 						<span  class="ph__fact-label">{fact.label}</span>
 					</li>

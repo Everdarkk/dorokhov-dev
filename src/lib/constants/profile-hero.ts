@@ -1,9 +1,8 @@
 /**
  * ProfileHeroSection (profile-hero-section.svelte) — IDENTITY_MATRIX
  *
- * Stack groups are sourced from the same FAQ answer in faq.ts so the two
- * stay in sync editorially. Facts are derived from the PROJECTS dataset
- * and service FAQ answers.
+ * Static content and display configuration for the profile hero section.
+ * Stack groups and fact badges are maintained locally in this file.
  */
 
 export const PROFILE_HERO_BACKGROUND = {
