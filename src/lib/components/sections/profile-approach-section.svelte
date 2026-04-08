@@ -280,7 +280,7 @@
 	height: 9px;
 	border-radius: 50%;
 	background: var(--cp-bg, #06060a);
-	border: 1px solid rgba(179, 0, 255, 0.4);
+	border: 1px solid var(--phase-dot, rgba(179, 0, 255, 0.4));
 	transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -295,10 +295,6 @@
 .papr__phase--purple { --phase-dot: rgba(179,   0, 255, 0.4); }
 .papr__phase--yellow { --phase-dot: rgba(255, 230,   0, 0.4); }
 .papr__phase--green  { --phase-dot: rgba(0,   255, 136, 0.4); }
-
-.papr__phase::before {
-	border-color: var(--phase-dot, rgba(179, 0, 255, 0.4));
-}
 
 .papr__phase-num {
 	font-family: var(--font-bionical, 'Courier Prime', monospace);

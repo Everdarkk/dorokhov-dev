@@ -61,7 +61,7 @@
 					<p class="pexp__card-desc">{service.desc}</p>
 
 					<!-- Tech pills -->
-					<ul class="pexp__card-stack" role="list" aria-label="Technologies used">
+					<ul class="pexp__card-stack" role="list" aria-label="Technologies: {service.title}">
 						{#each service.stack as tech (tech)}
 							<li class="pexp__pill">{tech}</li>
 						{/each}
