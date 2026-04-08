@@ -69,7 +69,7 @@
 
 			<ul class="ft-links" role="list">
 				<li>
-					<a href="/#profile" class="ft-link">Profile</a>
+					<a href="/profile" class="ft-link">Profile</a>
 				</li>
 				<li>
 					<a href="/deploys" class="ft-link">Deploys</a>

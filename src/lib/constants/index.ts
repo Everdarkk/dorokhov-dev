@@ -9,3 +9,4 @@ export * from './value-proposition';
 export * from './work-process';
 export * from './cta';
 export * from './deploys-hero';
+export * from './profile-hero';
