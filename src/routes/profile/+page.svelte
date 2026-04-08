@@ -1,5 +1,7 @@
 <script lang="ts">
-  import ProfileHero from "$lib/components/sections/profile-hero-section.svelte";
+  import ProfileHero     from "$lib/components/sections/profile-hero-section.svelte";
+  import ProfileExpertise from "$lib/components/sections/profile-expertise-section.svelte";
+  import ProfileApproach from "$lib/components/sections/profile-approach-section.svelte";
 </script>
 
 <svelte:head>
@@ -17,3 +19,5 @@
 
 <!-- STRUCTURE -->
 <ProfileHero />
+<ProfileExpertise />
+<ProfileApproach />
