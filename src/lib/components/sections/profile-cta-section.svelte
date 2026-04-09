@@ -14,11 +14,18 @@
 	 *   • No onMount / JS timers — zero manual cleanup burden.
 	 */
 
-	import { scrollReveal }     from '$lib/actions';
-	import CyberButton          from '$lib/components/common/cyber-button.svelte';
+	import { scrollReveal } from '$lib/actions';
+	import CyberButton from '$lib/components/common/cyber-button.svelte';
 	import { PROFILE_CTA_COPY } from '$lib/constants/profile-sections';
+	import ContactModal from '$lib/components/sections/contact-modal.svelte';
+
+
 
 	let sectionRevealed = false;
+
+	// ── Modal ref — opened imperatively ──────────────────────────────────────
+
+	let contactModal: ContactModal;
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════════════════
@@ -64,10 +71,10 @@
 		<!-- CTA action zone -->
 		<div class="pcta__action">
 			<CyberButton
-				href={PROFILE_CTA_COPY.ctaHref}
 				variant="primary"
 				size="lg"
 				ariaLabel="Contact Oleksandr Dorokhov to discuss your project"
+				on:click={() => contactModal.openModal()}
 			>
 				{PROFILE_CTA_COPY.ctaLabel}
 			</CyberButton>
@@ -79,6 +86,8 @@
 
 </section>
 
+<!-- Contact modal (renders in a portal-like fixed overlay) -->
+<ContactModal bind:this={contactModal} />
 
 <style>
 /* ═══════════════════════════════════════════════════════════════════════════
