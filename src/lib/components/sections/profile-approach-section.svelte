@@ -7,17 +7,82 @@
 	 * Right column: philosophy block + four differentiator points.
 	 *
 	 * Animation: scrollReveal action — phases stagger via CSS custom props.
-	 * Background: CSS-only, purple glow bottom-right for visual variety.
+	 * Background: desktop-only UrchinBackground, with a lightweight mobile SVG fallback.
 	 */
 
+	import { onMount } from 'svelte';
 	import { scrollReveal } from '$lib/actions';
+	import { BREAKPOINTS } from '$lib/config/breakpoints';
 	import {
 		PROFILE_APPROACH_COPY,
 		PROFILE_APPROACH_PHASES,
 		PROFILE_APPROACH_DIFFERENTIATORS,
 	} from '$lib/constants/profile-sections';
+	import UrchinBackground from '../backgrounds/urchin-background.svelte';
 
 	let sectionRevealed = false;
+	let showDesktopBackground = false;
+
+	const DESKTOP_BACKGROUND_QUERY = `(min-width: ${BREAKPOINTS.laptop}px) and (pointer: fine)`;
+
+	onMount(() => {
+		if (typeof window === 'undefined') return;
+
+		const mediaQuery = window.matchMedia(DESKTOP_BACKGROUND_QUERY);
+		let disposed = false;
+		let timeoutId: ReturnType<typeof setTimeout> | undefined;
+		let idleId: number | undefined;
+
+		const clearPendingReveal = () => {
+			if (idleId !== undefined && 'cancelIdleCallback' in window) {
+				window.cancelIdleCallback(idleId);
+				idleId = undefined;
+			}
+
+			if (timeoutId !== undefined) {
+				clearTimeout(timeoutId);
+				timeoutId = undefined;
+			}
+		};
+
+		const revealBackground = () => {
+			clearPendingReveal();
+			if (!disposed && mediaQuery.matches) {
+				showDesktopBackground = true;
+			}
+		};
+
+		const scheduleReveal = () => {
+			clearPendingReveal();
+
+			if (!mediaQuery.matches || showDesktopBackground) return;
+
+			if ('requestIdleCallback' in window) {
+				idleId = window.requestIdleCallback(revealBackground, { timeout: 500 });
+			} else {
+				timeoutId = setTimeout(revealBackground, 180);
+			}
+		};
+
+		const syncBackgroundMode = () => {
+			if (!mediaQuery.matches) {
+				clearPendingReveal();
+				showDesktopBackground = false;
+				return;
+			}
+
+			scheduleReveal();
+		};
+
+		syncBackgroundMode();
+		mediaQuery.addEventListener('change', syncBackgroundMode);
+
+		return () => {
+			disposed = true;
+			clearPendingReveal();
+			mediaQuery.removeEventListener('change', syncBackgroundMode);
+		};
+	});
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════════════════
@@ -28,11 +93,35 @@
 	use:scrollReveal={{ threshold: 0.05, onReveal: () => (sectionRevealed = true) }}
 	aria-labelledby="papr-heading"
 >
-	<!-- CRT scanlines -->
-	<div class="papr__scanlines" aria-hidden="true"></div>
+	<!-- Lightweight mobile fallback. Replace this SVG when the final mobile art is ready. -->
+	<div class="papr__bg-fallback" aria-hidden="true">
+		<svg
+			class="papr__bg-fallback-svg"
+			viewBox="0 0 600 600"
+			preserveAspectRatio="xMidYMid slice"
+			focusable="false"
+		>
+			<defs>
+				<radialGradient id="papr-mobile-glow" cx="50%" cy="50%" r="50%">
+					<stop offset="0%" stop-color="#b300ff" stop-opacity="0.22" />
+					<stop offset="65%" stop-color="#b300ff" stop-opacity="0.08" />
+					<stop offset="100%" stop-color="#b300ff" stop-opacity="0" />
+				</radialGradient>
+				<linearGradient id="papr-mobile-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
+					<stop offset="0%" stop-color="#00f5ff" stop-opacity="0.28" />
+					<stop offset="100%" stop-color="#b300ff" stop-opacity="0.32" />
+				</linearGradient>
+			</defs>
+			<circle cx="300" cy="300" r="168" fill="url(#papr-mobile-glow)" />
+			<circle cx="300" cy="300" r="128" fill="none" stroke="url(#papr-mobile-stroke)" stroke-width="1.5" opacity="0.7" />
+			<circle cx="300" cy="300" r="92" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="1" />
+			<path d="M300 132L300 468M132 300L468 300M190 190L410 410M410 190L190 410" stroke="url(#papr-mobile-stroke)" stroke-width="1" opacity="0.32" />
+		</svg>
+	</div>
 
-	<!-- Accent glow — bottom-right, purple tint -->
-	<div class="papr__glow" aria-hidden="true"></div>
+	{#if showDesktopBackground}
+		<UrchinBackground />
+	{/if}
 
 	<div class="papr__inner" class:is-revealed={sectionRevealed}>
 
@@ -104,30 +193,32 @@
 	overflow: hidden;
 }
 
-.papr__scanlines {
+.papr__bg-fallback {
 	position: absolute;
 	inset: 0;
-	background: repeating-linear-gradient(
-		to bottom,
-		transparent         0px,
-		transparent         3px,
-		rgba(0, 0, 0, 0.07) 3px,
-		rgba(0, 0, 0, 0.07) 4px
-	);
+	z-index: 0;
 	pointer-events: none;
-	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0.9;
+	background:
+		radial-gradient(circle at 50% 50%, rgba(179, 0, 255, 0.08) 0%, transparent 42%),
+		radial-gradient(circle at 50% 50%, rgba(0, 245, 255, 0.05) 0%, transparent 58%);
 }
 
-.papr__glow {
-	position: absolute;
-	inset: 0;
-	background: radial-gradient(
-		ellipse 50% 50% at 90% 85%,
-		rgba(179, 0, 255, 0.04) 0%,
-		transparent 70%
-	);
-	pointer-events: none;
-	z-index: 1;
+.papr__bg-fallback-svg {
+	width: min(78vw, 32rem);
+	height: auto;
+	max-height: 62vh;
+	filter: drop-shadow(0 0 32px rgba(179, 0, 255, 0.14));
+	opacity: 0.9;
+}
+
+@media (min-width: 1024px) and (pointer: fine) {
+	.papr__bg-fallback {
+		display: none;
+	}
 }
 
 .papr::before {
