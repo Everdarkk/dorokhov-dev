@@ -33,7 +33,7 @@
 		STEP_ACCENT_COLOR_MAP,
 	} from '$lib/constants/work-process'
 	import type { AccentColor } from '$lib/types'
-	import IconGlyph from '$lib/components/common/icon-glyph.svelte'
+	import IconGlyph from '../common/icon-glyph.svelte'
 
 	// ─── State ────────────────────────────────────────────────────────────────
 

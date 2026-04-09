@@ -7,7 +7,7 @@
 	import { menuItems } from '$lib/data/menu';
 	import { NAV_SCROLL, NAV_TRANSITION } from '$lib/constants/navigation';
 	import logoLight from '$lib/assets/images/logo-light.svg';
-	import IconGlyph from '$lib/components/common/icon-glyph.svelte';
+	import IconGlyph from '../common/icon-glyph.svelte';
 
 	const BODY_NO_SCROLL = 'navigation-mobile-menu-open';
 
