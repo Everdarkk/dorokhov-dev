@@ -603,9 +603,8 @@
 		font-size: 0.68rem;
 		color: rgba(226, 232, 240, 0.75);
 		letter-spacing: 0.04em;
-		white-space: wrap;
+		white-space: normal;
 		overflow: hidden;
-		text-overflow: ellipsis;
 	}
 
 	/* ─── Video ── */
