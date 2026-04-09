@@ -221,32 +221,6 @@
 	}
 }
 
-.papr__scanlines {
-	position: absolute;
-	inset: 0;
-	background: repeating-linear-gradient(
-		to bottom,
-		transparent         0px,
-		transparent         3px,
-		rgba(0, 0, 0, 0.07) 3px,
-		rgba(0, 0, 0, 0.07) 4px
-	);
-	pointer-events: none;
-	z-index: 1;
-}
-
-.papr__glow {
-	position: absolute;
-	inset: 0;
-	background: radial-gradient(
-		ellipse 50% 50% at 90% 85%,
-		rgba(179, 0, 255, 0.04) 0%,
-		transparent 70%
-	);
-	pointer-events: none;
-	z-index: 1;
-}
-
 .papr::before {
 	content: '';
 	position: absolute;

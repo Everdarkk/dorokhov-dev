@@ -14,7 +14,7 @@
 /* ── Geometry & appearance ──────────────────────────────────────────────────── */
 
 export const URCHIN_CONFIG = {
-  /** Number of spikes — 120 gives clean 3° angular step (TAU / 120) */
+  /** Number of spikes — 100 gives clean 3° angular step (TAU / 120) */
   spikeCount:   100,
 
   /** Shortest spike as a fraction of minDim */
@@ -62,7 +62,6 @@ export const URCHIN_CONFIG = {
 
   /**
    * Per-frame velocity decay [0–1].
-   * 0.87 → underdamped → 2-3 pleasant oscillations before settling.
    */
   damping:      0.5,
 } as const;

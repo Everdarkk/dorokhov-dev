@@ -2,7 +2,7 @@
 	/**
 	 * UrchinBackground — Canvas 2D tttwinkle-inspired radial spike field.
 	 *
-	 * Visual: 120 spikes radiate from the element centre at 3° intervals
+	 * Visual: 100 spikes radiate from the element centre at 3° intervals
 	 * (TAU / spikeCount). Each spike has a random half-length, opacity, and
 	 * colour. Opacities slowly oscillate per-spike (the "twinkle").
 	 *
@@ -39,8 +39,19 @@
 		URCHIN_COLOR_DIST,
 	} from '$lib/constants/urchin-background';
 
-	/** Override spike count (default: URCHIN_CONFIG.spikeCount = 120) */
+	/** Override spike count (default: URCHIN_CONFIG.spikeCount = 100) */
 	export let spikeCount: number = URCHIN_CONFIG.spikeCount;
+
+	// Keep spike count safe for geometry math and track prop-driven rebuilds.
+	let normalizedSpikeCount = Math.max(1, Math.round(spikeCount || 0));
+	let spikeConfigVersion = 0;
+	let loop: ReturnType<typeof createAnimationLoop> | undefined;
+
+	$: normalizedSpikeCount = Math.max(1, Math.round(spikeCount || 0));
+	$: if (normalizedSpikeCount >= 1) {
+		spikeConfigVersion += 1;
+		loop?.requestFrame();
+	}
 
 	let canvasEl: HTMLCanvasElement;
 	let destroyed = false;
@@ -51,6 +62,8 @@
 		const ctx      = canvasEl.getContext('2d')!;
 		const isCoarse = window.matchMedia('(pointer: coarse)').matches;
 		const dpr      = Math.min(window.devicePixelRatio || 1, isCoarse ? 1.2 : 1.5);
+		let activeSpikeCount = normalizedSpikeCount;
+		let seenSpikeConfigVersion = spikeConfigVersion;
 
 		let W = 0, H = 0;
 		let pendingW = 0, pendingH = 0;
@@ -58,8 +71,6 @@
 		// Cursor state in CSS pixels — null = no active cursor / pointer left
 		let cursorX: number | null = null;
 		let cursorY: number | null = null;
-
-		let loop: ReturnType<typeof createAnimationLoop> | undefined;
 
 		// ── Spike data model ─────────────────────────────────────────────────────
 
@@ -110,11 +121,11 @@
 		 * without requiring re-initialisation.
 		 */
 		function initSpikes(): void {
-			const angStep = TAU / spikeCount; // 3° for 120 spikes
+			const angStep = TAU / activeSpikeCount; // 3° for 120 spikes
 			const { minOpacity, maxOpacity, lineWidthMin, lineWidthMax,
 			        shimmerSpeed } = URCHIN_CONFIG;
 
-			spikes = Array.from({ length: spikeCount }, (_, i) => {
+			spikes = Array.from({ length: activeSpikeCount }, (_, i) => {
 				const angle       = i * angStep;
 				const halfLenFrac = Math.random(); // uniform random length
 
@@ -238,6 +249,12 @@
 		function tick({ shouldAnimate }: { shouldAnimate: boolean }): void {
 			if (destroyed) return;
 
+			if (seenSpikeConfigVersion !== spikeConfigVersion) {
+				seenSpikeConfigVersion = spikeConfigVersion;
+				activeSpikeCount = normalizedSpikeCount;
+				initSpikes();
+			}
+
 			// Apply pending resize
 			if (pendingW > 0) {
 				applyResize(pendingW, pendingH);
@@ -311,6 +328,7 @@
 		return () => {
 			destroyed = true;
 			loop?.destroy();
+			loop = undefined;
 			ro.disconnect();
 			parent.removeEventListener('pointermove', onPointerMove);
 			parent.removeEventListener('pointerleave', onPointerLeave);
