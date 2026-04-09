@@ -116,3 +116,19 @@ export const PROFILE_APPROACH_DIFFERENTIATORS = [
 	{ label: 'Flat-rate or milestone billing — no surprise invoices' },
 	{ label: 'Full code ownership transferred on completion' },
 ] as const;
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CTA — "TRANSMISSION_END"
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+export const PROFILE_CTA_COPY = {
+	sectionLabel:  'TRANSMISSION_END',
+	statusLabel:   'AVAILABLE FOR NEW PROJECTS',
+	headingLine1:  'Your Next Build',
+	headingLine2:  'Begins Here.',
+	subheading:    "Text me when you are ready to start. The future awaits!",
+	ctaLabel:      'INITIATE_CONTACT',
+	ctaHref:       '/#contact',
+	trustNote:     'Free consultation  ·  12h response  ·  No commitment',
+} as const;
