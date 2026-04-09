@@ -4,7 +4,8 @@
       "WebSearch",
       "WebFetch(domain:firecms.co)",
       "WebFetch(domain:alexharri.com)",
-      "Bash(npx svelte-check:*)"
+      "Bash(npx svelte-check:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

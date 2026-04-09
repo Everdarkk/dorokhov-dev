@@ -11,3 +11,4 @@ export * from './cta';
 export * from './deploys-hero';
 export * from './profile-hero';
 export * from './profile-sections';
+export * from './urchin-background';
