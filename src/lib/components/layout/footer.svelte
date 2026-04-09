@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	/**
 	 * Footer — site-wide layout component.
 	 *
@@ -32,7 +33,7 @@
 
 		<!-- ── Col 1: Brand ─────────────────────────────────────────────────── -->
 		<div class="ft-brand">
-			<a href="/" class="ft-logo" aria-label="Oleksandr Dorokhov — homepage">
+			<a href={resolve('/')} class="ft-logo" aria-label="Oleksandr Dorokhov — homepage">
 				<img
 					src={logoLight}
 					alt=""
@@ -69,10 +70,10 @@
 
 			<ul class="ft-links" role="list">
 				<li>
-					<a href="/profile" class="ft-link">Profile</a>
+					<a href={resolve('/profile')} class="ft-link">Profile</a>
 				</li>
 				<li>
-					<a href="/deploys" class="ft-link">Deploys</a>
+					<a href={resolve('/deploys')} class="ft-link">Deploys</a>
 				</li>
 			</ul>
 
@@ -81,7 +82,7 @@
 			<ul class="ft-links" role="list">
 				{#each SERVICES as service (service.id)}
 					<li>
-						<a href={"/#service-" + service.id} class="ft-link">{service.title}</a>
+						<a href={resolve(`/#service-${service.id}`)} class="ft-link">{service.title}</a>
 					</li>
 				{/each}
 			</ul>
@@ -165,7 +166,7 @@
 			</ul>
 
 			<!-- Mini CTA -->
-			<a href="/#contact" class="ft-cta" aria-label="Start a project — go to contact section">
+			<a href={resolve('/#contact')} class="ft-cta" aria-label="Start a project — go to contact section">
 				<span>Start a Project</span>
 				<svg viewBox="0 0 16 16" fill="none" aria-hidden="true" width="13" height="13">
 					<path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>

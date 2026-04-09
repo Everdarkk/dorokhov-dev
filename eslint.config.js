@@ -32,5 +32,11 @@ export default defineConfig(
 				svelteConfig
 			}
 		}
+	},
+	{
+		files: ['src/lib/components/common/cyber-button.svelte'],
+		rules: {
+			'svelte/no-navigation-without-resolve': 'off'
+		}
 	}
 );

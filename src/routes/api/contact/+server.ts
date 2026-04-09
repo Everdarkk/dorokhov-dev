@@ -33,6 +33,12 @@ function getAllowedOrigins(): Set<string> {
 	);
 }
 
+function isAllowedOrigin(origin: string, requestOrigin: string, allowed: Set<string>): boolean {
+	if (!origin) return true;
+	if (origin === requestOrigin) return true;
+	return allowed.has(origin);
+}
+
 function getSmtpConfig(): SmtpConfig {
 	const { SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS, SMTP_FROM, CONTACT_TO } = env;
 
@@ -62,13 +68,16 @@ function getClientIp(request: Request): string {
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, url }) => {
 	// ── 1. Origin check ────────────────────────────────────────────────────────
 	const origin = request.headers.get('origin') ?? '';
 	const allowed = getAllowedOrigins();
 
-	// Allow same-origin requests (origin header absent) and listed origins.
-	if (origin && allowed.size > 0 && !allowed.has(origin)) {
+	if (!isAllowedOrigin(origin, url.origin, allowed)) {
+		throw error(403, 'Forbidden');
+	}
+
+	if (request.headers.get('x-requested-with') !== 'XMLHttpRequest') {
 		throw error(403, 'Forbidden');
 	}
 

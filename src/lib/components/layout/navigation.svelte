@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { resolve } from '$app/paths';
 	import { fly, fade } from 'svelte/transition';
 	import { cubicInOut } from 'svelte/easing';
 	import { reducedMotion } from '$lib/stores';
 	import { menuItems } from '$lib/data/menu';
 	import { NAV_SCROLL, NAV_TRANSITION } from '$lib/constants/navigation';
 	import logoLight from '$lib/assets/images/logo-light.svg';
+	import IconGlyph from '$lib/components/common/icon-glyph.svelte';
 
 	const BODY_NO_SCROLL = 'navigation-mobile-menu-open';
 
@@ -102,7 +104,7 @@
 	<nav class="pill" aria-label="Main navigation">
 
 		<!-- ── Logo ───────────────────────────────────────── -->
-		<a href="/" class="logo" aria-label="Go to homepage">
+		<a href={resolve('/')} class="logo" aria-label="Go to homepage">
 			<img src={logoLight} class="logo-img" alt="" loading="eager" decoding="async" />
 			<span class="logo-name">
 				<span class="logo-first">Oleksandr</span>
@@ -117,8 +119,8 @@
 		<ul class="nav-links" role="list">
 			{#each menuItems as item (item.id)}
 				<li>
-					<a href={item.href} class="nav-link" aria-label={item.label}>
-						<span class="link-icon" aria-hidden="true">{@html item.icon}</span>
+					<a href={resolve(item.href)} class="nav-link" aria-label={item.label}>
+						<span class="link-icon" aria-hidden="true"><IconGlyph name={item.icon} size={14} /></span>
 						<span>{item.label}</span>
 					</a>
 				</li>
@@ -128,7 +130,7 @@
 		<!-- ── Actions ────────────────────────────────────── -->
 		<div class="nav-actions">
 			<!-- Hire Me CTA button -->
-			<a href="/#contact" class="hire-btn" aria-label="Hire me — go to contact section">
+			<a href={resolve('/#contact')} class="hire-btn" aria-label="Hire me — go to contact section">
 				<span>Hire Me</span>
 				<svg class="hire-arrow" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
 			</a>
@@ -182,12 +184,12 @@
 					style:animation-delay="{$reducedMotion ? 0 : i * NAV_TRANSITION.ITEM_STAGGER_MS}ms"
 				>
 					<a
-						href={item.href}
+						href={resolve(item.href)}
 						class="drawer-link"
 						onclick={closeMobileMenu}
 					>
 						<span class="drawer-index" aria-hidden="true">0{i + 1}</span>
-						<span class="drawer-icon" aria-hidden="true">{@html item.icon}</span>
+						<span class="drawer-icon" aria-hidden="true"><IconGlyph name={item.icon} size={14} /></span>
 						<span class="drawer-label-text">{item.label}</span>
 						<svg class="drawer-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
 					</a>
@@ -197,7 +199,7 @@
 
 		<!-- Hire Me CTA -->
 		<div class="drawer-cta">
-			<a href="#contact" class="drawer-cta-btn" onclick={closeMobileMenu}>
+			<a href={resolve('/#contact')} class="drawer-cta-btn" onclick={closeMobileMenu}>
 				<span>Hire Me</span>
 				<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
 			</a>

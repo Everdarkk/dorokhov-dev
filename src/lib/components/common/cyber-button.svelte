@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	/**
 	 * CyberButton — reusable action button for all sections.
 	 *
@@ -23,7 +24,7 @@
 	export let color: string = '';
 
 	/** If set, renders as <a href="..."> instead of <button> */
-	export let href: string = '';
+	export let href: '' | '/' | '/profile' | '/deploys' | '/#contact' = '';
 
 	/** <button type> — ignored when href is set */
 	export let type: 'button' | 'submit' | 'reset' = 'button';
@@ -44,6 +45,7 @@
 
 	$: isDisabled = disabled || loading;
 	$: tag = href && !isDisabled ? 'a' : 'button';
+	$: resolvedHref = href ? resolve(href) : href;
 
 	/** Inline style used only when `color` prop overrides the variant default */
 	$: inlineStyle = color ? `--btn-accent: ${color};` : '';
@@ -52,7 +54,7 @@
 <!-- Render as <a> or <button> depending on props -->
 {#if tag === 'a'}
 	<a
-		{href}
+		href={resolvedHref}
 		class="cyber-btn cyber-btn--{variant} cyber-btn--{size}"
 		class:is-disabled={isDisabled}
 		style={inlineStyle}

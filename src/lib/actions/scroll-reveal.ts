@@ -65,7 +65,7 @@ export function scrollReveal(
 
 	return {
 		// Called by Svelte when the action options change reactively
-		update(newOptions: ScrollRevealOptions) {
+		update() {
 			// Nothing to do for once-only reveals; extend if you need dynamic thresholds.
 		},
 		// Called by Svelte on component destroy
