@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 import 'svelte/elements';

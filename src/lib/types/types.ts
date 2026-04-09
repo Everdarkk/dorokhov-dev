@@ -8,8 +8,8 @@ export type { Breakpoint }  from '$lib/config/breakpoints';
 export interface MenuItem {
 id: number;
 label: string;
-href: string;
-icon: string;
+href: '/profile' | '/deploys';
+icon: 'profile' | 'deploys';
 }
 
 // ─── Interaction / Actions ────────────────────────────────────────────────────

@@ -31,9 +31,9 @@
 		WORK_STEPS,
 		WP_ANIMATION_CONFIG,
 		STEP_ACCENT_COLOR_MAP,
-		WORK_STEP_ICONS,
 	} from '$lib/constants/work-process'
 	import type { AccentColor } from '$lib/types'
+	import IconGlyph from '$lib/components/common/icon-glyph.svelte'
 
 	// ─── State ────────────────────────────────────────────────────────────────
 
@@ -92,13 +92,6 @@
 		}, 520);
 	}
 
-	// ─── Keyboard ─────────────────────────────────────────────────────────────
-
-	function onKeyDown(e: KeyboardEvent): void {
-		if (e.key === 'ArrowRight') navigate('next');
-		if (e.key === 'ArrowLeft')  navigate('prev');
-	}
-
 	// ─── Touch / swipe ────────────────────────────────────────────────────────
 
 	function onTouchStart(e: TouchEvent): void {
@@ -118,10 +111,6 @@
 
 	function colorVar(color: AccentColor): string {
 		return STEP_ACCENT_COLOR_MAP[color];
-	}
-
-	function getStepIcon(name: string): string {
-		return WORK_STEP_ICONS[name] ?? WORK_STEP_ICONS.code;
 	}
 
 	const handleSectionReveal = () => (sectionVisible = true);
@@ -209,7 +198,7 @@
 
 						<!-- Icon -->
 						<div class="wp-slide__icon" aria-hidden="true">
-							{@html getStepIcon(step.icon)}
+							<IconGlyph name={step.icon} size={36} />
 						</div>
 
 						<!-- Title & subtitle -->

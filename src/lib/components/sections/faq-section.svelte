@@ -212,7 +212,6 @@
 				{@const accent = accentVar(item.accent)}
 				{@const isOpen = state.running || state.done}
 
-				<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 				<article
 					class="faq-terminal"
 					class:is-open={isOpen}

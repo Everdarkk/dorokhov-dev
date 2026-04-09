@@ -110,7 +110,12 @@ export function checkRateLimit(ip: string): boolean {
 export function sanitise(raw: string, maxLen: number): string {
 	return raw
 		.replace(/<[^>]*>/g, '')           // strip HTML
-		.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, '') // strip control chars
+		.split('')
+		.filter((char) => {
+			const code = char.charCodeAt(0);
+			return !((code >= 0 && code <= 8) || code === 11 || code === 12 || (code >= 14 && code <= 31) || code === 127);
+		})
+		.join('')
 		.trim()
 		.slice(0, maxLen);
 }

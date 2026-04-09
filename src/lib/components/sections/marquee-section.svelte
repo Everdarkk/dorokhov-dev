@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import type { MarqueeItem } from '$lib/types';
-	import { DEFAULT_MARQUEE_ITEMS, MARQUEE_ICONS } from '$lib/constants/marquee';
+	import { DEFAULT_MARQUEE_ITEMS } from '$lib/constants/marquee';
+	import IconGlyph from '$lib/components/common/icon-glyph.svelte';
 
 	// ─── Props ────────────────────────────────────────────────────────────────
 
@@ -145,7 +146,7 @@
 			<div class="mq-set" bind:this={setAEl}>
 				{#each resolvedItems as item (item.id + '-0')}
 					<div class="mq-card mq-card--{item.color}">
-						<div class="mq-card__icon">{@html MARQUEE_ICONS[item.icon] ?? MARQUEE_ICONS.development}</div>
+						<div class="mq-card__icon"><IconGlyph name={item.icon} size={24} /></div>
 						<span class="mq-card__label">{item.label}</span>
 					</div>
 				{/each}
@@ -158,11 +159,11 @@
 				so the visible area always contains at least one full set
 				with more sets extending to the right — no gap, no flicker.
 			-->
-			{#each { length: setCopies - 1 } as _, i (i)}
+			{#each Array.from({ length: setCopies - 1 }, (_, index) => index) as i (i)}
 				<div class="mq-set" aria-hidden="true">
 					{#each resolvedItems as item (item.id + '-' + (i + 1))}
 						<div class="mq-card mq-card--{item.color}">
-							<div class="mq-card__icon">{@html MARQUEE_ICONS[item.icon] ?? MARQUEE_ICONS.development}</div>
+							<div class="mq-card__icon"><IconGlyph name={item.icon} size={24} /></div>
 							<span class="mq-card__label">{item.label}</span>
 						</div>
 					{/each}

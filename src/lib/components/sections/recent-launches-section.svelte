@@ -9,7 +9,6 @@
 	// ─── State ────────────────────────────────────────────────────────────────
 
 	let activeId = PROJECTS[0].id;
-	let prevId   = '';
 	let transitioning = false;
 	let visible = false;       // driven by scrollReveal action
 	let videoEl: HTMLVideoElement | undefined;
@@ -24,13 +23,15 @@
 		return COLOR_MAP[color].primary;
 	}
 
+	function openProject(url: string): void {
+		window.open(url, '_blank', 'noopener,noreferrer');
+	}
+
 	// ─── Project switch — cross-fade with brief lock ───────────────────────────
 
 	function selectProject(id: string): void {
 		if (id === activeId || transitioning) return;
 		transitioning = true;
-		prevId        = activeId;
-
 		if (switchTimeout !== null) {
 			clearTimeout(switchTimeout);
 			switchTimeout = null;
@@ -42,7 +43,6 @@
 
 		switchTimeout = setTimeout(() => {
 			activeId      = id;
-			prevId        = '';
 			unlockTimeout = setTimeout(() => {
 				transitioning = false;
 				unlockTimeout = null;
@@ -160,11 +160,10 @@
 							</div>
 
 							{#if active.url}
-								<a
+								<button
+									type="button"
 									class="rl-detail__link"
-									href={active.url}
-									target="_blank"
-									rel="noopener noreferrer"
+									on:click={() => openProject(active.url)}
 									aria-label="Visit {active.name}"
 								>
 									<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -173,7 +172,7 @@
 										<line x1="14" y1="2" x2="8" y2="8"/>
 									</svg>
 									VISIT_SITE →
-								</a>
+								</button>
 							{/if}
 						</div>
 
@@ -196,7 +195,6 @@
 							<div class="rl-video-wrap">
 								<div class="rl-video-frame" aria-hidden="true"></div>
 								<div class="rl-video-label" aria-hidden="true">SCREEN_CAPTURE.mp4</div>
-								<!-- svelte-ignore a11y-media-has-caption -->
 								<video
 									bind:this={videoEl}
 									class="rl-video"

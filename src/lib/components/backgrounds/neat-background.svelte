@@ -30,7 +30,6 @@
    */
 
   import { onMount } from 'svelte';
-  import { browser }            from '$app/environment';
   import { reducedMotion }      from '$lib/stores/motion';
   import { createAnimationLoop } from '$lib/utils';
 
@@ -94,6 +93,7 @@
   }
 
   let colorFlat = buildColorFlat();
+  // eslint-disable-next-line svelte/no-immutable-reactive-statements
   $: colorFlat = buildColorFlat();
 
   // ── GLSL ──────────────────────────────────────────────────────────────────
@@ -334,8 +334,6 @@
 
     // Animation gate: only animate when motion is allowed, tab is visible,
     // and this instance is actually in the viewport.
-    let isInViewport = true;
-
     // Pending canvas dimensions from ResizeObserver.
     // We intentionally do NOT resize the canvas inside the ResizeObserver
     // callback. Resizing canvas.width/height clears the WebGL surface
