@@ -6,12 +6,14 @@
   import ProfileCta      from "$lib/components/sections/profile-cta-section.svelte";
 
   let { data } = $props();
+  const FALLBACK_SITE_URL = 'https://od.business';
+  const siteUrl = $derived((data?.siteUrl ?? FALLBACK_SITE_URL).replace(/\/$/, ''));
 
   const title = "Oleksandr Dorokhov - Full-Stack Developer & Web Architect";
   const description =
     "Full-stack developer based in Ukraine and available for remote projects worldwide. Expert in SvelteKit, Next.js, TypeScript, and PostgreSQL, building fast and scalable web experiences.";
-  const canonicalUrl = $derived(new URL(page.url.pathname, data.siteUrl).toString());
-  const ogImageUrl = $derived(new URL('/og-image.png', data.siteUrl).toString());
+  const canonicalUrl = $derived(new URL(page.url.pathname, siteUrl).toString());
+  const ogImageUrl = $derived(new URL('/og-image.png', siteUrl).toString());
 </script>
 
 <svelte:head>

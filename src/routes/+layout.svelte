@@ -13,9 +13,12 @@
 	const DEFAULT_DESCRIPTION =
 		'Professional full-stack developer building fast, scalable websites and web apps. Custom solutions with authentication, databases, and modern UI.'
 	const DEFAULT_OG_IMAGE = '/og-image.png'
+	const FALLBACK_SITE_URL = 'https://od.business'
 
-	const canonicalUrl = $derived(new URL(page.url.pathname, data.siteUrl).toString())
-	const ogImageUrl = $derived(new URL(DEFAULT_OG_IMAGE, data.siteUrl).toString())
+	const siteUrl = $derived((data?.siteUrl ?? FALLBACK_SITE_URL).replace(/\/$/, ''))
+
+	const canonicalUrl = $derived(new URL(page.url.pathname, siteUrl).toString())
+	const ogImageUrl = $derived(new URL(DEFAULT_OG_IMAGE, siteUrl).toString())
 
 	onMount(() => {
 		let disposed = false
@@ -75,7 +78,7 @@
 			'@type': 'Person',
 			name: 'Oleksandr Dorokhov',
 			jobTitle: 'Full-Stack Developer',
-			url: data.siteUrl,
+			url: siteUrl,
 			sameAs: [
 				'https://github.com/Everdarkk',
 				'https://www.linkedin.com/in/oleksandr-dorokhov-632b59303/',

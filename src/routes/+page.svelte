@@ -10,12 +10,14 @@
   import Cta from "$lib/components/sections/cta-section.svelte";
 
   let { data } = $props();
+  const FALLBACK_SITE_URL = 'https://od.business';
+  const siteUrl = $derived((data?.siteUrl ?? FALLBACK_SITE_URL).replace(/\/$/, ''));
 
   const title = "Custom Website Development - Fast, Modern, Results-Driven";
   const description =
     "Professional full-stack developer building fast, scalable websites and web apps. Custom solutions with authentication, databases, and modern UI.";
-  const canonicalUrl = $derived(new URL(page.url.pathname, data.siteUrl).toString());
-  const ogImageUrl = $derived(new URL('/og-image.png', data.siteUrl).toString());
+  const canonicalUrl = $derived(new URL(page.url.pathname, siteUrl).toString());
+  const ogImageUrl = $derived(new URL('/og-image.png', siteUrl).toString());
 </script>
 
 <svelte:head>
@@ -35,7 +37,7 @@
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: 'Oleksandr Dorokhov',
-      url: data.siteUrl,
+      url: siteUrl,
       description,
       inLanguage: 'en'
     })}

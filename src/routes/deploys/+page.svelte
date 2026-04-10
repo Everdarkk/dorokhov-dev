@@ -4,12 +4,14 @@
   import RecentLaunches from "$lib/components/sections/recent-launches-section.svelte";
 
   let { data } = $props();
+  const FALLBACK_SITE_URL = 'https://od.business';
+  const siteUrl = $derived((data?.siteUrl ?? FALLBACK_SITE_URL).replace(/\/$/, ''));
 
   const title = "Project Archive - Shipped Web Applications | Oleksandr Dorokhov";
   const description =
     "A showcase of shipped web applications, including personal brand sites, artist portfolios, full-stack social platforms, AI-powered tools, and live client projects.";
-  const canonicalUrl = $derived(new URL(page.url.pathname, data.siteUrl).toString());
-  const ogImageUrl = $derived(new URL('/og-image.png', data.siteUrl).toString());
+  const canonicalUrl = $derived(new URL(page.url.pathname, siteUrl).toString());
+  const ogImageUrl = $derived(new URL('/og-image.png', siteUrl).toString());
 </script>
 
 <svelte:head>
@@ -31,7 +33,7 @@
       name: title,
       description,
       url: canonicalUrl,
-      isPartOf: data.siteUrl
+      isPartOf: siteUrl
     })}
   </script>
 </svelte:head>
