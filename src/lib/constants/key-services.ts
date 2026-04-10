@@ -22,7 +22,7 @@ export const SERVICES: Service[] = [
 			{ name: 'SvelteKit', tag: 'SVK' },
 			{ name: 'Figma',     tag: 'FIG' },
 			{ name: 'Vercel',    tag: 'VCL' },
-			{ name: 'Framer',    tag: 'FRM' },
+			{ name: 'Relume',    tag: 'RLM' },
 		],
 		icon: 'landing',
 	},
@@ -44,9 +44,11 @@ export const SERVICES: Service[] = [
 		],
 		tools: [
 			{ name: 'TypeScript', tag: 'TS'  },
-			{ name: 'Node.js',    tag: 'NOD' },
+			{ name: 'Express',    tag: 'EXP' },
 			{ name: 'Postgres',   tag: 'PG'  },
-			{ name: 'Refine',   tag: 'RFN'  },
+			{ name: 'Next.JS',   tag: 'NXT'  },
+			{ name: 'Vercel',    tag: 'VCL' },
+			{ name: 'Railway',  tag: 'RLW' }
 		],
 		icon: 'dashboard',
 	},
@@ -69,7 +71,7 @@ export const SERVICES: Service[] = [
 		tools: [
 			{ name: 'Figma',      tag: 'FIG' },
 			{ name: 'Tokens',     tag: 'TOK' },
-			{ name: 'Animations',     tag: 'ANI' },
+			{ name: 'Animations', tag: 'ANI' },
 			{ name: 'Prototyping',tag: 'PTY' },
 		],
 		icon: 'design',

@@ -24,8 +24,9 @@ export const PROFILE_HERO_COPY = {
 		role: 'Full-Stack Developer',
 	},
 	bio: [
-		'Full-Stack Developer and Web Architect specialising in high-performance, conversion-focused web experiences. Expert in SvelteKit, Next.js, and TypeScript - building everything from pixel-perfect UIs to scalable APIs and PostgreSQL schemas.',
-		'Every project follows a clear five-phase process: Discovery -> Design -> Development -> Launch -> Support. Shipped five production applications across client work and personal builds in 2025-2026. Available for remote engagements across Europe and beyond.',
+  	'Full-Stack Developer focused on building fast, scalable, and conversion-driven web products. I specialise in modern web development with Next.js, TypeScript, and performance-first architecture.',
+  
+  	'My work is centered around delivering real results — faster load times, better SEO visibility, and higher conversion rates. I design and develop websites that not only look good but actively support business growth. Every project is tailor-crafted quality.',
 	],
 } as const;
 
@@ -70,9 +71,9 @@ export const PROFILE_STACK_GROUPS = [
 ] as const;
 
 export const PROFILE_FACTS = [
-	{ value: '5',    label: 'Projects Shipped' },
-	{ value: '12h',  label: 'Avg Response'     },
-	{ value: '3×',   label: 'Perf. Gain'       },
+	{ value: 'x2', label: 'Avg. Conversion Impact' },
+	{ value: '90+', label: 'Lighthouse Score' },
+	{ value: '100%', label: 'SEO Ready' },
 ] as const;
 
 export type ProfileStackAccent = (typeof PROFILE_STACK_GROUPS)[number]['accent'];

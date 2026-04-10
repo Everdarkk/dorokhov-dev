@@ -18,11 +18,20 @@ export const DATA_STREAM_MESSAGES: string[] = [
  * Random messages displayed periodically in the data stream
  */
 export const RANDOM_MESSAGES: string[] = [
-	'> Scanning portfolio assets...',
-	'> Updating skill matrix...',
-	'> Buffering experience data...',
-	'> Refreshing project cache...',
-	'> Syncing web presence...',
+	'> Compiling components...',
+	'> Optimizing bundle size...',
+	'> Running performance checks...',
+	'> Validating accessibility...',
+	'> Resolving dependencies...',
+	'> Hydrating UI...',
+	'> Increasing conversion rate...',
+	'> Enhancing user experience...',
+	'> Reducing bounce rate...',
+	'> Improving engagement metrics...',
+	'> Executing...',
+	'> Processing...',
+	'> Done.',
+	'> Awaiting input...',
 	'> > _'
 ];
 

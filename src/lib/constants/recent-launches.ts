@@ -20,7 +20,7 @@ export const PROJECTS: Project[] = [
     url: 'https://alinadorokhova.com',
     color: 'cyan',
     description:
-      'A personal website built from scratch for a real client — designed in Figma and shipped solo in ~10 days. Features email contact via EmailJS, auto-generated sitemap for SEO, and smooth SVG asset rendering. Deployed on Vercel with a custom GoDaddy domain.',
+      'A personal website built from scratch for a real client — designed in Figma and shipped solo in ~10 days. Features email contact via EmailJS, auto-generated sitemap for SEO, and smooth SVG asset rendering.',
     keys: [
       { label: 'Stack',    value: 'Next.js 15 · React 19 · TypeScript · Tailwind 4' },
       { label: 'Features', value: 'EmailJS · next-sitemap · SVG support' },
@@ -39,7 +39,7 @@ export const PROJECTS: Project[] = [
     url: 'https://oleksandr-moskin.vercel.app',
     color: 'pink',
     description:
-      'A portfolio website for a modern Ukrainian artist, crafted with meticulous attention to visual detail across 73 commits. Framer Motion animations give the gallery a cinematic, immersive feel that complements the artwork.',
+      'A portfolio website for a modern Ukrainian artist, crafted with meticulous attention to visual detail across 73 commits. Motion animations give the gallery a cinematic, immersive feel that complements the artwork.',
     keys: [
       { label: 'Stack',    value: 'Next.js 15 · React 19 · TypeScript · CSS' },
       { label: 'Anim',     value: 'Framer Motion · cinematic transitions' },
@@ -96,7 +96,7 @@ export const PROJECTS: Project[] = [
     url: 'https://terno-top.vercel.app',
     color: 'green',
     description:
-      'A production client website for a Ternopil-based audience — the most actively maintained project with 86 commits. Integrates Google Maps for location features, Supabase SSR for data, and Nodemailer for server-side contact form handling.',
+      'A production client website for a Ternopil-based audience — the most actively maintained project with 86 commits. Integrates Google Maps for location features, Supabase SSR for data, and Nodemailer for server-side contact form handling. Features the secured admin room for blog.',
     keys: [
       { label: 'Stack',    value: 'Next.js 16 · React 19 · TypeScript' },
       { label: 'Backend',  value: 'Supabase SSR · Auth · Nodemailer' },

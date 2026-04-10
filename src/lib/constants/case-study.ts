@@ -24,7 +24,7 @@ export const TERNO_TOP_DATA: CaseStudyData = {
 			id: 'pagespeed',
 			label: 'PageSpeed Score',
 			sublabel: 'Google Lighthouse',
-			before: '58',
+			before: '47',
 			endValue: 96,
 			format: (n) => String(n),
 			color: 'var(--cp-yellow, #ffe600)'

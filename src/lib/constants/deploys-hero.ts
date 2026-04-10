@@ -6,9 +6,9 @@
  */
 
 export const DEPLOYS_HERO_STATS = [
-	{ value: '5',    label: 'Projects Shipped' },
-	{ value: '3',    label: 'Client Projects'  },
-	{ value: '100%', label: 'Live & Deployed'  },
+	{ value: 'x2',   label: 'Avg. Conversion Impact' },
+	{ value: '90+', label: 'Lighthouse Score' },
+	{ value: '100%', label: 'SEO Ready' },
 ] as const;
 
 export const DEPLOYS_HERO_TAGS = [

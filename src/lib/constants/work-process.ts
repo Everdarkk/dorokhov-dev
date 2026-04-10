@@ -23,7 +23,7 @@ export const WORK_STEPS: WorkStep[] = [
 		processCode: 'DRAW_0x02',
 		accentColor: 'pink',
 		icon:        'pen',
-		tools:       ['Figma', 'Lottie', 'Tokens'],
+		tools:       ['Figma', 'Relume', 'Dribbble'],
 	},
 	{
 		id:          'development',
@@ -34,7 +34,7 @@ export const WORK_STEPS: WorkStep[] = [
 		processCode: 'BUILD_0x03',
 		accentColor: 'purple',
 		icon:        'code',
-		tools:       ['SvelteKit', 'Next.JS', 'TypeScript', 'Node/Express', 'Postgres'],
+		tools:       ['SvelteKit', 'Next.JS', 'TypeScript', 'Node/Express', 'Postgres', 'DevTools'],
 	},
 	{
 		id:          'launch',
@@ -45,7 +45,7 @@ export const WORK_STEPS: WorkStep[] = [
 		processCode: 'EXEC_0x04',
 		accentColor: 'yellow',
 		icon:        'rocket',
-		tools:       ['Vercel', 'Docker', 'Railway', 'Analytics'],
+		tools:       ['Vercel', 'GitHub', 'Railway', 'Analytics', 'DevTools'],
 	},
 	{
 		id:          'support',
@@ -56,7 +56,7 @@ export const WORK_STEPS: WorkStep[] = [
 		processCode: 'KEEP_0x05',
 		accentColor: 'green',
 		icon:        'shield',
-		tools:       ['GitHub', 'Linear', 'Uptime', 'Retainer'],
+		tools:       ['GitHub', 'Linear', 'Uptime', 'Retainer', 'DevTools'],
 	},
 ];
 
