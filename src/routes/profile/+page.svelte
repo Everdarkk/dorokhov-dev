@@ -28,19 +28,17 @@
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImageUrl} />
 
-  <script type="application/ld+json">
-    {JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'ProfilePage',
-      name: title,
-      description,
-      url: canonicalUrl,
-      mainEntity: {
-        '@type': 'Person',
-        name: 'Oleksandr Dorokhov'
-      }
-    })}
-  </script>
+  {@html `<script type="application/ld+json">${JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    name: title,
+    description,
+    url: canonicalUrl,
+    mainEntity: {
+      '@type': 'Person',
+      name: 'Oleksandr Dorokhov'
+    }
+  })}</script>`}
 </svelte:head>
 
 <!-- STRUCTURE -->

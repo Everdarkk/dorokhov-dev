@@ -26,16 +26,14 @@
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImageUrl} />
 
-  <script type="application/ld+json">
-    {JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'CollectionPage',
-      name: title,
-      description,
-      url: canonicalUrl,
-      isPartOf: siteUrl
-    })}
-  </script>
+  {@html `<script type="application/ld+json">${JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    description,
+    url: canonicalUrl,
+    isPartOf: siteUrl
+  })}</script>`}
 </svelte:head>
 
 <!-- STRUCTURE -->

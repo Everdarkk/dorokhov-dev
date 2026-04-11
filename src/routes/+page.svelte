@@ -32,16 +32,14 @@
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImageUrl} />
 
-  <script type="application/ld+json">
-    {JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      name: 'Oleksandr Dorokhov',
-      url: siteUrl,
-      description,
-      inLanguage: 'en'
-    })}
-  </script>
+  {@html `<script type="application/ld+json">${JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Oleksandr Dorokhov',
+    url: siteUrl,
+    description,
+    inLanguage: 'en'
+  })}</script>`}
 </svelte:head>
 
 <!-- STRUCTURE -->

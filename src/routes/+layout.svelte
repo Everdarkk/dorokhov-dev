@@ -72,20 +72,18 @@
 	<meta name="theme-color" content="#0f172a" />
 	<meta name="format-detection" content="telephone=no" />
 
-	<script type="application/ld+json">
-		{JSON.stringify({
-			'@context': 'https://schema.org',
-			'@type': 'Person',
-			name: 'Oleksandr Dorokhov',
-			jobTitle: 'Full-Stack Developer',
-			url: siteUrl,
-			sameAs: [
-				'https://github.com/Everdarkk',
-				'https://www.linkedin.com/in/oleksandr-dorokhov-632b59303/',
-				'https://t.me/everdarkk'
-			]
-		})}
-	</script>
+	{@html `<script type="application/ld+json">${JSON.stringify({
+		'@context': 'https://schema.org',
+		'@type': 'Person',
+		name: 'Oleksandr Dorokhov',
+		jobTitle: 'Full-Stack Developer',
+		url: siteUrl,
+		sameAs: [
+			'https://github.com/Everdarkk',
+			'https://www.linkedin.com/in/oleksandr-dorokhov-632b59303/',
+			'https://t.me/everdarkk'
+		]
+	})}</script>`}
 </svelte:head>
 
 
