@@ -3,16 +3,19 @@ import type { RequestHandler } from './$types';
 
 const FALLBACK_SITE_URL = 'https://od.business';
 
-const pages = ['/', '/profile', '/deploys'];
+const pages: { path: string; lastmod: string; changefreq: string; priority: string }[] = [
+	{ path: '/',        lastmod: '2026-01-10', changefreq: 'weekly',  priority: '1.0' },
+	{ path: '/profile', lastmod: '2026-01-10', changefreq: 'monthly', priority: '0.8' },
+	{ path: '/deploys', lastmod: '2026-01-10', changefreq: 'monthly', priority: '0.9' },
+];
 
 export const prerender = true;
 
 export const GET: RequestHandler = () => {
 	const siteUrl = (env.PUBLIC_SITE_URL || FALLBACK_SITE_URL).replace(/\/$/, '');
-	const updatedAt = new Date().toISOString();
 
 	const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages
-		.map((path) => `  <url>\n    <loc>${siteUrl}${path}</loc>\n    <lastmod>${updatedAt}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>${path === '/' ? '1.0' : '0.8'}</priority>\n  </url>`)
+		.map((p) => `  <url>\n    <loc>${siteUrl}${p.path}</loc>\n    <lastmod>${p.lastmod}</lastmod>\n    <changefreq>${p.changefreq}</changefreq>\n    <priority>${p.priority}</priority>\n  </url>`)
 		.join('\n')}\n</urlset>`;
 
 	return new Response(body, {

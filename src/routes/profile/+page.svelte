@@ -20,10 +20,16 @@
   <title>{title}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={canonicalUrl} />
+  <meta property="og:type" content="profile" />
+  <meta property="og:profile:first_name" content="Oleksandr" />
+  <meta property="og:profile:last_name" content="Dorokhov" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:image" content={ogImageUrl} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImageUrl} />
@@ -36,8 +42,27 @@
     url: canonicalUrl,
     mainEntity: {
       '@type': 'Person',
-      name: 'Oleksandr Dorokhov'
+      name: 'Oleksandr Dorokhov',
+      jobTitle: 'Full-Stack Developer',
+      description,
+      url: siteUrl,
+      knowsAbout: ['Web Development', 'SvelteKit', 'Next.js', 'TypeScript', 'PostgreSQL', 'Full-Stack Development', 'UI/UX Design'],
+      knowsLanguage: ['English', 'Ukrainian'],
+      sameAs: [
+        'https://github.com/Everdarkk',
+        'https://www.linkedin.com/in/oleksandr-dorokhov-632b59303/',
+        'https://t.me/everdarkk'
+      ]
     }
+  })}</script>`}
+
+  {@html `<script type="application/ld+json">${JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Profile', item: canonicalUrl }
+    ]
   })}</script>`}
 </svelte:head>
 

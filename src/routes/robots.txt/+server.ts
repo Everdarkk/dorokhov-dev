@@ -11,6 +11,7 @@ export const GET: RequestHandler = () => {
 	const body = [
 		'User-agent: *',
 		'Allow: /',
+		'Disallow: /api/',
 		'',
 		`Sitemap: ${siteUrl}/sitemap.xml`,
 		`Host: ${siteUrl}`
