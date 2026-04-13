@@ -30,9 +30,10 @@ export const CTA_SERVICES: CtaService[] = [
 
 export const CTA_BUDGETS: CtaBudget[] = [
 	{ value: '',         label: 'Prefer not to say' },
-	{ value: 'under-2k', label: '< $2,000' },
-	{ value: '2k-5k',    label: '$2,000 – $5,000' },
-	{ value: '5k-15k',   label: '$5,000 – $15,000' },
-	{ value: '15k-plus', label: '$15,000+' },
+	{ value: '150', label: '< $150' },
+	{ value: '150-300',    label: '$150 – $300' },
+	{ value: '300-1000',   label: '$300 – $1,000' },
+	{ value: '1000-2000',   label: '$1000 – $2,000' },
+	{ value: '2000', label: '$2,000+' },
 	{ value: 'discuss',  label: "Let's Discuss" },
 ];

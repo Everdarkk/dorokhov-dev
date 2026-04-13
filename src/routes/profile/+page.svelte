@@ -14,6 +14,35 @@
     "Full-stack developer based in Ukraine and available for remote projects worldwide. Expert in SvelteKit, Next.js, TypeScript, and PostgreSQL, building fast and scalable web experiences.";
   const canonicalUrl = $derived(new URL(page.url.pathname, siteUrl).toString());
   const ogImageUrl = $derived(new URL('/og-image.png', siteUrl).toString());
+  const profilePageSchema = $derived(JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    name: title,
+    description,
+    url: canonicalUrl,
+    mainEntity: {
+      '@type': 'Person',
+      name: 'Oleksandr Dorokhov',
+      jobTitle: 'Full-Stack Developer',
+      description,
+      url: siteUrl,
+      knowsAbout: ['Web Development', 'SvelteKit', 'Next.js', 'TypeScript', 'PostgreSQL', 'Full-Stack Development', 'UI/UX Design'],
+      knowsLanguage: ['English', 'Ukrainian'],
+      sameAs: [
+        'https://github.com/Everdarkk',
+        'https://www.linkedin.com/in/oleksandr-dorokhov-632b59303/',
+        'https://t.me/everdarkk'
+      ]
+    }
+  }));
+  const breadcrumbSchema = $derived(JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Profile', item: canonicalUrl }
+    ]
+  }));
 </script>
 
 <svelte:head>
@@ -34,36 +63,8 @@
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImageUrl} />
 
-  {@html `<script type="application/ld+json">${JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'ProfilePage',
-    name: title,
-    description,
-    url: canonicalUrl,
-    mainEntity: {
-      '@type': 'Person',
-      name: 'Oleksandr Dorokhov',
-      jobTitle: 'Full-Stack Developer',
-      description,
-      url: siteUrl,
-      knowsAbout: ['Web Development', 'SvelteKit', 'Next.js', 'TypeScript', 'PostgreSQL', 'Full-Stack Development', 'UI/UX Design'],
-      knowsLanguage: ['English', 'Ukrainian'],
-      sameAs: [
-        'https://github.com/Everdarkk',
-        'https://www.linkedin.com/in/oleksandr-dorokhov-632b59303/',
-        'https://t.me/everdarkk'
-      ]
-    }
-  })}</script>`}
-
-  {@html `<script type="application/ld+json">${JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
-      { '@type': 'ListItem', position: 2, name: 'Profile', item: canonicalUrl }
-    ]
-  })}</script>`}
+  <svelte:element this={'script'} type="application/ld+json">{profilePageSchema}</svelte:element>
+  <svelte:element this={'script'} type="application/ld+json">{breadcrumbSchema}</svelte:element>
 </svelte:head>
 
 <!-- STRUCTURE -->

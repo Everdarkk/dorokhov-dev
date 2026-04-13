@@ -12,6 +12,22 @@
     "A showcase of shipped web applications, including personal brand sites, artist portfolios, full-stack social platforms, AI-powered tools, and live client projects.";
   const canonicalUrl = $derived(new URL(page.url.pathname, siteUrl).toString());
   const ogImageUrl = $derived(new URL('/og-image.png', siteUrl).toString());
+  const collectionPageSchema = $derived(JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    description,
+    url: canonicalUrl,
+    isPartOf: siteUrl
+  }));
+  const breadcrumbSchema = $derived(JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Project Archive', item: canonicalUrl }
+    ]
+  }));
 </script>
 
 <svelte:head>
@@ -30,23 +46,8 @@
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImageUrl} />
 
-  {@html `<script type="application/ld+json">${JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: title,
-    description,
-    url: canonicalUrl,
-    isPartOf: siteUrl
-  })}</script>`}
-
-  {@html `<script type="application/ld+json">${JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
-      { '@type': 'ListItem', position: 2, name: 'Project Archive', item: canonicalUrl }
-    ]
-  })}</script>`}
+  <svelte:element this={'script'} type="application/ld+json">{collectionPageSchema}</svelte:element>
+  <svelte:element this={'script'} type="application/ld+json">{breadcrumbSchema}</svelte:element>
 </svelte:head>
 
 <!-- STRUCTURE -->

@@ -19,6 +19,14 @@
     "Professional full-stack developer building fast, scalable websites and web apps. Custom solutions with authentication, databases, and modern UI.";
   const canonicalUrl = $derived(new URL(page.url.pathname, siteUrl).toString());
   const ogImageUrl = $derived(new URL('/og-image.png', siteUrl).toString());
+  const websiteSchema = $derived(JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Oleksandr Dorokhov',
+    url: siteUrl,
+    description,
+    inLanguage: 'en'
+  }));
 
   const faqPageSchema = JSON.stringify({
     '@context': 'https://schema.org',
@@ -55,16 +63,8 @@
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImageUrl} />
 
-  {@html `<script type="application/ld+json">${JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'Oleksandr Dorokhov',
-    url: siteUrl,
-    description,
-    inLanguage: 'en'
-  })}</script>`}
-
-  {@html `<script type="application/ld+json">${faqPageSchema}</script>`}
+  <svelte:element this={'script'} type="application/ld+json">{websiteSchema}</svelte:element>
+  <svelte:element this={'script'} type="application/ld+json">{faqPageSchema}</svelte:element>
 </svelte:head>
 
 <!-- STRUCTURE -->
